@@ -13,7 +13,7 @@ fn main() {
         Commands::Init { name } => todo!(),
         Commands::Config { command } => match command {
             cli::ConfigCommands::Edit => {
-                let status = std::process::Command::new(config.preferences.editor)
+                let _ = std::process::Command::new(config.preferences.editor)
                     .arg(Config::filepath().to_str().unwrap())
                     .status()
                     .expect("Failed to open editor");
