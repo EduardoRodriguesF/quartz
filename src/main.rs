@@ -10,7 +10,9 @@ fn main() {
     let config = Config::parse();
 
     match args.command {
-        Commands::Init { name } => todo!(),
+        Commands::Init { name } => {
+            std::fs::create_dir_all(format!("./.api-prototype/{}", name)).expect("Could not create");
+        },
         Commands::Config { command } => match command {
             cli::ConfigCommands::Edit => {
                 let _ = std::process::Command::new(config.preferences.editor)
