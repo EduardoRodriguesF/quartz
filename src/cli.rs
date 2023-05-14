@@ -10,13 +10,22 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    // Initializes a new layout.
     #[command(arg_required_else_help = true)]
-    Init { name: String },
+    New {
+        #[command(subcommand)]
+        command: NewCommands,
+    },
     Config {
         #[command(subcommand)]
         command: ConfigCommands,
     },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum NewCommands {
+    /// Creates a new layout.
+    #[command(name = "-l")]
+    Layout { name: String },
 }
 
 #[derive(Debug, Subcommand)]

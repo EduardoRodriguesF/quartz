@@ -10,8 +10,11 @@ fn main() {
     let config = Config::parse();
 
     match args.command {
-        Commands::Init { name } => {
-            std::fs::create_dir_all(format!("./.api-prototype/{}", name)).expect("Could not create");
+        Commands::New { command } => match command {
+            cli::NewCommands::Layout { name } => {
+                std::fs::create_dir_all(format!("./.api-prototype/{}", name))
+                    .expect(&format!("Could not create layout: {}", name));
+            }
         },
         Commands::Config { command } => match command {
             cli::ConfigCommands::Edit => {
