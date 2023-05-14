@@ -16,6 +16,16 @@ fn main() {
                     .expect(&format!("Could not create layout: {}", name));
             }
         },
+        Commands::List => {
+            match std::fs::read_dir("./.api-prototype") {
+                Ok(files) => {
+                    for file in files {
+                        println!("{}", file.unwrap().file_name().to_str().unwrap());
+                    }
+                }
+                Err(_) => (),
+            };
+        }
         Commands::Config { command } => match command {
             cli::ConfigCommands::Edit => {
                 let _ = std::process::Command::new(config.preferences.editor)

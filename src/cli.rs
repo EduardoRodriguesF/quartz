@@ -15,6 +15,8 @@ pub enum Commands {
         #[command(subcommand)]
         command: NewCommands,
     },
+    #[command(name = "ls")]
+    List,
     Config {
         #[command(subcommand)]
         command: ConfigCommands,
