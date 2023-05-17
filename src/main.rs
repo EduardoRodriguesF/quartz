@@ -39,12 +39,12 @@ fn main() {
 }
 
 fn create_layout(name: &str) {
-    std::fs::create_dir_all(format!("./.api-prototype/{}", name))
+    std::fs::create_dir_all(format!("./.api-prototype/layouts/{}", name))
         .expect(&format!("Could not create layout: {}", name));
 }
 
 fn layout_list() -> Vec<String> {
-    if let Ok(files) = std::fs::read_dir("./.api-prototype") {
+    if let Ok(files) = std::fs::read_dir("./.api-prototype/layouts") {
         return files
             .map(|f| f.unwrap().file_name().to_str().unwrap().to_string())
             .collect();
