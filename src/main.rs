@@ -1,9 +1,11 @@
 mod cli;
 mod config;
+pub mod internals;
 
 use clap::Parser;
 use cli::{Cli, Commands};
 use config::Config;
+use internals::*;
 
 fn main() {
     let args = Cli::parse();
@@ -12,17 +14,17 @@ fn main() {
     match args.command {
         Commands::Layout { command } => match command {
             cli::LayoutCommands::Create { name } => {
-                create_layout(&name);
+                layout::create(&name);
             }
             cli::LayoutCommands::Use { layout } => {
-                if !does_layout_exists(&layout) {
-                    create_layout(&layout);
+                if !layout::does_exist(&layout) {
+                    layout::create(&layout);
                 }
 
-                switch_layout(&layout);
+                layout::switch(&layout);
             }
             cli::LayoutCommands::List => {
-                for layout in layout_list() {
+                for layout in layout::list() {
                     println!("{}", layout);
                 }
             }
@@ -36,27 +38,4 @@ fn main() {
             }
         },
     }
-}
-
-fn create_layout(name: &str) {
-    std::fs::create_dir_all(format!("./.api-prototype/layouts/{}", name))
-        .expect(&format!("Could not create layout: {}", name));
-}
-
-fn layout_list() -> Vec<String> {
-    if let Ok(files) = std::fs::read_dir("./.api-prototype/layouts") {
-        return files
-            .map(|f| f.unwrap().file_name().to_str().unwrap().to_string())
-            .collect();
-    };
-
-    Vec::<String>::new()
-}
-
-fn does_layout_exists(layout: &String) -> bool {
-    layout_list().contains(layout)
-}
-
-fn switch_layout(layout: &String) {
-    println!("switched to {}", layout);
 }
