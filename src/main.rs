@@ -10,22 +10,22 @@ fn main() {
     let config = Config::parse();
 
     match args.command {
-        Commands::New { command } => match command {
-            cli::NewCommands::Layout { name } => {
+        Commands::Layout { command } => match command {
+            cli::LayoutCommands::Create { name } => {
                 std::fs::create_dir_all(format!("./.api-prototype/{}", name))
                     .expect(&format!("Could not create layout: {}", name));
             }
-        },
-        Commands::List => {
-            match std::fs::read_dir("./.api-prototype") {
-                Ok(files) => {
-                    for file in files {
-                        println!("{}", file.unwrap().file_name().to_str().unwrap());
+            cli::LayoutCommands::List => {
+                match std::fs::read_dir("./.api-prototype") {
+                    Ok(files) => {
+                        for file in files {
+                            println!("{}", file.unwrap().file_name().to_str().unwrap());
+                        }
                     }
-                }
-                Err(_) => (),
-            };
-        }
+                    Err(_) => (),
+                };
+            }
+        },
         Commands::Config { command } => match command {
             cli::ConfigCommands::Edit => {
                 let _ = std::process::Command::new(config.preferences.editor)
