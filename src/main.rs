@@ -24,8 +24,12 @@ fn main() {
                 layout::switch(&layout);
             }
             cli::LayoutCommands::List => {
+                let which = layout::which();
+
                 for layout in layout::list() {
-                    println!("{}", layout);
+                    let mark = if which == layout { "*" } else { " " };
+
+                    println!("{} {}", mark, layout);
                 }
             }
         },
