@@ -28,6 +28,9 @@ pub enum LayoutCommands {
     /// Creates and switches to a new layout or simply switches to an existing one.
     Use { layout: String },
 
+    /// Prints the current layout name.
+    Which,
+
     /// Lists existing layouts.
     #[command(name = "ls")]
     List,

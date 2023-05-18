@@ -22,7 +22,10 @@ fn main() {
                 }
 
                 layout::switch(&layout);
-            }
+            },
+            cli::LayoutCommands::Which => {
+                println!("{}", layout::which());
+            },
             cli::LayoutCommands::List => {
                 let which = layout::which();
 
