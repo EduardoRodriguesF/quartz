@@ -2,7 +2,7 @@ use std::io::{BufRead, Write};
 
 pub fn create(name: &str) {
     std::fs::create_dir_all(format!("./.api-prototype/layouts/{}", name))
-        .expect(&format!("Could not create layout: {}", name));
+        .unwrap_or_else(|_| panic!("Could not create layout: {}", name));
 }
 
 pub fn list() -> Vec<String> {
