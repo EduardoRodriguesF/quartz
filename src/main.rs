@@ -3,8 +3,8 @@ mod config;
 pub mod internals;
 
 use clap::Parser;
-use colored::Colorize;
 use cli::{Cli, Commands};
+use colored::Colorize;
 use config::Config;
 use internals::*;
 
@@ -23,10 +23,10 @@ fn main() {
                 }
 
                 layout::switch(&layout);
-            },
+            }
             cli::LayoutCommands::Which => {
                 println!("{}", layout::which());
-            },
+            }
             cli::LayoutCommands::List => {
                 let which = layout::which();
 
