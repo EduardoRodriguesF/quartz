@@ -12,3 +12,4 @@ http-body-util = "0.1.0-rc.2"
 clap = { version = "4.2.7", features = ["derive"] }
 serde = { version = "1.0.163", features = ["derive"] }
 toml = "0.7.3"
+colored = "2.0.0"

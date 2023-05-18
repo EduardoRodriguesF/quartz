@@ -3,6 +3,7 @@ mod config;
 pub mod internals;
 
 use clap::Parser;
+use colored::Colorize;
 use cli::{Cli, Commands};
 use config::Config;
 use internals::*;
@@ -30,9 +31,11 @@ fn main() {
                 let which = layout::which();
 
                 for layout in layout::list() {
-                    let mark = if which == layout { "*" } else { " " };
-
-                    println!("{} {}", mark, layout);
+                    if which == layout {
+                        println!("* {}", layout.green());
+                    } else {
+                        println!("  {}", layout);
+                    };
                 }
             }
         },
