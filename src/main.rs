@@ -1,11 +1,13 @@
 mod cli;
 mod config;
+mod endpoint;
 pub mod internals;
 
 use clap::Parser;
 use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
+use endpoint::Endpoint;
 use internals::*;
 
 fn main() {
@@ -13,6 +15,18 @@ fn main() {
     let config = Config::parse();
 
     match args.command {
+        Commands::Create { name } => {
+            let endpoint = Endpoint {
+                name,
+                req: hyper::Request::builder()
+                    .uri("https://httpbin.org/get")
+                    .method(hyper::Method::GET)
+                    .body(())
+                    .unwrap(),
+            };
+
+            endpoint.write();
+        }
         Commands::Layout { command } => match command {
             cli::LayoutCommands::Create { name } => {
                 layout::create(&name);

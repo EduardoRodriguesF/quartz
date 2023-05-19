@@ -1,4 +1,5 @@
 use std::io::{BufRead, Write};
+use std::path::{Path, PathBuf};
 
 pub fn create(name: &str) {
     std::fs::create_dir_all(format!("./.api-prototype/layouts/{}", name))
@@ -28,6 +29,10 @@ pub fn which() -> String {
     let _ = reader.read_line(&mut layout);
 
     layout
+}
+
+pub fn which_dir() -> PathBuf {
+    Path::new(".api-prototype").join("layouts").join(which())
 }
 
 pub fn switch(layout: &String) {

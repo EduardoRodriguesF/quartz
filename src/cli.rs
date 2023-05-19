@@ -10,6 +10,9 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    Create {
+        name: String,
+    },
     Layout {
         #[command(subcommand)]
         command: LayoutCommands,
