@@ -3,11 +3,13 @@ mod config;
 mod endpoint;
 pub mod internals;
 
+use std::collections::HashMap;
+
 use clap::Parser;
 use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
-use endpoint::Endpoint;
+use endpoint::{Endpoint, EndpointConfig};
 use internals::*;
 
 fn main() {
@@ -16,16 +18,18 @@ fn main() {
 
     match args.command {
         Commands::Create { name } => {
-            let endpoint = Endpoint {
+            let mut headers = HashMap::new();
+            headers.insert("Content-type".into(), "application/json".into());
+            headers.insert("one-more-key".into(), "".into());
+
+            let config = EndpointConfig {
                 name,
-                req: hyper::Request::builder()
-                    .uri("https://httpbin.org/get")
-                    .method(hyper::Method::GET)
-                    .body(())
-                    .unwrap(),
+                method: "GET".to_string(),
+                url: "https://httpbin.org/get".to_string(),
+                headers,
             };
 
-            endpoint.write();
+            config.write();
         }
         Commands::Layout { command } => match command {
             cli::LayoutCommands::Create { name } => {

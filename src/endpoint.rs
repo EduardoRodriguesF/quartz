@@ -1,3 +1,5 @@
+use serde::Serialize;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
@@ -9,79 +11,64 @@ pub struct Endpoint {
     pub req: hyper::Request<()>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct EndpointConfig {
+    pub name: String,
+    pub url: String,
+
+    /// HTTP Request method
+    pub method: String,
+
+    /// List of (key, value) pairs.
+    pub headers: HashMap<String, String>,
+}
+
 impl Endpoint {
-    pub fn new(name: &str) -> Self {
-        Self {
-            name: name.to_string(),
-            req: hyper::Request::new(()),
+    pub fn from_config<E>(config: EndpointConfig) -> Result<Self, E> {
+        let mut builder = hyper::Request::builder().uri(&config.url);
+
+        if let Ok(method) = hyper::Method::from_bytes(config.method.as_bytes()) {
+            builder = builder.method(method);
+        }
+
+        for (key, value) in &config.headers {
+            builder = builder.header(key, value);
+        }
+
+        match builder.body(()) {
+            Ok(req) => {
+                Ok(
+                    Self {
+                        name: config.name,
+                        req,
+                    }
+                )
+            }
+            Err(_) => todo!(),
         }
     }
+}
 
+impl EndpointConfig {
     pub fn dir(&self) -> PathBuf {
         layout::which_dir().join(&self.name)
     }
 
-    pub fn parse_from(name: &str) -> Self {
-        let mut builder = hyper::Request::builder();
-        let mut endpoint = Self::new(name);
-
-        // Resolve headers
-        if let Ok(lines) = read_lines(endpoint.dir().join("headers")) {
-            for line in lines {
-                if let Ok(header) = line {
-                    let splitted_header = header.splitn(2, ": ").collect::<Vec<&str>>();
-
-                    let key = splitted_header.get(0);
-                    let value = splitted_header.get(1).unwrap_or_else(|| &"");
-
-                    println!("setting key {:?} with value {:?}", key, value);
-
-                    if let Some(key) = key {
-                        builder = builder.header(*key, *value);
-                    }
-                }
-            }
-        }
-
-        endpoint.req = builder.body(()).unwrap();
-
-        endpoint
+    pub fn to_toml(&self) -> Result<String, toml::ser::Error> {
+        toml::to_string(&self)
     }
 
     /// Records files to build this endpoint with `parse` methods.
     pub fn write(&self) {
-        let dir = self.dir();
-
-        // Tries to create directory for endpoint
-        if !std::fs::create_dir(&dir).is_ok() {
-            eprintln!("Failed to create endpoint");
-            return;
-        }
-
-        let headers = self.req.headers();
-
-        // Write /endpoint/headers
-        if !headers.is_empty() {
-            if let Ok(mut file) = std::fs::OpenOptions::new()
-                .create(true)
-                .write(true)
-                .open(dir.join("headers"))
-            {
-                for (key, value) in headers {
-                    let _ = file.write(format!("{}: {}", key.as_str(), value.to_str().unwrap()).as_bytes());
-                }
-            }
-        }
-
-        if let Ok(mut file) = std::fs::OpenOptions::new()
+        let toml_content = self.to_toml().expect("Failed to generate settings.");
+        let mut file = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
-            .open(dir.join("uri"))
-        {
-            let method = self.req.method().to_string();
+            .open(self.dir().join("config.toml"))
+            .expect("Failed to open config file.");
 
-            let _ = file.write(format!("{} {}", method, self.req.uri().to_string()).as_bytes());
-        }
+        file.write(&toml_content.as_bytes())
+            .expect("Failed to write to config file.");
     }
 }
 
