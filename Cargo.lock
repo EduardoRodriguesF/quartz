@@ -55,6 +55,7 @@ dependencies = [
 name = "api_client_prototype"
 version = "0.1.0"
 dependencies = [
+ "bytes",
  "clap",
  "colored",
  "http-body-util",

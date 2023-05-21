@@ -10,6 +10,10 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    /// Sends request from endpoint
+    Send {
+        endpoint: String,
+    },
     Create {
         name: String,
     },

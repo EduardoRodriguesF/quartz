@@ -3,20 +3,37 @@ mod config;
 mod endpoint;
 pub mod internals;
 
-use std::collections::HashMap;
-
 use clap::Parser;
 use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
 use endpoint::{Endpoint, EndpointConfig};
+use http_body_util::BodyExt;
 use internals::*;
+use std::collections::HashMap;
+use tokio::io::{stdout, AsyncWriteExt as _};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let args = Cli::parse();
     let config = Config::parse();
 
     match args.command {
+        Commands::Send { endpoint } => {
+            let config = EndpointConfig::from_name(&endpoint);
+            let endpoint = Endpoint::from_config(config).unwrap();
+
+            let mut res = endpoint.send().await.unwrap();
+
+            println!("Status: {}", res.status());
+
+            while let Some(next) = res.frame().await {
+                let frame = next.unwrap();
+                if let Some(chunk) = frame.data_ref() {
+                    let _ = stdout().write_all(&chunk).await;
+                }
+            }
+        }
         Commands::Create { name } => {
             let mut headers = HashMap::new();
             headers.insert("Content-type".into(), "application/json".into());
@@ -25,7 +42,7 @@ fn main() {
             let config = EndpointConfig {
                 name,
                 method: "GET".to_string(),
-                url: "https://httpbin.org/get".to_string(),
+                url: "http://httpbin.org/get".to_string(),
                 headers,
             };
 
