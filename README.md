@@ -10,3 +10,7 @@ What Moon is:
 What Moon is **not**:
 
 - A cURL replacement.
+
+## License
+
+This project is under [GNU General Public License v3.0](/LICENSE).
