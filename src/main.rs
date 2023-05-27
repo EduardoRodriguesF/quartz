@@ -8,7 +8,7 @@ use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
 use endpoint::{Endpoint, EndpointConfig};
-use http_body_util::BodyExt;
+use hyper::body::HttpBody;
 use internals::*;
 use tokio::io::{stdout, AsyncWriteExt as _};
 
@@ -26,11 +26,8 @@ async fn main() {
 
             println!("Status: {}", res.status());
 
-            while let Some(next) = res.frame().await {
-                let frame = next.unwrap();
-                if let Some(chunk) = frame.data_ref() {
-                    let _ = stdout().write_all(&chunk).await;
-                }
+            while let Some(chunk) = res.data().await {
+                stdout().write_all(&chunk.unwrap()).await.unwrap();
             }
         }
         Commands::Create {

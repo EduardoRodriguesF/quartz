@@ -1,6 +1,4 @@
-use bytes::Bytes;
-use http_body_util::Empty;
-use hyper::body::Incoming;
+use hyper::{Client, Body};
 use hyper::http::{Request, Response};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -8,13 +6,12 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
-use tokio::net::TcpStream;
 
 use crate::internals::layout;
 
 pub struct Endpoint {
     pub name: String,
-    pub req: hyper::Request<Empty<Bytes>>,
+    pub req: hyper::Request<Body>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -41,7 +38,7 @@ impl Endpoint {
             builder = builder.header(key, value);
         }
 
-        match builder.body(Empty::<Bytes>::new()) {
+        match builder.body(Body::empty()) {
             Ok(req) => Ok(Self {
                 name: config.name,
                 req,
@@ -50,23 +47,10 @@ impl Endpoint {
         }
     }
 
-    pub async fn send(&self) -> Result<Response<Incoming>, hyper::Error> {
-        let host = self.req.uri().host().expect("uri has no host");
-        let port = self.req.uri().port_u16().unwrap_or(80);
-        let addr = format!("{}:{}", host, port);
+    pub async fn send(&self) -> Result<Response<Body>, hyper::Error> {
+        let client = Client::new();
 
-        let stream = TcpStream::connect(addr).await.unwrap();
-
-        let (mut sender, conn) = hyper::client::conn::http1::handshake(stream).await?;
-        tokio::task::spawn(async move {
-            if let Err(err) = conn.await {
-                println!("Connection failed: {:?}", err);
-            }
-        });
-
-        let authority = self.req.uri().authority().unwrap().clone();
-
-        sender.send_request(self.clone().req).await
+        client.request(self.clone().req).await
     }
 }
 
@@ -80,7 +64,7 @@ impl Clone for Endpoint {
             builder = builder.header(key, value);
         }
 
-        let req = builder.body(Empty::<Bytes>::new()).unwrap();
+        let req = builder.body(Body::empty()).unwrap();
 
         Self {
             name: self.name.clone(),
