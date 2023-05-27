@@ -38,7 +38,12 @@ impl Endpoint {
             builder = builder.header(key, value);
         }
 
-        match builder.body(Body::empty()) {
+        let body = match std::fs::read(config.dir().join("body.json")) {
+            Ok(bytes) => bytes.into(),
+            Err(_) => Body::empty(),
+        };
+
+        match builder.body(body) {
             Ok(req) => Ok(Self {
                 name: config.name,
                 req,
