@@ -16,6 +16,16 @@ pub enum Commands {
     },
     Create {
         name: String,
+
+        #[arg(long)]
+        url: Option<String>,
+
+        #[arg(long)]
+        method: Option<String>,
+
+        /// Header entry in "<key>: <value>" format. This argument can be passed multiple times.
+        #[arg(long)]
+        header: Vec<String>
     },
     Layout {
         #[command(subcommand)]

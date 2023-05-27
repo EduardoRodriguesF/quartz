@@ -10,7 +10,6 @@ use config::Config;
 use endpoint::{Endpoint, EndpointConfig};
 use http_body_util::BodyExt;
 use internals::*;
-use std::collections::HashMap;
 use tokio::io::{stdout, AsyncWriteExt as _};
 
 #[tokio::main]
@@ -34,17 +33,34 @@ async fn main() {
                 }
             }
         }
-        Commands::Create { name } => {
-            let mut headers = HashMap::new();
-            headers.insert("Content-type".into(), "application/json".into());
-            headers.insert("one-more-key".into(), "".into());
+        Commands::Create {
+            name,
+            url: maybe_url,
+            method: maybe_method,
+            header,
+        } => {
+            let mut config = EndpointConfig::new(&name);
 
-            let config = EndpointConfig {
-                name,
-                method: "GET".to_string(),
-                url: "http://httpbin.org/get".to_string(),
-                headers,
-            };
+            for item in header {
+                let splitted_item = item.splitn(2, ": ").collect::<Vec<&str>>();
+
+                if splitted_item.len() <= 1 {
+                    panic!("Malformed header argument: {}", item);
+                }
+
+                let key = splitted_item[0];
+                let value = splitted_item[1];
+
+                config.headers.insert(key.to_string(), value.to_string());
+            }
+
+            if let Some(url) = maybe_url {
+                config.url = url;
+            }
+
+            if let Some(method) = maybe_method {
+                config.method = method;
+            }
 
             config.write();
         }

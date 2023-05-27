@@ -1,14 +1,14 @@
+use bytes::Bytes;
+use http_body_util::Empty;
 use hyper::body::Incoming;
 use hyper::http::{Request, Response};
-use http_body_util::Empty;
 use serde::{Deserialize, Serialize};
-use tokio::net::TcpStream;
 use std::collections::HashMap;
 use std::error::Error;
-use bytes::Bytes;
 use std::fs::File;
 use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
+use tokio::net::TcpStream;
 
 use crate::internals::layout;
 
@@ -90,6 +90,14 @@ impl Clone for Endpoint {
 }
 
 impl EndpointConfig {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            method: String::from("GET"),
+            ..Default::default()
+        }
+    }
+
     pub fn from_name(name: &str) -> Self {
         let bytes = std::fs::read(layout::which_dir().join(&name).join("config.toml"))
             .expect("Could not find endpoint");
@@ -109,6 +117,9 @@ impl EndpointConfig {
     /// Records files to build this endpoint with `parse` methods.
     pub fn write(&self) {
         let toml_content = self.to_toml().expect("Failed to generate settings.");
+
+        std::fs::create_dir(self.dir()).expect("Failed to create endpoint.");
+
         let mut file = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
@@ -117,6 +128,17 @@ impl EndpointConfig {
 
         file.write(&toml_content.as_bytes())
             .expect("Failed to write to config file.");
+    }
+}
+
+impl Default for EndpointConfig {
+    fn default() -> Self {
+        Self {
+            method: String::from("GET"),
+            name: Default::default(),
+            url: Default::default(),
+            headers: Default::default(),
+        }
     }
 }
 
