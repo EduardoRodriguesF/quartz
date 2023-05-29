@@ -1,5 +1,5 @@
 [package]
-name = "api_client_prototype"
+name = "quartz"
 version = "0.1.0"
 edition = "2021"
 

@@ -8,7 +8,7 @@ pub struct Config {
 
 impl Config {
     pub fn filename() -> String {
-        ".api-prototype.toml".to_string()
+        ".quartz.toml".to_string()
     }
 
     pub fn filepath() -> PathBuf {
