@@ -7,8 +7,8 @@ use clap::Parser;
 use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
-use endpoint::{Endpoint, EndpointConfig};
-use hyper::body::HttpBody;
+use endpoint::Endpoint;
+use hyper::{Client, body::HttpBody};
 use internals::*;
 use tokio::io::{stdout, AsyncWriteExt as _};
 
@@ -19,10 +19,11 @@ async fn main() {
 
     match args.command {
         Commands::Send { endpoint } => {
-            let config = EndpointConfig::from_name(&endpoint);
-            let endpoint = Endpoint::from_config(config).unwrap();
+            let endpoint = Endpoint::from_name(&endpoint);
+            let req  = endpoint.into_request().expect("Malformed request.");
+            let client = Client::new();
 
-            let mut res = endpoint.send().await.unwrap();
+            let mut res = client.request(req).await.unwrap();
 
             println!("Status: {}", res.status());
 
@@ -36,7 +37,7 @@ async fn main() {
             method: maybe_method,
             header,
         } => {
-            let mut config = EndpointConfig::new(&name);
+            let mut config = Endpoint::new(&name);
 
             for item in header {
                 let splitted_item = item.splitn(2, ": ").collect::<Vec<&str>>();

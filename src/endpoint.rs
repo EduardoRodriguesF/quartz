@@ -1,21 +1,14 @@
-use hyper::{Client, Body};
-use hyper::http::{Request, Response};
+use hyper::{Body, Request};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::error::Error;
 use std::fs::File;
 use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
 
 use crate::internals::layout;
 
-pub struct Endpoint {
-    pub name: String,
-    pub req: hyper::Request<Body>,
-}
-
 #[derive(Debug, Serialize, Deserialize)]
-pub struct EndpointConfig {
+pub struct Endpoint {
     pub name: String,
     pub url: String,
 
@@ -24,61 +17,12 @@ pub struct EndpointConfig {
 
     /// List of (key, value) pairs.
     pub headers: HashMap<String, String>,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    pub body: Body,
 }
 
 impl Endpoint {
-    pub fn from_config(config: EndpointConfig) -> Result<Self, Box<dyn Error>> {
-        let mut builder = hyper::Request::builder().uri(&config.url);
-
-        if let Ok(method) = hyper::Method::from_bytes(config.method.as_bytes()) {
-            builder = builder.method(method);
-        }
-
-        for (key, value) in &config.headers {
-            builder = builder.header(key, value);
-        }
-
-        let body = match std::fs::read(config.dir().join("body.json")) {
-            Ok(bytes) => bytes.into(),
-            Err(_) => Body::empty(),
-        };
-
-        match builder.body(body) {
-            Ok(req) => Ok(Self {
-                name: config.name,
-                req,
-            }),
-            Err(_) => todo!(),
-        }
-    }
-
-    pub async fn send(&self) -> Result<Response<Body>, hyper::Error> {
-        let client = Client::new();
-
-        client.request(self.clone().req).await
-    }
-}
-
-impl Clone for Endpoint {
-    fn clone(&self) -> Self {
-        let mut builder = Request::builder()
-            .uri(self.req.uri())
-            .method(self.req.method());
-
-        for (key, value) in self.req.headers() {
-            builder = builder.header(key, value);
-        }
-
-        let req = builder.body(Body::empty()).unwrap();
-
-        Self {
-            name: self.name.clone(),
-            req,
-        }
-    }
-}
-
-impl EndpointConfig {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
@@ -118,15 +62,36 @@ impl EndpointConfig {
         file.write(&toml_content.as_bytes())
             .expect("Failed to write to config file.");
     }
+
+    /// Returns the a [`Request`] based of this [`EndpointConfig`].
+    pub fn into_request(&self) -> Result<Request<Body>, hyper::http::Error> {
+        let mut builder = hyper::Request::builder().uri(&self.url);
+
+        if let Ok(method) = hyper::Method::from_bytes(self.method.as_bytes()) {
+            builder = builder.method(method);
+        }
+
+        for (key, value) in &self.headers {
+            builder = builder.header(key, value);
+        }
+
+        let body = match std::fs::read(self.dir().join("body.json")) {
+            Ok(bytes) => bytes.into(),
+            Err(_) => Body::empty(),
+        };
+
+        builder.body(body)
+    }
 }
 
-impl Default for EndpointConfig {
+impl Default for Endpoint {
     fn default() -> Self {
         Self {
             method: String::from("GET"),
             name: Default::default(),
             url: Default::default(),
             headers: Default::default(),
+            body: Default::default(),
         }
     }
 }
