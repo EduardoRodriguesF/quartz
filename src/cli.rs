@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
-#[command(name = "api")] // will be renamed soon
+#[command(name = "quartz")]
 #[command(about = "API Client made into a CLI tool", long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
