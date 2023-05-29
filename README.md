@@ -1,13 +1,17 @@
-# Moon Project
+# Quartz
 
-An API Client made into a command-line tool.
+A collaborative API Client for CLI lovers.
 
-What Moon is:
+## About
+
+This project is in its early development stages. Features are very likely to change. Suggestions are welcome. :)
+
+What Quartz is:
 
 - API Client organization tool for developers.
 - A command-line alternative to Postman and Insomnia.
 
-What Moon is **not**:
+What Quartz is **not**:
 
 - A cURL replacement.
 
