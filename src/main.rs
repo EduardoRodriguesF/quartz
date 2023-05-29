@@ -20,7 +20,7 @@ async fn main() {
     match args.command {
         Commands::Send { endpoint } => {
             let endpoint = Endpoint::from_name(&endpoint);
-            let req  = endpoint.into_request().expect("Malformed request.");
+            let req  = endpoint.as_request().expect("Malformed request.");
             let client = Client::new();
 
             let mut res = client.request(req).await.unwrap();

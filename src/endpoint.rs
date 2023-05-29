@@ -64,7 +64,7 @@ impl Endpoint {
     }
 
     /// Returns the a [`Request`] based of this [`EndpointConfig`].
-    pub fn into_request(&self) -> Result<Request<Body>, hyper::http::Error> {
+    pub fn as_request(&self) -> Result<Request<Body>, hyper::http::Error> {
         let mut builder = hyper::Request::builder().uri(&self.url);
 
         if let Ok(method) = hyper::Method::from_bytes(self.method.as_bytes()) {
