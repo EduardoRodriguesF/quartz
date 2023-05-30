@@ -14,10 +14,6 @@ pub enum Commands {
         #[command(subcommand)]
         command: EndpointCommands,
     },
-    Layout {
-        #[command(subcommand)]
-        command: LayoutCommands,
-    },
     Config {
         #[command(subcommand)]
         command: ConfigCommands,
@@ -97,22 +93,6 @@ pub enum EndpointMethodCommands {
 
     #[command(name = "--set")]
     Set { endpoint: String, method: String },
-}
-
-#[derive(Debug, Subcommand)]
-pub enum LayoutCommands {
-    /// Creates a new layout.
-    Create { name: String },
-
-    /// Creates and switches to a new layout or simply switches to an existing one.
-    Use { layout: String },
-
-    /// Prints the current layout name.
-    Which,
-
-    /// Lists existing layouts.
-    #[command(name = "ls")]
-    List,
 }
 
 #[derive(Debug, Subcommand)]

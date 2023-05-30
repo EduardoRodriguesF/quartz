@@ -5,8 +5,6 @@ use std::fs::File;
 use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
 
-use crate::internals::layout;
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Endpoint {
     pub name: String,
@@ -32,8 +30,13 @@ impl Endpoint {
     }
 
     pub fn from_name(name: &str) -> Self {
-        let bytes = std::fs::read(layout::which_dir().join(&name).join("config.toml"))
-            .expect("Could not find endpoint");
+        let bytes = std::fs::read(
+            Path::new(".quartz")
+                .join("endpoints")
+                .join(&name)
+                .join("config.toml"),
+        )
+        .expect("Could not find endpoint");
         let content = String::from_utf8(bytes).unwrap();
 
         let mut endpoint: Endpoint = toml::from_str(&content).unwrap();
@@ -47,7 +50,7 @@ impl Endpoint {
     }
 
     pub fn dir(&self) -> PathBuf {
-        layout::which_dir().join(&self.name)
+        Path::new(".quartz").join("endpoints").join(&self.name)
     }
 
     pub fn to_toml(&self) -> Result<String, toml::ser::Error> {
