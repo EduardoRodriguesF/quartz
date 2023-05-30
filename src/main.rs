@@ -68,28 +68,28 @@ async fn main() {
                     let endpoint = Endpoint::from_name(&endpoint);
 
                     println!("{}", endpoint.url);
-                },
+                }
                 cli::EndpointUrlCommands::Set { endpoint, url } => {
                     let mut endpoint = Endpoint::from_name(&endpoint);
 
                     endpoint.url = url;
 
                     endpoint.update();
-                },
+                }
             },
             cli::EndpointCommands::Method { command } => match command {
                 cli::EndpointMethodCommands::Get { endpoint } => {
                     let endpoint = Endpoint::from_name(&endpoint);
 
                     println!("{}", endpoint.method);
-                },
+                }
                 cli::EndpointMethodCommands::Set { endpoint, method } => {
                     let mut endpoint = Endpoint::from_name(&endpoint);
 
                     endpoint.method = method.to_uppercase();
 
                     endpoint.update();
-                },
+                }
             },
             cli::EndpointCommands::Headers {
                 endpoint,

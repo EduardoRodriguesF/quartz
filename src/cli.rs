@@ -27,9 +27,7 @@ pub enum Commands {
 #[derive(Debug, Subcommand)]
 pub enum EndpointCommands {
     /// Sends request from endpoint
-    Send {
-        endpoint: String,
-    },
+    Send { endpoint: String },
     Create {
         name: String,
 
