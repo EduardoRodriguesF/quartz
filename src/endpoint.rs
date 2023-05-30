@@ -29,6 +29,17 @@ impl Endpoint {
         }
     }
 
+    pub fn try_from_state() -> Option<Self> {
+        if let Ok(bytes) = std::fs::read(Path::new(".quartz").join("state")) {
+            if let Ok(name) = String::from_utf8(bytes) {
+                println!("trying {}", name);
+                return Some(Endpoint::from_name(&name));
+            }
+        }
+
+        None
+    }
+
     pub fn from_name(name: &str) -> Self {
         let bytes = std::fs::read(
             Path::new(".quartz")

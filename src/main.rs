@@ -2,8 +2,12 @@ mod cli;
 mod config;
 mod endpoint;
 
+use core::panic;
+use std::{path::Path, io::Write, thread::panicking, process::exit};
+
 use clap::Parser;
 use cli::{Cli, Commands};
+use colored::Colorize;
 use config::Config;
 use endpoint::Endpoint;
 use hyper::{body::HttpBody, Body, Client};
@@ -59,6 +63,45 @@ async fn main() {
                 }
 
                 config.write();
+            }
+            cli::EndpointCommands::Use { endpoint } => {
+                if !Path::new(".quartz").join("endpoints").join(&endpoint).is_dir() {
+                    eprintln!("Endpoint {} does not exist", &endpoint.red());
+                    exit(1);
+                }
+
+                let state_file = std::fs::OpenOptions::new()
+                    .truncate(true)
+                    .create(true)
+                    .write(true)
+                    .open(Path::new(".quartz").join("state"));
+
+                if let Ok(()) = state_file.unwrap().write_all(endpoint.as_bytes()) {
+                    println!("Switched to {} endpoint", endpoint.green());
+                } else {
+                    panic!("Failed to switch to {} endpoint", endpoint.red());
+                }
+            }
+            cli::EndpointCommands::List => {
+                let mut current = String::new();
+
+                if let Some(endpoint) = Endpoint::try_from_state() {
+                    current = endpoint.name
+                }
+
+                if let Ok(files) = std::fs::read_dir(Path::new(".quartz").join("endpoints")) {
+                    for maybe_file in files {
+                        if let Ok(file) = maybe_file {
+                            if let Some(file_name) = file.file_name().to_str() {
+                                if current == file_name {
+                                    println!("* {}", file_name.green());
+                                } else {
+                                    println!("  {}", file_name);
+                                }
+                            }
+                        }
+                    }
+                }
             }
             cli::EndpointCommands::Url { command } => match command {
                 cli::EndpointUrlCommands::Get { endpoint } => {

@@ -37,6 +37,9 @@ pub enum EndpointCommands {
         #[arg(long)]
         header: Vec<String>,
     },
+    Use { endpoint: String },
+    #[command(name = "ls")]
+    List,
     Url {
         #[command(subcommand)]
         command: EndpointUrlCommands,
