@@ -64,7 +64,7 @@ pub enum EndpointCommands {
         stdin: bool,
 
         /// Opens an editor to modify the endpoint's request body.
-        #[arg(long)]
+        #[arg(long, short)]
         edit: bool,
     },
 }
