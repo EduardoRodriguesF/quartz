@@ -67,6 +67,7 @@ async fn main() {
                 endpoint,
                 add: add_list,
                 remove: remove_list,
+                list: should_list,
             } => {
                 let mut endpoint = Endpoint::from_name(&endpoint);
 
@@ -85,6 +86,12 @@ async fn main() {
                     let value = splitted_item[1];
 
                     endpoint.headers.insert(key.to_string(), value.to_string());
+                }
+
+                if should_list {
+                    for (key, value) in endpoint.headers.iter() {
+                        println!("{}: {}", key, value);
+                    }
                 }
 
                 endpoint.update();

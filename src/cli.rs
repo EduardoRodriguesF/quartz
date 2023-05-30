@@ -51,6 +51,10 @@ pub enum EndpointCommands {
         /// Header key to remove from endpoint. This argument can be passed multiple times.
         #[arg(long)]
         remove: Vec<String>,
+
+        /// Prints existing headers.
+        #[arg(long)]
+        list: bool
     },
 }
 
