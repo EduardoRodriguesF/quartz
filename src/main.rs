@@ -77,6 +77,20 @@ async fn main() {
                     endpoint.update();
                 },
             },
+            cli::EndpointCommands::Method { command } => match command {
+                cli::EndpointMethodCommands::Get { endpoint } => {
+                    let endpoint = Endpoint::from_name(&endpoint);
+
+                    println!("{}", endpoint.method);
+                },
+                cli::EndpointMethodCommands::Set { endpoint, method } => {
+                    let mut endpoint = Endpoint::from_name(&endpoint);
+
+                    endpoint.method = method.to_uppercase();
+
+                    endpoint.update();
+                },
+            },
             cli::EndpointCommands::Headers {
                 endpoint,
                 add: add_list,

@@ -47,6 +47,10 @@ pub enum EndpointCommands {
         #[command(subcommand)]
         command: EndpointUrlCommands,
     },
+    Method {
+        #[command(subcommand)]
+        command: EndpointMethodCommands,
+    },
     Headers {
         endpoint: String,
 
@@ -86,6 +90,15 @@ pub enum EndpointUrlCommands {
 
     #[command(name = "--set")]
     Set { endpoint: String, url: String },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum EndpointMethodCommands {
+    #[command(name = "--get")]
+    Get { endpoint: String },
+
+    #[command(name = "--set")]
+    Set { endpoint: String, method: String },
 }
 
 #[derive(Debug, Subcommand)]
