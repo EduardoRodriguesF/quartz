@@ -54,7 +54,18 @@ pub enum EndpointCommands {
 
         /// Prints existing headers.
         #[arg(long)]
-        list: bool
+        list: bool,
+    },
+    Body {
+        endpoint: String,
+
+        /// Expects a new request body via standard input.
+        #[arg(long)]
+        stdin: bool,
+
+        /// Opens an editor to modify the endpoint's request body.
+        #[arg(long)]
+        edit: bool,
     },
 }
 

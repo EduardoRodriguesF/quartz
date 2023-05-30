@@ -64,6 +64,7 @@ impl Endpoint {
     }
 
     /// Updates existing endpoint configuration file.
+    // TODO: Only apply changes if a private flag is true.
     pub fn update(&self) {
         let toml_content = self.to_toml().expect("Failed to generate settings.");
 

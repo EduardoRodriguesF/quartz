@@ -8,7 +8,7 @@ use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
 use endpoint::Endpoint;
-use hyper::{body::HttpBody, Client};
+use hyper::{body::HttpBody, Body, Client};
 use internals::*;
 use tokio::io::{stdout, AsyncWriteExt as _};
 
@@ -92,6 +92,35 @@ async fn main() {
                     for (key, value) in endpoint.headers.iter() {
                         println!("{}: {}", key, value);
                     }
+                }
+
+                endpoint.update();
+            }
+            cli::EndpointCommands::Body {
+                endpoint,
+                stdin: expects_stdin,
+                edit: should_edit,
+            } => {
+                let mut endpoint = Endpoint::from_name(&endpoint);
+
+                if expects_stdin {
+                    let mut input = String::new();
+
+                    while let Ok(bytes) = std::io::stdin().read_line(&mut input) {
+                        if bytes == 0 {
+                            break;
+                        }
+                    }
+
+                    endpoint.body = Body::from(input);
+                }
+
+                if should_edit {
+                    let _ = std::process::Command::new(config.preferences.editor)
+                        // TODO: This will fail if current layout is different.
+                        .arg(endpoint.dir().join("body.json"))
+                        .status()
+                        .expect("Failed to open editor");
                 }
 
                 endpoint.update();
