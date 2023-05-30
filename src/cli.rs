@@ -10,18 +10,6 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    Endpoint {
-        #[command(subcommand)]
-        command: EndpointCommands,
-    },
-    Config {
-        #[command(subcommand)]
-        command: ConfigCommands,
-    },
-}
-
-#[derive(Debug, Subcommand)]
-pub enum EndpointCommands {
     /// Sends request from endpoint
     Send {
         endpoint: Option<String>,
@@ -81,6 +69,10 @@ pub enum EndpointCommands {
         /// Prints request body to standard output.
         #[arg(long, short)]
         print: bool,
+    },
+    Config {
+        #[command(subcommand)]
+        command: ConfigCommands,
     },
 }
 

@@ -19,212 +19,210 @@ async fn main() {
     let config = Config::parse();
 
     match args.command {
-        Commands::Endpoint { command } => match command {
-            cli::EndpointCommands::Send { endpoint } => {
-                let endpoint = match endpoint {
-                    Some(name) => Endpoint::from_name(&name),
-                    None => Endpoint::from_state_or_exit(),
-                };
-                let req = endpoint.as_request().expect("Malformed request.");
-                let client = Client::new();
+        Commands::Send { endpoint } => {
+            let endpoint = match endpoint {
+                Some(name) => Endpoint::from_name(&name),
+                None => Endpoint::from_state_or_exit(),
+            };
+            let req = endpoint.as_request().expect("Malformed request.");
+            let client = Client::new();
 
-                let mut res = client.request(req).await.unwrap();
+            let mut res = client.request(req).await.unwrap();
 
-                println!("Status: {}", res.status());
+            println!("Status: {}", res.status());
 
-                while let Some(chunk) = res.data().await {
-                    stdout().write_all(&chunk.unwrap()).await.unwrap();
-                }
+            while let Some(chunk) = res.data().await {
+                stdout().write_all(&chunk.unwrap()).await.unwrap();
             }
-            cli::EndpointCommands::Create {
-                name,
-                url: maybe_url,
-                method: maybe_method,
-                header,
-            } => {
-                let mut config = Endpoint::new(&name);
+        }
+        Commands::Create {
+            name,
+            url: maybe_url,
+            method: maybe_method,
+            header,
+        } => {
+            let mut config = Endpoint::new(&name);
 
-                for item in header {
-                    let splitted_item = item.splitn(2, ": ").collect::<Vec<&str>>();
+            for item in header {
+                let splitted_item = item.splitn(2, ": ").collect::<Vec<&str>>();
 
-                    if splitted_item.len() <= 1 {
-                        panic!("Malformed header argument: {}", item);
-                    }
-
-                    let key = splitted_item[0];
-                    let value = splitted_item[1];
-
-                    config.headers.insert(key.to_string(), value.to_string());
+                if splitted_item.len() <= 1 {
+                    panic!("Malformed header argument: {}", item);
                 }
 
-                if let Some(url) = maybe_url {
-                    config.url = url;
-                }
+                let key = splitted_item[0];
+                let value = splitted_item[1];
 
-                if let Some(method) = maybe_method {
-                    config.method = method;
-                }
-
-                config.write();
+                config.headers.insert(key.to_string(), value.to_string());
             }
-            cli::EndpointCommands::Use { endpoint } => {
-                if !Path::new(".quartz")
-                    .join("endpoints")
-                    .join(&endpoint)
-                    .is_dir()
-                {
-                    eprintln!("Endpoint {} does not exist", &endpoint.red());
-                    exit(1);
-                }
 
-                let state_file = std::fs::OpenOptions::new()
-                    .truncate(true)
-                    .create(true)
-                    .write(true)
-                    .open(Path::new(".quartz").join("state"));
-
-                if let Ok(()) = state_file.unwrap().write_all(endpoint.as_bytes()) {
-                    println!("Switched to {} endpoint", endpoint.green());
-                } else {
-                    panic!("Failed to switch to {} endpoint", endpoint.red());
-                }
+            if let Some(url) = maybe_url {
+                config.url = url;
             }
-            cli::EndpointCommands::List => {
-                let mut current = String::new();
 
-                if let Some(endpoint) = Endpoint::from_state() {
-                    current = endpoint.name
-                }
+            if let Some(method) = maybe_method {
+                config.method = method;
+            }
 
-                if let Ok(files) = std::fs::read_dir(Path::new(".quartz").join("endpoints")) {
-                    for maybe_file in files {
-                        if let Ok(file) = maybe_file {
-                            if let Some(file_name) = file.file_name().to_str() {
-                                if current == file_name {
-                                    println!("* {}", file_name.green());
-                                } else {
-                                    println!("  {}", file_name);
-                                }
+            config.write();
+        }
+        Commands::Use { endpoint } => {
+            if !Path::new(".quartz")
+                .join("endpoints")
+                .join(&endpoint)
+                .is_dir()
+            {
+                eprintln!("Endpoint {} does not exist", &endpoint.red());
+                exit(1);
+            }
+
+            let state_file = std::fs::OpenOptions::new()
+                .truncate(true)
+                .create(true)
+                .write(true)
+                .open(Path::new(".quartz").join("state"));
+
+            if let Ok(()) = state_file.unwrap().write_all(endpoint.as_bytes()) {
+                println!("Switched to {} endpoint", endpoint.green());
+            } else {
+                panic!("Failed to switch to {} endpoint", endpoint.red());
+            }
+        }
+        Commands::List => {
+            let mut current = String::new();
+
+            if let Some(endpoint) = Endpoint::from_state() {
+                current = endpoint.name
+            }
+
+            if let Ok(files) = std::fs::read_dir(Path::new(".quartz").join("endpoints")) {
+                for maybe_file in files {
+                    if let Ok(file) = maybe_file {
+                        if let Some(file_name) = file.file_name().to_str() {
+                            if current == file_name {
+                                println!("* {}", file_name.green());
+                            } else {
+                                println!("  {}", file_name);
                             }
                         }
                     }
                 }
             }
-            cli::EndpointCommands::Url { command } => match command {
-                cli::EndpointUrlCommands::Get { endpoint } => {
-                    let endpoint = match endpoint {
-                        Some(name) => Endpoint::from_name(&name),
-                        None => Endpoint::from_state_or_exit(),
-                    };
-
-                    println!("{}", endpoint.url);
-                }
-                cli::EndpointUrlCommands::Set { endpoint, url } => {
-                    let mut endpoint = match endpoint {
-                        Some(name) => Endpoint::from_name(&name),
-                        None => Endpoint::from_state_or_exit(),
-                    };
-
-                    endpoint.url = url;
-
-                    endpoint.update();
-                }
-            },
-            cli::EndpointCommands::Method { command } => match command {
-                cli::EndpointMethodCommands::Get { endpoint } => {
-                    let endpoint = match endpoint {
-                        Some(name) => Endpoint::from_name(&name),
-                        None => Endpoint::from_state_or_exit(),
-                    };
-
-                    println!("{}", endpoint.method);
-                }
-                cli::EndpointMethodCommands::Set { endpoint, method } => {
-                    let mut endpoint = match endpoint {
-                        Some(name) => Endpoint::from_name(&name),
-                        None => Endpoint::from_state_or_exit(),
-                    };
-
-                    endpoint.method = method.to_uppercase();
-
-                    endpoint.update();
-                }
-            },
-            cli::EndpointCommands::Headers {
-                endpoint,
-                add: add_list,
-                remove: remove_list,
-                list: should_list,
-            } => {
-                let mut endpoint = match endpoint {
+        }
+        Commands::Url { command } => match command {
+            cli::EndpointUrlCommands::Get { endpoint } => {
+                let endpoint = match endpoint {
                     Some(name) => Endpoint::from_name(&name),
                     None => Endpoint::from_state_or_exit(),
                 };
 
-                for key in remove_list {
-                    endpoint.headers.remove(&key);
-                }
-
-                for header in add_list {
-                    let splitted_item = header.splitn(2, ": ").collect::<Vec<&str>>();
-
-                    if splitted_item.len() <= 1 {
-                        panic!("Malformed header argument: {}", header);
-                    }
-
-                    let key = splitted_item[0];
-                    let value = splitted_item[1];
-
-                    endpoint.headers.insert(key.to_string(), value.to_string());
-                }
-
-                if should_list {
-                    for (key, value) in endpoint.headers.iter() {
-                        println!("{}: {}", key, value);
-                    }
-                }
-
-                endpoint.update();
+                println!("{}", endpoint.url);
             }
-            cli::EndpointCommands::Body {
-                endpoint,
-                stdin: expects_stdin,
-                edit: should_edit,
-                print: should_print,
-            } => {
+            cli::EndpointUrlCommands::Set { endpoint, url } => {
                 let mut endpoint = match endpoint {
                     Some(name) => Endpoint::from_name(&name),
                     None => Endpoint::from_state_or_exit(),
                 };
 
-                if expects_stdin {
-                    let mut input = String::new();
-
-                    while let Ok(bytes) = std::io::stdin().read_line(&mut input) {
-                        if bytes == 0 {
-                            break;
-                        }
-                    }
-
-                    endpoint.body = Body::from(input);
-                }
-
-                if should_edit {
-                    let _ = std::process::Command::new(config.preferences.editor)
-                        .arg(endpoint.dir().join("body.json"))
-                        .status()
-                        .expect("Failed to open editor");
-                }
-
-                if should_print {
-                    while let Some(chunk) = endpoint.body.data().await {
-                        stdout().write_all(&chunk.unwrap()).await.unwrap();
-                    }
-                }
+                endpoint.url = url;
 
                 endpoint.update();
             }
         },
+        Commands::Method { command } => match command {
+            cli::EndpointMethodCommands::Get { endpoint } => {
+                let endpoint = match endpoint {
+                    Some(name) => Endpoint::from_name(&name),
+                    None => Endpoint::from_state_or_exit(),
+                };
+
+                println!("{}", endpoint.method);
+            }
+            cli::EndpointMethodCommands::Set { endpoint, method } => {
+                let mut endpoint = match endpoint {
+                    Some(name) => Endpoint::from_name(&name),
+                    None => Endpoint::from_state_or_exit(),
+                };
+
+                endpoint.method = method.to_uppercase();
+
+                endpoint.update();
+            }
+        },
+        Commands::Headers {
+            endpoint,
+            add: add_list,
+            remove: remove_list,
+            list: should_list,
+        } => {
+            let mut endpoint = match endpoint {
+                Some(name) => Endpoint::from_name(&name),
+                None => Endpoint::from_state_or_exit(),
+            };
+
+            for key in remove_list {
+                endpoint.headers.remove(&key);
+            }
+
+            for header in add_list {
+                let splitted_item = header.splitn(2, ": ").collect::<Vec<&str>>();
+
+                if splitted_item.len() <= 1 {
+                    panic!("Malformed header argument: {}", header);
+                }
+
+                let key = splitted_item[0];
+                let value = splitted_item[1];
+
+                endpoint.headers.insert(key.to_string(), value.to_string());
+            }
+
+            if should_list {
+                for (key, value) in endpoint.headers.iter() {
+                    println!("{}: {}", key, value);
+                }
+            }
+
+            endpoint.update();
+        }
+        Commands::Body {
+            endpoint,
+            stdin: expects_stdin,
+            edit: should_edit,
+            print: should_print,
+        } => {
+            let mut endpoint = match endpoint {
+                Some(name) => Endpoint::from_name(&name),
+                None => Endpoint::from_state_or_exit(),
+            };
+
+            if expects_stdin {
+                let mut input = String::new();
+
+                while let Ok(bytes) = std::io::stdin().read_line(&mut input) {
+                    if bytes == 0 {
+                        break;
+                    }
+                }
+
+                endpoint.body = Body::from(input);
+            }
+
+            if should_edit {
+                let _ = std::process::Command::new(config.preferences.editor)
+                    .arg(endpoint.dir().join("body.json"))
+                    .status()
+                    .expect("Failed to open editor");
+            }
+
+            if should_print {
+                while let Some(chunk) = endpoint.body.data().await {
+                    stdout().write_all(&chunk.unwrap()).await.unwrap();
+                }
+            }
+
+            endpoint.update();
+        }
         Commands::Config { command } => match command {
             cli::ConfigCommands::Edit => {
                 let _ = std::process::Command::new(config.preferences.editor)
