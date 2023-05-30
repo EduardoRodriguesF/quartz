@@ -100,6 +100,7 @@ async fn main() {
                 endpoint,
                 stdin: expects_stdin,
                 edit: should_edit,
+                print: should_print,
             } => {
                 let mut endpoint = Endpoint::from_name(&endpoint);
 
@@ -121,6 +122,12 @@ async fn main() {
                         .arg(endpoint.dir().join("body.json"))
                         .status()
                         .expect("Failed to open editor");
+                }
+
+                if should_print {
+                    while let Some(chunk) = endpoint.body.data().await {
+                        stdout().write_all(&chunk.unwrap()).await.unwrap();
+                    }
                 }
 
                 endpoint.update();

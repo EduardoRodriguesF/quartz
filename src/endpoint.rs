@@ -36,7 +36,14 @@ impl Endpoint {
             .expect("Could not find endpoint");
         let content = String::from_utf8(bytes).unwrap();
 
-        toml::from_str(&content).unwrap()
+        let mut endpoint: Endpoint = toml::from_str(&content).unwrap();
+
+        endpoint.body = match std::fs::read(endpoint.dir().join("body.json")) {
+            Ok(bytes) => bytes.into(),
+            Err(_) => Body::empty(),
+        };
+
+        endpoint
     }
 
     pub fn dir(&self) -> PathBuf {

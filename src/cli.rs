@@ -66,6 +66,10 @@ pub enum EndpointCommands {
         /// Opens an editor to modify the endpoint's request body.
         #[arg(long, short)]
         edit: bool,
+
+        /// Prints request body to standard output.
+        #[arg(long, short)]
+        print: bool,
     },
 }
 
