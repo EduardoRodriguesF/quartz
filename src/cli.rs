@@ -10,10 +10,24 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    /// Sends request from endpoint
-    Send {
-        endpoint: String,
+    Endpoint {
+        #[command(subcommand)]
+        command: EndpointCommands,
     },
+    Layout {
+        #[command(subcommand)]
+        command: LayoutCommands,
+    },
+    Config {
+        #[command(subcommand)]
+        command: ConfigCommands,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum EndpointCommands {
+    /// Sends request from endpoint
+    Send { endpoint: String },
     Create {
         name: String,
 
@@ -25,15 +39,7 @@ pub enum Commands {
 
         /// Header entry in "<key>: <value>" format. This argument can be passed multiple times.
         #[arg(long)]
-        header: Vec<String>
-    },
-    Layout {
-        #[command(subcommand)]
-        command: LayoutCommands,
-    },
-    Config {
-        #[command(subcommand)]
-        command: ConfigCommands,
+        header: Vec<String>,
     },
 }
 

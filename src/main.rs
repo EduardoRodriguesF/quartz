@@ -8,7 +8,7 @@ use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
 use endpoint::Endpoint;
-use hyper::{Client, body::HttpBody};
+use hyper::{body::HttpBody, Client};
 use internals::*;
 use tokio::io::{stdout, AsyncWriteExt as _};
 
@@ -18,50 +18,52 @@ async fn main() {
     let config = Config::parse();
 
     match args.command {
-        Commands::Send { endpoint } => {
-            let endpoint = Endpoint::from_name(&endpoint);
-            let req  = endpoint.as_request().expect("Malformed request.");
-            let client = Client::new();
+        Commands::Endpoint { command } => match command {
+            cli::EndpointCommands::Send { endpoint } => {
+                let endpoint = Endpoint::from_name(&endpoint);
+                let req = endpoint.as_request().expect("Malformed request.");
+                let client = Client::new();
 
-            let mut res = client.request(req).await.unwrap();
+                let mut res = client.request(req).await.unwrap();
 
-            println!("Status: {}", res.status());
+                println!("Status: {}", res.status());
 
-            while let Some(chunk) = res.data().await {
-                stdout().write_all(&chunk.unwrap()).await.unwrap();
+                while let Some(chunk) = res.data().await {
+                    stdout().write_all(&chunk.unwrap()).await.unwrap();
+                }
             }
-        }
-        Commands::Create {
-            name,
-            url: maybe_url,
-            method: maybe_method,
-            header,
-        } => {
-            let mut config = Endpoint::new(&name);
+            cli::EndpointCommands::Create {
+                name,
+                url: maybe_url,
+                method: maybe_method,
+                header,
+            } => {
+                let mut config = Endpoint::new(&name);
 
-            for item in header {
-                let splitted_item = item.splitn(2, ": ").collect::<Vec<&str>>();
+                for item in header {
+                    let splitted_item = item.splitn(2, ": ").collect::<Vec<&str>>();
 
-                if splitted_item.len() <= 1 {
-                    panic!("Malformed header argument: {}", item);
+                    if splitted_item.len() <= 1 {
+                        panic!("Malformed header argument: {}", item);
+                    }
+
+                    let key = splitted_item[0];
+                    let value = splitted_item[1];
+
+                    config.headers.insert(key.to_string(), value.to_string());
                 }
 
-                let key = splitted_item[0];
-                let value = splitted_item[1];
+                if let Some(url) = maybe_url {
+                    config.url = url;
+                }
 
-                config.headers.insert(key.to_string(), value.to_string());
+                if let Some(method) = maybe_method {
+                    config.method = method;
+                }
+
+                config.write();
             }
-
-            if let Some(url) = maybe_url {
-                config.url = url;
-            }
-
-            if let Some(method) = maybe_method {
-                config.method = method;
-            }
-
-            config.write();
-        }
+        },
         Commands::Layout { command } => match command {
             cli::LayoutCommands::Create { name } => {
                 layout::create(&name);
