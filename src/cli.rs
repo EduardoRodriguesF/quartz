@@ -11,7 +11,11 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 pub enum Commands {
     /// Sends request from endpoint
-    Send { endpoint: Option<String> },
+    Send {
+        /// Execute command in specified endpoint
+        #[arg(long)]
+        endpoint: Option<String>,
+    },
     /// Creates a new endpoint
     Create {
         /// Friendly name for the endpoint
@@ -46,6 +50,8 @@ pub enum Commands {
     },
     /// Manage endpoint headers
     Headers {
+        /// Execute command in specified endpoint
+        #[arg(long)]
         endpoint: Option<String>,
 
         /// New header entry in "<key>: <value>" format. This argument can be passed multiple times. Overrides duplicates
@@ -62,6 +68,8 @@ pub enum Commands {
     },
     /// Manage endpoint request body
     Body {
+        /// Execute command in specified endpoint
+        #[arg(long)]
         endpoint: Option<String>,
 
         /// Expect a new request body via standard input
@@ -87,12 +95,19 @@ pub enum Commands {
 pub enum EndpointUrlCommands {
     /// Get URL value
     #[command(name = "--get")]
-    Get { endpoint: Option<String> },
+    Get {
+        /// Execute command in specified endpoint
+        #[arg(long)]
+        endpoint: Option<String>,
+    },
 
     /// Set URL value
     #[command(name = "--set")]
     Set {
+        /// Execute command in specified endpoint
+        #[arg(long)]
         endpoint: Option<String>,
+
         url: String,
     },
 }
@@ -101,12 +116,19 @@ pub enum EndpointUrlCommands {
 pub enum EndpointMethodCommands {
     /// Get method value
     #[command(name = "--get")]
-    Get { endpoint: Option<String> },
+    Get {
+        /// Execute command in specified endpoint
+        #[arg(long)]
+        endpoint: Option<String>,
+    },
 
     /// Set method value
     #[command(name = "--set")]
     Set {
+        /// Execute command in specified endpoint
+        #[arg(long)]
         endpoint: Option<String>,
+
         /// New method
         method: String,
     },
