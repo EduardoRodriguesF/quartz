@@ -3,7 +3,7 @@ mod config;
 mod endpoint;
 
 use core::panic;
-use std::{path::Path, io::Write, thread::panicking, process::exit};
+use std::{io::Write, path::Path, process::exit};
 
 use clap::Parser;
 use cli::{Cli, Commands};
@@ -21,7 +21,10 @@ async fn main() {
     match args.command {
         Commands::Endpoint { command } => match command {
             cli::EndpointCommands::Send { endpoint } => {
-                let endpoint = Endpoint::from_name(&endpoint);
+                let endpoint = match endpoint {
+                    Some(name) => Endpoint::from_name(&name),
+                    None => Endpoint::from_state_or_exit(),
+                };
                 let req = endpoint.as_request().expect("Malformed request.");
                 let client = Client::new();
 
@@ -65,7 +68,11 @@ async fn main() {
                 config.write();
             }
             cli::EndpointCommands::Use { endpoint } => {
-                if !Path::new(".quartz").join("endpoints").join(&endpoint).is_dir() {
+                if !Path::new(".quartz")
+                    .join("endpoints")
+                    .join(&endpoint)
+                    .is_dir()
+                {
                     eprintln!("Endpoint {} does not exist", &endpoint.red());
                     exit(1);
                 }
@@ -85,7 +92,7 @@ async fn main() {
             cli::EndpointCommands::List => {
                 let mut current = String::new();
 
-                if let Some(endpoint) = Endpoint::try_from_state() {
+                if let Some(endpoint) = Endpoint::from_state() {
                     current = endpoint.name
                 }
 
@@ -105,12 +112,18 @@ async fn main() {
             }
             cli::EndpointCommands::Url { command } => match command {
                 cli::EndpointUrlCommands::Get { endpoint } => {
-                    let endpoint = Endpoint::from_name(&endpoint);
+                    let endpoint = match endpoint {
+                        Some(name) => Endpoint::from_name(&name),
+                        None => Endpoint::from_state_or_exit(),
+                    };
 
                     println!("{}", endpoint.url);
                 }
                 cli::EndpointUrlCommands::Set { endpoint, url } => {
-                    let mut endpoint = Endpoint::from_name(&endpoint);
+                    let mut endpoint = match endpoint {
+                        Some(name) => Endpoint::from_name(&name),
+                        None => Endpoint::from_state_or_exit(),
+                    };
 
                     endpoint.url = url;
 
@@ -119,12 +132,18 @@ async fn main() {
             },
             cli::EndpointCommands::Method { command } => match command {
                 cli::EndpointMethodCommands::Get { endpoint } => {
-                    let endpoint = Endpoint::from_name(&endpoint);
+                    let endpoint = match endpoint {
+                        Some(name) => Endpoint::from_name(&name),
+                        None => Endpoint::from_state_or_exit(),
+                    };
 
                     println!("{}", endpoint.method);
                 }
                 cli::EndpointMethodCommands::Set { endpoint, method } => {
-                    let mut endpoint = Endpoint::from_name(&endpoint);
+                    let mut endpoint = match endpoint {
+                        Some(name) => Endpoint::from_name(&name),
+                        None => Endpoint::from_state_or_exit(),
+                    };
 
                     endpoint.method = method.to_uppercase();
 
@@ -137,7 +156,10 @@ async fn main() {
                 remove: remove_list,
                 list: should_list,
             } => {
-                let mut endpoint = Endpoint::from_name(&endpoint);
+                let mut endpoint = match endpoint {
+                    Some(name) => Endpoint::from_name(&name),
+                    None => Endpoint::from_state_or_exit(),
+                };
 
                 for key in remove_list {
                     endpoint.headers.remove(&key);
@@ -170,7 +192,10 @@ async fn main() {
                 edit: should_edit,
                 print: should_print,
             } => {
-                let mut endpoint = Endpoint::from_name(&endpoint);
+                let mut endpoint = match endpoint {
+                    Some(name) => Endpoint::from_name(&name),
+                    None => Endpoint::from_state_or_exit(),
+                };
 
                 if expects_stdin {
                     let mut input = String::new();

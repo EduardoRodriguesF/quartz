@@ -1,9 +1,11 @@
+use colored::Colorize;
 use hyper::{Body, Request};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
+use std::process::exit;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Endpoint {
@@ -29,15 +31,24 @@ impl Endpoint {
         }
     }
 
-    pub fn try_from_state() -> Option<Self> {
+    pub fn from_state() -> Option<Self> {
         if let Ok(bytes) = std::fs::read(Path::new(".quartz").join("state")) {
             if let Ok(name) = String::from_utf8(bytes) {
-                println!("trying {}", name);
                 return Some(Endpoint::from_name(&name));
             }
         }
 
         None
+    }
+
+    pub fn from_state_or_exit() -> Self {
+        match Self::from_state() {
+            Some(endpoint) => endpoint,
+            None => {
+                eprintln!("No endpoint in use. Try {}", "quartz use <ENDPOINT>".cyan());
+                exit(1)
+            }
+        }
     }
 
     pub fn from_name(name: &str) -> Self {

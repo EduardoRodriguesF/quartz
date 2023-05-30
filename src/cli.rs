@@ -23,7 +23,9 @@ pub enum Commands {
 #[derive(Debug, Subcommand)]
 pub enum EndpointCommands {
     /// Sends request from endpoint
-    Send { endpoint: String },
+    Send {
+        endpoint: Option<String>,
+    },
     Create {
         name: String,
 
@@ -37,7 +39,9 @@ pub enum EndpointCommands {
         #[arg(long)]
         header: Vec<String>,
     },
-    Use { endpoint: String },
+    Use {
+        endpoint: String,
+    },
     #[command(name = "ls")]
     List,
     Url {
@@ -49,7 +53,7 @@ pub enum EndpointCommands {
         command: EndpointMethodCommands,
     },
     Headers {
-        endpoint: String,
+        endpoint: Option<String>,
 
         /// New header entry in "<key>: <value>" format. This argument can be passed multiple times. Overrides duplicates.
         #[arg(long)]
@@ -64,7 +68,7 @@ pub enum EndpointCommands {
         list: bool,
     },
     Body {
-        endpoint: String,
+        endpoint: Option<String>,
 
         /// Expects a new request body via standard input.
         #[arg(long)]
@@ -83,19 +87,25 @@ pub enum EndpointCommands {
 #[derive(Debug, Subcommand)]
 pub enum EndpointUrlCommands {
     #[command(name = "--get")]
-    Get { endpoint: String },
+    Get { endpoint: Option<String> },
 
     #[command(name = "--set")]
-    Set { endpoint: String, url: String },
+    Set {
+        endpoint: Option<String>,
+        url: String,
+    },
 }
 
 #[derive(Debug, Subcommand)]
 pub enum EndpointMethodCommands {
     #[command(name = "--get")]
-    Get { endpoint: String },
+    Get { endpoint: Option<String> },
 
     #[command(name = "--set")]
-    Set { endpoint: String, method: String },
+    Set {
+        endpoint: Option<String>,
+        method: String,
+    },
 }
 
 #[derive(Debug, Subcommand)]
