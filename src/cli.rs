@@ -27,7 +27,9 @@ pub enum Commands {
 #[derive(Debug, Subcommand)]
 pub enum EndpointCommands {
     /// Sends request from endpoint
-    Send { endpoint: String },
+    Send {
+        endpoint: String,
+    },
     Create {
         name: String,
 
@@ -40,6 +42,10 @@ pub enum EndpointCommands {
         /// Header entry in "<key>: <value>" format. This argument can be passed multiple times.
         #[arg(long)]
         header: Vec<String>,
+    },
+    Url {
+        #[command(subcommand)]
+        command: EndpointUrlCommands,
     },
     Headers {
         endpoint: String,
@@ -71,6 +77,15 @@ pub enum EndpointCommands {
         #[arg(long, short)]
         print: bool,
     },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum EndpointUrlCommands {
+    #[command(name = "--get")]
+    Get { endpoint: String },
+
+    #[command(name = "--set")]
+    Set { endpoint: String, url: String },
 }
 
 #[derive(Debug, Subcommand)]

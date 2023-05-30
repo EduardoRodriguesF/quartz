@@ -63,6 +63,20 @@ async fn main() {
 
                 config.write();
             }
+            cli::EndpointCommands::Url { command } => match command {
+                cli::EndpointUrlCommands::Get { endpoint } => {
+                    let endpoint = Endpoint::from_name(&endpoint);
+
+                    println!("{}", endpoint.url);
+                },
+                cli::EndpointUrlCommands::Set { endpoint, url } => {
+                    let mut endpoint = Endpoint::from_name(&endpoint);
+
+                    endpoint.url = url;
+
+                    endpoint.update();
+                },
+            },
             cli::EndpointCommands::Headers {
                 endpoint,
                 add: add_list,
