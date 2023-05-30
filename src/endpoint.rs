@@ -63,6 +63,20 @@ impl Endpoint {
             .expect("Failed to write to config file.");
     }
 
+    /// Updates existing endpoint configuration file.
+    pub fn update(&self) {
+        let toml_content = self.to_toml().expect("Failed to generate settings.");
+
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .open(self.dir().join("config.toml"))
+            .expect("Failed to open config file.");
+
+        file.write(&toml_content.as_bytes())
+            .expect("Failed to write to config file.");
+    }
+
     /// Returns the a [`Request`] based of this [`EndpointConfig`].
     pub fn as_request(&self) -> Result<Request<Body>, hyper::http::Error> {
         let mut builder = hyper::Request::builder().uri(&self.url);

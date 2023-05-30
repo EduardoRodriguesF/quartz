@@ -63,6 +63,32 @@ async fn main() {
 
                 config.write();
             }
+            cli::EndpointCommands::Headers {
+                endpoint,
+                add: add_list,
+                remove: remove_list,
+            } => {
+                let mut endpoint = Endpoint::from_name(&endpoint);
+
+                for key in remove_list {
+                    endpoint.headers.remove(&key);
+                }
+
+                for header in add_list {
+                    let splitted_item = header.splitn(2, ": ").collect::<Vec<&str>>();
+
+                    if splitted_item.len() <= 1 {
+                        panic!("Malformed header argument: {}", header);
+                    }
+
+                    let key = splitted_item[0];
+                    let value = splitted_item[1];
+
+                    endpoint.headers.insert(key.to_string(), value.to_string());
+                }
+
+                endpoint.update();
+            }
         },
         Commands::Layout { command } => match command {
             cli::LayoutCommands::Create { name } => {
