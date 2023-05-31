@@ -33,6 +33,9 @@ impl Endpoint {
 
     pub fn from_state() -> Option<Self> {
         if let Ok(bytes) = std::fs::read(Path::new(".quartz").join("state")) {
+            if bytes.is_empty() {
+                return None;
+            }
             if let Ok(name) = String::from_utf8(bytes) {
                 return Some(Endpoint::from_name(&name));
             }
@@ -51,7 +54,13 @@ impl Endpoint {
         }
     }
 
+    pub fn name_to_dir(name: &str) -> String {
+        name.replace(&['/', '\\'], "-")
+    }
+
     pub fn from_name(name: &str) -> Self {
+        let name = Endpoint::name_to_dir(&name);
+
         let bytes = std::fs::read(
             Path::new(".quartz")
                 .join("endpoints")
@@ -72,7 +81,9 @@ impl Endpoint {
     }
 
     pub fn dir(&self) -> PathBuf {
-        Path::new(".quartz").join("endpoints").join(&self.name)
+        let name = Endpoint::name_to_dir(&self.name);
+
+        Path::new(".quartz").join("endpoints").join(&name)
     }
 
     pub fn to_toml(&self) -> Result<String, toml::ser::Error> {

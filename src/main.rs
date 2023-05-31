@@ -69,7 +69,7 @@ async fn main() {
         Commands::Use { endpoint } => {
             if !Path::new(".quartz")
                 .join("endpoints")
-                .join(&endpoint)
+                .join(Endpoint::name_to_dir(&endpoint))
                 .is_dir()
             {
                 eprintln!("Endpoint {} does not exist", &endpoint.red());
@@ -98,12 +98,12 @@ async fn main() {
             if let Ok(files) = std::fs::read_dir(Path::new(".quartz").join("endpoints")) {
                 for maybe_file in files {
                     if let Ok(file) = maybe_file {
-                        if let Some(file_name) = file.file_name().to_str() {
-                            if current == file_name {
-                                println!("* {}", file_name.green());
-                            } else {
-                                println!("  {}", file_name);
-                            }
+                        let endpoint = Endpoint::from_name(file.file_name().to_str().unwrap());
+
+                        if current == endpoint.name {
+                            println!("* {}", endpoint.name.green());
+                        } else {
+                            println!("  {}", endpoint.name);
                         }
                     }
                 }
