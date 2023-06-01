@@ -40,6 +40,7 @@ async fn main() {
             url: maybe_url,
             method: maybe_method,
             header,
+            switch,
         } => {
             let mut config = Endpoint::new(&name);
 
@@ -62,6 +63,21 @@ async fn main() {
 
             if let Some(method) = maybe_method {
                 config.method = method;
+            }
+
+            if switch {
+                let state_file = std::fs::OpenOptions::new()
+                    .truncate(true)
+                    .create(true)
+                    .write(true)
+                    .open(Path::new(".quartz").join("state"));
+
+                if let Ok(()) = state_file.unwrap().write_all(config.name.as_bytes()) {
+                    println!("Switched to {} endpoint", config.name.green());
+                } else {
+                    eprintln!("Failed to switch to {} endpoint", config.name.red());
+                    exit(1)
+                }
             }
 
             config.write();

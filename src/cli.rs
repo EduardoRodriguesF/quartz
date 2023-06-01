@@ -32,6 +32,11 @@ pub enum Commands {
         /// Set header entry in "<key>: <value>" format. This argument can be passed multiple times
         #[arg(long)]
         header: Vec<String>,
+
+        /// Switches to the new endpoint
+        #[arg(name = "use", long)]
+        switch: bool,
+
     },
     /// Switch to a given endpoint
     Use { endpoint: String },
