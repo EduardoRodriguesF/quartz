@@ -43,6 +43,11 @@ pub enum Commands {
     /// Lists available endpoints
     #[command(name = "ls")]
     List,
+    /// Delete endpoint(s)
+    #[command(name = "rm")]
+    Remove {
+        endpoints: Vec<String>,
+    },
     /// Manage endpoint url and its params
     Url {
         #[command(subcommand)]

@@ -125,6 +125,18 @@ async fn main() {
                 }
             }
         }
+        Commands::Remove { endpoints } => {
+            for endpoint in endpoints {
+                let endpoint = Endpoint::from_name(&endpoint);
+
+                if std::fs::remove_dir_all(endpoint.dir()).is_ok() {
+                    println!("Deleted endpoint {}", endpoint.name);
+                } else {
+                    eprintln!("Failed to delete endpoint {}", endpoint.name);
+                    exit(1);
+                }
+            }
+        }
         Commands::Url { command } => match command {
             cli::EndpointUrlCommands::Get { endpoint } => {
                 let endpoint = match endpoint {
