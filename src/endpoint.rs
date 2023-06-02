@@ -171,14 +171,6 @@ impl Default for Endpoint {
     }
 }
 
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
-}
-
 fn trim_newline(s: &mut String) {
     while s.ends_with('\n') {
         s.pop();
