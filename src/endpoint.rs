@@ -58,7 +58,7 @@ impl Endpoint {
     }
 
     pub fn name_to_dir(name: &str) -> String {
-        name.replace(&['/', '\\'], "-")
+        trim_newline(name.replace(&['/', '\\'], "-"))
     }
 
     pub fn from_name(name: &str) -> Self {
