@@ -45,6 +45,11 @@ pub enum Commands {
     /// Delete endpoint(s)
     #[command(alias = "rm")]
     Remove { endpoints: Vec<String> },
+    /// Rename endpoint
+    Rename {
+        endpoint: String,
+        new_name: String,
+    },
     /// Manage endpoint url and its params
     Url {
         #[command(subcommand)]

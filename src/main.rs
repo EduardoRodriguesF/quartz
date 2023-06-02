@@ -134,6 +134,21 @@ async fn main() {
                 }
             }
         }
+        Commands::Rename { endpoint, new_name } => {
+            let mut endpoint = Endpoint::from_name(&endpoint);
+            let src = endpoint.dir();
+
+            endpoint.name = new_name.clone();
+
+            let dist = endpoint.dir();
+
+            if let Ok(()) = std::fs::rename(src, dist) {
+                endpoint.update();
+            } else {
+                eprintln!("Failed to rename endpoint");
+                exit(1);
+            }
+        }
         Commands::Url { command } => match command {
             cli::EndpointUrlCommands::Get { endpoint } => {
                 let endpoint = match endpoint {
