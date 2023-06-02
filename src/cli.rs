@@ -40,10 +40,10 @@ pub enum Commands {
     /// Switch to a given endpoint
     Use { endpoint: String },
     /// Lists available endpoints
-    #[command(name = "ls")]
+    #[command(alias = "ls")]
     List,
     /// Delete endpoint(s)
-    #[command(name = "rm")]
+    #[command(alias = "rm")]
     Remove { endpoints: Vec<String> },
     /// Manage endpoint url and its params
     Url {
