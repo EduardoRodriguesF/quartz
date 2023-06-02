@@ -1,6 +1,7 @@
 mod cli;
 mod config;
 mod endpoint;
+mod state;
 
 use core::panic;
 use std::{io::Write, path::Path, process::exit};
@@ -66,13 +67,7 @@ async fn main() {
             }
 
             if switch {
-                let state_file = std::fs::OpenOptions::new()
-                    .truncate(true)
-                    .create(true)
-                    .write(true)
-                    .open(Path::new(".quartz").join("state"));
-
-                if let Ok(()) = state_file.unwrap().write_all(config.name.as_bytes()) {
+                if let Ok(()) = state::update_state(&config.name) {
                     println!("Switched to {} endpoint", config.name.green());
                 } else {
                     eprintln!("Failed to switch to {} endpoint", config.name.red());
@@ -92,13 +87,7 @@ async fn main() {
                 exit(1);
             }
 
-            let state_file = std::fs::OpenOptions::new()
-                .truncate(true)
-                .create(true)
-                .write(true)
-                .open(Path::new(".quartz").join("state"));
-
-            if let Ok(()) = state_file.unwrap().write_all(endpoint.as_bytes()) {
+            if let Ok(()) = state::update_state(&endpoint) {
                 println!("Switched to {} endpoint", endpoint.green());
             } else {
                 panic!("Failed to switch to {} endpoint", endpoint.red());

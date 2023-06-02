@@ -2,6 +2,7 @@ use colored::Colorize;
 use hyper::{Body, Request};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::env;
 use std::fs::File;
 use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
@@ -36,7 +37,7 @@ impl Endpoint {
     }
 
     pub fn from_state() -> Option<Self> {
-        if let Ok(bytes) = std::fs::read(Path::new(".quartz").join("state")) {
+        if let Ok(bytes) = crate::state::read_state() {
             if bytes.is_empty() {
                 return None;
             }
