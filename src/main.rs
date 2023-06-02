@@ -117,9 +117,9 @@ async fn main() {
                         let endpoint = Endpoint::from_name(file.file_name().to_str().unwrap());
 
                         if current == endpoint.name {
-                            println!("* {} {}", endpoint.colored_method().bold(), endpoint.name.green());
+                            println!("* {: <5} {}", endpoint.colored_method().bold(), endpoint.name.green());
                         } else {
-                            println!("  {} {}", endpoint.colored_method().bold(), endpoint.name);
+                            println!("  {: <5} {}", endpoint.colored_method().bold(), endpoint.name);
                         }
                     }
                 }
