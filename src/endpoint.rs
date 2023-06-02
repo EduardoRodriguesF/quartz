@@ -24,8 +24,12 @@ pub struct Endpoint {
 
 impl Endpoint {
     pub fn new(name: &str) -> Self {
+        let mut name = name.to_string();
+
+        trim_newline(&mut name);
+
         Self {
-            name: name.to_string(),
+            name,
             method: String::from("GET"),
             ..Default::default()
         }
@@ -173,4 +177,13 @@ where
 {
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
+}
+
+fn trim_newline(s: &mut String) {
+    while s.ends_with('\n') {
+        s.pop();
+        if s.ends_with('\r') {
+            s.pop();
+        }
+    }
 }
