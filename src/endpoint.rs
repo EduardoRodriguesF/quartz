@@ -140,6 +140,19 @@ impl Endpoint {
 
         builder.body(body)
     }
+
+    pub fn colored_method(&self) -> colored::ColoredString {
+        match self.method.as_str() {
+            "GET" => self.method.blue(),
+            "POST" => self.method.green(),
+            "PUT" => self.method.yellow(),
+            "PATCH" => self.method.yellow(),
+            "DELETE" => self.method.red(),
+            "OPTIONS" => self.method.cyan(),
+            "HEAD" => self.method.cyan(),
+            _ => self.method.white(),
+        }
+    }
 }
 
 impl Default for Endpoint {
