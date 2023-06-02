@@ -25,9 +25,7 @@ pub struct Endpoint {
 
 impl Endpoint {
     pub fn new(name: &str) -> Self {
-        let mut name = name.to_string();
-
-        trim_newline(&mut name);
+        let name = trim_newline(name);
 
         Self {
             name,
@@ -172,11 +170,18 @@ impl Default for Endpoint {
     }
 }
 
-fn trim_newline(s: &mut String) {
+fn trim_newline<S>(s: S) -> String
+where
+    S: Into<String> + std::fmt::Display,
+{
+    let mut s = s.to_string();
+
     while s.ends_with('\n') {
         s.pop();
         if s.ends_with('\r') {
             s.pop();
         }
     }
+
+    s.trim().to_string()
 }
