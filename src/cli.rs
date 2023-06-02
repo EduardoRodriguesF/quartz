@@ -36,7 +36,6 @@ pub enum Commands {
         /// Switches to the new endpoint
         #[arg(name = "use", long)]
         switch: bool,
-
     },
     /// Switch to a given endpoint
     Use { endpoint: String },
@@ -45,9 +44,7 @@ pub enum Commands {
     List,
     /// Delete endpoint(s)
     #[command(name = "rm")]
-    Remove {
-        endpoints: Vec<String>,
-    },
+    Remove { endpoints: Vec<String> },
     /// Manage endpoint url and its params
     Url {
         #[command(subcommand)]
