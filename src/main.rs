@@ -4,7 +4,7 @@ mod endpoint;
 mod state;
 
 use core::panic;
-use std::{io::Write, path::Path, process::exit};
+use std::{path::Path, process::exit};
 
 use clap::Parser;
 use cli::{Cli, Commands};
@@ -129,6 +129,22 @@ async fn main() {
             };
 
             println!("{}", endpoint.to_toml().unwrap());
+        }
+        Commands::Edit { endpoint, editor } => {
+            let endpoint = match endpoint {
+                Some(name) => Endpoint::from_name(&name),
+                None => Endpoint::from_state_or_exit(),
+            };
+
+            let editor = match editor {
+                Some(editor) => editor,
+                None => config.preferences.editor,
+            };
+
+            let _ = std::process::Command::new(editor)
+                .arg(endpoint.dir().join("config.toml"))
+                .status()
+                .expect("Failed to open editor");
         }
         Commands::Remove { endpoints } => {
             for endpoint in endpoints {

@@ -52,6 +52,14 @@ pub enum Commands {
         #[arg(long)]
         endpoint: Option<String>,
     },
+    /// Opens an editor to modify endpoint configuration
+    Edit {
+        #[arg(long)]
+        endpoint: Option<String>,
+
+        #[arg(long)]
+        editor: Option<String>,
+    },
     /// Manage endpoint url and its params
     Url {
         #[command(subcommand)]
