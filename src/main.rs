@@ -4,7 +4,7 @@ mod endpoint;
 mod state;
 
 use core::panic;
-use std::{path::Path, process::exit};
+use std::{io::Write, path::Path, process::exit};
 
 use clap::Parser;
 use cli::{Cli, Commands};
@@ -20,6 +20,40 @@ async fn main() {
     let config = Config::parse();
 
     match args.command {
+        Commands::Init { directory } => {
+            let directory = directory.unwrap_or(Path::new(".").to_path_buf());
+            let quartz_dir = directory.join(".quartz");
+
+            if quartz_dir.exists() {
+                eprintln!(
+                    "quartz already initialized at {}",
+                    directory.to_str().unwrap().red()
+                );
+                exit(1);
+            }
+
+            if std::fs::create_dir(&quartz_dir).is_err() {
+                eprintln!("Failed to initialize quartz project");
+                exit(1);
+            };
+
+            if directory.join(".git").exists() {
+                println!("Git detected");
+                println!(
+                    "Adding user files to {}",
+                    ".gitignore".green()
+                );
+
+                if let Ok(mut gitignore) = std::fs::OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .append(true)
+                    .open(directory.join(".gitignore"))
+                {
+                    let _ = gitignore.write("\n# Quartz\n.quartz/user".as_bytes());
+                }
+            }
+        }
         Commands::Send { endpoint } => {
             let endpoint = match endpoint {
                 Some(name) => Endpoint::from_name(&name),

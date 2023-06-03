@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
@@ -11,6 +13,9 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    Init {
+        directory: Option<PathBuf>,
+    },
     /// Sends request from endpoint
     Send {
         /// Execute command in specified endpoint
@@ -39,15 +44,22 @@ pub enum Commands {
         switch: bool,
     },
     /// Switch to a given endpoint
-    Use { endpoint: String },
+    Use {
+        endpoint: String,
+    },
     /// Lists available endpoints
     #[command(alias = "ls")]
     List,
     /// Delete endpoint(s)
     #[command(alias = "rm")]
-    Remove { endpoints: Vec<String> },
+    Remove {
+        endpoints: Vec<String>,
+    },
     /// Rename endpoint
-    Rename { endpoint: String, new_name: String },
+    Rename {
+        endpoint: String,
+        new_name: String,
+    },
     /// Print endpoint configuration
     Show {
         #[arg(long)]
