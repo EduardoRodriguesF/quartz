@@ -2,9 +2,7 @@ use colored::Colorize;
 use hyper::{Body, Request};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::env;
-use std::fs::File;
-use std::io::{self, BufRead, Write};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 

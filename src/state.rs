@@ -1,4 +1,4 @@
-use std::{env, path::PathBuf, io::Write};
+use std::{env, io::Write, path::PathBuf};
 
 pub fn state_file_path() -> PathBuf {
     env::temp_dir().join("quartz-state")
