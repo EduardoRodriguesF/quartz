@@ -47,6 +47,11 @@ pub enum Commands {
     Remove { endpoints: Vec<String> },
     /// Rename endpoint
     Rename { endpoint: String, new_name: String },
+    /// Print endpoint configuration
+    Show {
+        #[arg(long)]
+        endpoint: Option<String>,
+    },
     /// Manage endpoint url and its params
     Url {
         #[command(subcommand)]

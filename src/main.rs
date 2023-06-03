@@ -122,6 +122,14 @@ async fn main() {
                 }
             }
         }
+        Commands::Show { endpoint } => {
+            let endpoint = match endpoint {
+                Some(name) => Endpoint::from_name(&name),
+                None => Endpoint::from_state_or_exit(),
+            };
+
+            println!("{}", endpoint.to_toml().unwrap());
+        }
         Commands::Remove { endpoints } => {
             for endpoint in endpoints {
                 let endpoint = Endpoint::from_name(&endpoint);
