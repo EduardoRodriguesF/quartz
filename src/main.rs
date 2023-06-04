@@ -120,8 +120,8 @@ async fn main() {
 
             config.write();
         }
-        Commands::Use { endpoint_path } => {
-            let endpoint = Endpoint::from_nesting(endpoint_path).expect("Endpoint does not exist");
+        Commands::Use { endpoint } => {
+            let endpoint = Endpoint::from_nesting(endpoint).expect("Endpoint does not exist");
 
             if let Ok(()) = state::update_state(&endpoint.nesting().join(" ")) {
                 println!("Switched to {} endpoint", endpoint.name.green());

@@ -41,7 +41,8 @@ pub enum Commands {
     },
     /// Switch to a given endpoint
     Use {
-        endpoint_path: Vec<String>,
+        /// Endpoint specification
+        endpoint: Vec<String>,
     },
     /// Lists available endpoints
     #[command(alias = "ls")]
@@ -53,7 +54,7 @@ pub enum Commands {
     /// Delete endpoint
     #[command(alias = "rm")]
     Remove {
-        /// Nesting path to endpoint
+        /// Endpoint specification
         endpoint: Vec<String>,
     },
     /// Print endpoint configuration
