@@ -1,7 +1,13 @@
-use std::{env, io::Write, path::PathBuf};
+use std::{
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 pub fn state_file_path() -> PathBuf {
-    env::temp_dir().join("quartz-state")
+    Path::new(".quartz")
+        .join("user")
+        .join("state")
+        .join("endpoint")
 }
 
 pub fn read_state() -> Result<Vec<u8>, std::io::Error> {
