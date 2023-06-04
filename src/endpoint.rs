@@ -108,7 +108,7 @@ impl Endpoint {
     }
 
     pub fn dir(&self) -> PathBuf {
-        let mut result = Path::new(".quartz").to_path_buf();
+        let mut result = Path::new(".quartz").join("endpoints");
 
         for parent in &self.parents {
             let name = Endpoint::name_to_dir(&parent);
