@@ -88,7 +88,6 @@ impl Endpoint {
         for parent in &nesting {
             let name = Endpoint::name_to_dir(&parent);
 
-            path.push("endpoints");
             path.push(name);
         }
 
@@ -114,10 +113,10 @@ impl Endpoint {
         for parent in &self.parents {
             let name = Endpoint::name_to_dir(&parent);
 
-            result = result.join("endpoints").join(name);
+            result = result.join(name);
         }
 
-        result.join("endpoints").join(Endpoint::name_to_dir(&self.name))
+        result.join(Endpoint::name_to_dir(&self.name))
     }
 
     pub fn nesting(&self) -> Vec<String> {
@@ -148,9 +147,13 @@ impl Endpoint {
     pub fn children(&self) -> Vec<Endpoint> {
         let mut list = Vec::<Endpoint>::new();
 
-        if let Ok(files) = std::fs::read_dir(self.dir().join("endpoints")) {
-            for file in files {
-                let path = file.unwrap().path();
+        if let Ok(paths) = std::fs::read_dir(self.dir()) {
+            for path in paths {
+                let path = path.unwrap().path();
+
+                if !path.is_dir() {
+                    continue;
+                }
 
                 if let Ok(mut endpoint) = Endpoint::from_dir(path) {
                     let mut parents = self.parents.clone();
