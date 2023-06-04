@@ -75,10 +75,6 @@ pub enum Commands {
     },
     /// Manage endpoint headers
     Headers {
-        /// Execute command in specified endpoint
-        #[arg(long)]
-        endpoint: Option<String>,
-
         /// New header entry in "<key>: <value>" format. This argument can be passed multiple times. Overrides duplicates
         #[arg(long)]
         add: Vec<String>,
@@ -93,10 +89,6 @@ pub enum Commands {
     },
     /// Manage endpoint request body
     Body {
-        /// Execute command in specified endpoint
-        #[arg(long)]
-        endpoint: Option<String>,
-
         /// Expect a new request body via standard input
         #[arg(long)]
         stdin: bool,

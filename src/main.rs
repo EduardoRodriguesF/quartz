@@ -252,15 +252,11 @@ async fn main() {
             }
         },
         Commands::Headers {
-            endpoint,
             add: add_list,
             remove: remove_list,
             list: should_list,
         } => {
-            let mut endpoint = match endpoint {
-                Some(name) => Endpoint::from_name(&name),
-                None => Endpoint::from_state_or_exit(),
-            };
+            let mut endpoint = Endpoint::from_state_or_exit();
 
             for key in remove_list {
                 endpoint.headers.remove(&key);
@@ -288,15 +284,11 @@ async fn main() {
             endpoint.update();
         }
         Commands::Body {
-            endpoint,
             stdin: expects_stdin,
             edit: should_edit,
             print: should_print,
         } => {
-            let mut endpoint = match endpoint {
-                Some(name) => Endpoint::from_name(&name),
-                None => Endpoint::from_state_or_exit(),
-            };
+            let mut endpoint = Endpoint::from_state_or_exit();
 
             if expects_stdin {
                 let mut input = String::new();
