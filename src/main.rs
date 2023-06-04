@@ -80,13 +80,16 @@ async fn main() {
             }
         }
         Commands::Create {
-            name,
+            mut specs,
             url: maybe_url,
             method: maybe_method,
             header,
             switch,
         } => {
-            let mut config = Endpoint::new(&name);
+            let mut config = Endpoint::new(&specs.last().unwrap());
+            specs.pop();
+
+            config.parents = specs;
 
             for item in header {
                 let splitted_item = item.splitn(2, ": ").collect::<Vec<&str>>();

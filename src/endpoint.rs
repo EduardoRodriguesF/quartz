@@ -173,7 +173,7 @@ impl Endpoint {
     pub fn write(&self) {
         let toml_content = self.to_toml().expect("Failed to generate settings.");
 
-        std::fs::create_dir(self.dir()).expect("Failed to create endpoint.");
+        std::fs::create_dir_all(self.dir()).expect("Failed to create endpoint.");
 
         let mut file = std::fs::OpenOptions::new()
             .create(true)

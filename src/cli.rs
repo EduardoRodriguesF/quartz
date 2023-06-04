@@ -20,8 +20,8 @@ pub enum Commands {
     Send,
     /// Creates a new endpoint
     Create {
-        /// Friendly name for the endpoint
-        name: String,
+        /// New endpoint specification
+        specs: Vec<String>,
 
         /// Set URL value
         #[arg(long)]
