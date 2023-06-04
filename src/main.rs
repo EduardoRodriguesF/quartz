@@ -112,7 +112,7 @@ async fn main() {
             }
 
             if switch {
-                if let Ok(()) = state::update_state(&config.name) {
+                if let Ok(()) = state::update_state(&config.nesting().join(" ")) {
                     println!("Switched to {} endpoint", config.name.green());
                 } else {
                     eprintln!("Failed to switch to {} endpoint", config.name.red());
@@ -122,20 +122,13 @@ async fn main() {
 
             config.write();
         }
-        Commands::Use { endpoint } => {
-            if !Path::new(".quartz")
-                .join("endpoints")
-                .join(Endpoint::name_to_dir(&endpoint))
-                .is_dir()
-            {
-                eprintln!("Endpoint {} does not exist", &endpoint.red());
-                exit(1);
-            }
+        Commands::Use { endpoint_path } => {
+            let endpoint = Endpoint::from_nesting(endpoint_path).expect("Endpoint does not exist");
 
-            if let Ok(()) = state::update_state(&endpoint) {
-                println!("Switched to {} endpoint", endpoint.green());
+            if let Ok(()) = state::update_state(&endpoint.nesting().join(" ")) {
+                println!("Switched to {} endpoint", endpoint.name.green());
             } else {
-                panic!("Failed to switch to {} endpoint", endpoint.red());
+                panic!("Failed to switch to {} endpoint", endpoint.name.red());
             }
         }
         Commands::List { depth: max_depth } => {

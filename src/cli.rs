@@ -45,7 +45,7 @@ pub enum Commands {
     },
     /// Switch to a given endpoint
     Use {
-        endpoint: String,
+        endpoint_path: Vec<String>,
     },
     /// Lists available endpoints
     #[command(alias = "ls")]

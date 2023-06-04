@@ -19,6 +19,10 @@ pub struct Endpoint {
 
     #[serde(skip_serializing, skip_deserializing)]
     pub body: Body,
+
+    /// List of ordered parent names
+    #[serde(skip_serializing, skip_deserializing)]
+    pub parents: Vec<String>,
 }
 
 impl Endpoint {
@@ -37,8 +41,10 @@ impl Endpoint {
             if bytes.is_empty() {
                 return None;
             }
-            if let Ok(name) = String::from_utf8(bytes) {
-                return Some(Endpoint::from_name(&name));
+            if let Ok(nesting) = String::from_utf8(bytes) {
+                let nesting = nesting.split(" ").map(|s| s.to_string()).collect::<Vec<String>>();
+
+                return Some(Endpoint::from_nesting(nesting).unwrap());
             }
         }
 
@@ -73,6 +79,25 @@ impl Endpoint {
         Ok(endpoint)
     }
 
+    pub fn from_nesting(mut nesting: Vec<String>) -> Result<Self, Box<dyn std::error::Error>> {
+        let mut path = Path::new(".quartz").to_path_buf();
+
+        for parent in &nesting {
+            let name = Endpoint::name_to_dir(&parent);
+
+            path.push("endpoints");
+            path.push(name);
+        }
+
+        // Removes the actual endpoint
+        nesting.pop();
+
+        let mut endpoint = Endpoint::from_dir(path)?;
+        endpoint.parents = nesting;
+
+        Ok(endpoint)
+    }
+
     pub fn from_name(name: &str) -> Self {
         let name = Endpoint::name_to_dir(&name);
         let dir = Path::new(".quartz").join("endpoints").join(name);
@@ -81,9 +106,23 @@ impl Endpoint {
     }
 
     pub fn dir(&self) -> PathBuf {
-        let name = Endpoint::name_to_dir(&self.name);
+        let mut result = Path::new(".quartz").to_path_buf();
 
-        Path::new(".quartz").join("endpoints").join(&name)
+        for parent in &self.parents {
+            let name = Endpoint::name_to_dir(&parent);
+
+            result = result.join("endpoints").join(name);
+        }
+
+        result.join("endpoints").join(Endpoint::name_to_dir(&self.name))
+    }
+
+    pub fn nesting(&self) -> Vec<String> {
+        let mut list = self.parents.clone();
+
+        list.push(self.name.clone());
+
+        list
     }
 
     pub fn to_toml(&self) -> Result<String, toml::ser::Error> {
@@ -192,6 +231,7 @@ impl Default for Endpoint {
             url: Default::default(),
             headers: Default::default(),
             body: Default::default(),
+            parents: Default::default(),
         }
     }
 }
