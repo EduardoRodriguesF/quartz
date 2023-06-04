@@ -44,7 +44,10 @@ impl Endpoint {
             if let Ok(nesting) = String::from_utf8(bytes) {
                 let nesting = nesting.split(" ").map(|s| s.to_string()).collect::<Vec<String>>();
 
-                return Some(Endpoint::from_nesting(nesting).unwrap());
+                return match Endpoint::from_nesting(nesting) {
+                    Ok(endpoint) => Some(endpoint),
+                    Err(_) => None,
+                };
             }
         }
 

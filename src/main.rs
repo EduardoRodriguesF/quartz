@@ -65,11 +65,9 @@ async fn main() {
                 }
             }
         }
-        Commands::Send { endpoint } => {
-            let endpoint = match endpoint {
-                Some(name) => Endpoint::from_name(&name),
-                None => Endpoint::from_state_or_exit(),
-            };
+        Commands::Send => {
+            let endpoint = Endpoint::from_state_or_exit();
+
             let req = endpoint.as_request().expect("Malformed request.");
             let client = Client::new();
 
@@ -143,7 +141,9 @@ async fn main() {
             // This code is a mess.
             // I'm sorry.
             // It will be refactored sometime.
-            struct TraverseEndpoints<'s> { f: &'s dyn Fn(&TraverseEndpoints, Vec<Endpoint>, u16) }
+            struct TraverseEndpoints<'s> {
+                f: &'s dyn Fn(&TraverseEndpoints, Vec<Endpoint>, u16),
+            }
             let traverse_endpoints = TraverseEndpoints {
                 f: &|recurse, endpoints, depth| {
                     for endpoint in endpoints {
@@ -180,7 +180,7 @@ async fn main() {
                             print!("\n");
                         }
                     }
-                }
+                },
             };
 
             if let Ok(paths) = std::fs::read_dir(dir) {
@@ -195,19 +195,13 @@ async fn main() {
                 (traverse_endpoints.f)(&traverse_endpoints, toplevel_endpoints, 0);
             }
         }
-        Commands::Show { endpoint } => {
-            let endpoint = match endpoint {
-                Some(name) => Endpoint::from_name(&name),
-                None => Endpoint::from_state_or_exit(),
-            };
+        Commands::Show => {
+            let endpoint =Endpoint::from_state_or_exit();
 
             println!("{}", endpoint.to_toml().unwrap());
         }
-        Commands::Edit { endpoint, editor } => {
-            let endpoint = match endpoint {
-                Some(name) => Endpoint::from_name(&name),
-                None => Endpoint::from_state_or_exit(),
-            };
+        Commands::Edit { editor } => {
+            let endpoint = Endpoint::from_state_or_exit();
 
             let editor = match editor {
                 Some(editor) => editor,
@@ -219,47 +213,25 @@ async fn main() {
                 .status()
                 .expect("Failed to open editor");
         }
-        Commands::Remove { endpoints } => {
-            for endpoint in endpoints {
-                let endpoint = Endpoint::from_name(&endpoint);
+        Commands::Remove { endpoint } => {
+            let endpoint = Endpoint::from_nesting(endpoint)
+                .expect("Could not find endpoint");
 
-                if std::fs::remove_dir_all(endpoint.dir()).is_ok() {
-                    println!("Deleted endpoint {}", endpoint.name);
-                } else {
-                    eprintln!("Failed to delete endpoint {}", endpoint.name);
-                    exit(1);
-                }
-            }
-        }
-        Commands::Rename { endpoint, new_name } => {
-            let mut endpoint = Endpoint::from_name(&endpoint);
-            let src = endpoint.dir();
-
-            endpoint.name = new_name.clone();
-
-            let dist = endpoint.dir();
-
-            if let Ok(()) = std::fs::rename(src, dist) {
-                endpoint.update();
+            if std::fs::remove_dir_all(endpoint.dir()).is_ok() {
+                println!("Deleted endpoint {}", endpoint.name);
             } else {
-                eprintln!("Failed to rename endpoint");
+                eprintln!("Failed to delete endpoint {}", endpoint.name);
                 exit(1);
             }
         }
         Commands::Url { command } => match command {
-            cli::EndpointUrlCommands::Get { endpoint } => {
-                let endpoint = match endpoint {
-                    Some(name) => Endpoint::from_name(&name),
-                    None => Endpoint::from_state_or_exit(),
-                };
+            cli::EndpointUrlCommands::Get => {
+                let endpoint =Endpoint::from_state_or_exit();
 
                 println!("{}", endpoint.url);
             }
-            cli::EndpointUrlCommands::Set { endpoint, url } => {
-                let mut endpoint = match endpoint {
-                    Some(name) => Endpoint::from_name(&name),
-                    None => Endpoint::from_state_or_exit(),
-                };
+            cli::EndpointUrlCommands::Set { url } => {
+                let mut endpoint = Endpoint::from_state_or_exit();
 
                 endpoint.url = url;
 
@@ -267,19 +239,12 @@ async fn main() {
             }
         },
         Commands::Method { command } => match command {
-            cli::EndpointMethodCommands::Get { endpoint } => {
-                let endpoint = match endpoint {
-                    Some(name) => Endpoint::from_name(&name),
-                    None => Endpoint::from_state_or_exit(),
-                };
+            cli::EndpointMethodCommands::Get => { let endpoint = Endpoint::from_state_or_exit();
 
                 println!("{}", endpoint.method);
             }
-            cli::EndpointMethodCommands::Set { endpoint, method } => {
-                let mut endpoint = match endpoint {
-                    Some(name) => Endpoint::from_name(&name),
-                    None => Endpoint::from_state_or_exit(),
-                };
+            cli::EndpointMethodCommands::Set { method } => {
+                let mut endpoint = Endpoint::from_state_or_exit();
 
                 endpoint.method = method.to_uppercase();
 

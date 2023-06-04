@@ -17,11 +17,7 @@ pub enum Commands {
         directory: Option<PathBuf>,
     },
     /// Sends request from endpoint
-    Send {
-        /// Execute command in specified endpoint
-        #[arg(long)]
-        endpoint: Option<String>,
-    },
+    Send,
     /// Creates a new endpoint
     Create {
         /// Friendly name for the endpoint
@@ -54,26 +50,16 @@ pub enum Commands {
         #[arg(long)]
         depth: Option<u16>,
     },
-    /// Delete endpoint(s)
+    /// Delete endpoint
     #[command(alias = "rm")]
     Remove {
-        endpoints: Vec<String>,
-    },
-    /// Rename endpoint
-    Rename {
-        endpoint: String,
-        new_name: String,
+        /// Nesting path to endpoint
+        endpoint: Vec<String>,
     },
     /// Print endpoint configuration
-    Show {
-        #[arg(long)]
-        endpoint: Option<String>,
-    },
+    Show,
     /// Opens an editor to modify endpoint configuration
     Edit {
-        #[arg(long)]
-        endpoint: Option<String>,
-
         #[arg(long)]
         editor: Option<String>,
     },
@@ -134,19 +120,11 @@ pub enum Commands {
 pub enum EndpointUrlCommands {
     /// Get URL value
     #[command(name = "--get")]
-    Get {
-        /// Execute command in specified endpoint
-        #[arg(long)]
-        endpoint: Option<String>,
-    },
+    Get,
 
     /// Set URL value
     #[command(name = "--set")]
     Set {
-        /// Execute command in specified endpoint
-        #[arg(long)]
-        endpoint: Option<String>,
-
         url: String,
     },
 }
@@ -155,19 +133,11 @@ pub enum EndpointUrlCommands {
 pub enum EndpointMethodCommands {
     /// Get method value
     #[command(name = "--get")]
-    Get {
-        /// Execute command in specified endpoint
-        #[arg(long)]
-        endpoint: Option<String>,
-    },
+    Get,
 
     /// Set method value
     #[command(name = "--set")]
     Set {
-        /// Execute command in specified endpoint
-        #[arg(long)]
-        endpoint: Option<String>,
-
         /// New method
         method: String,
     },
