@@ -59,26 +59,25 @@ impl Endpoint {
         trim_newline(name.replace(&['/', '\\'], "-"))
     }
 
-    pub fn from_name(name: &str) -> Self {
-        let name = Endpoint::name_to_dir(&name);
+    pub fn from_dir(dir: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
+        let bytes = std::fs::read(dir.join("config.toml"))?;
+        let content = String::from_utf8(bytes)?;
 
-        let bytes = std::fs::read(
-            Path::new(".quartz")
-                .join("endpoints")
-                .join(&name)
-                .join("config.toml"),
-        )
-        .expect("Could not find endpoint");
-        let content = String::from_utf8(bytes).unwrap();
+        let mut endpoint: Endpoint = toml::from_str(&content)?;
 
-        let mut endpoint: Endpoint = toml::from_str(&content).unwrap();
-
-        endpoint.body = match std::fs::read(endpoint.dir().join("body.json")) {
+        endpoint.body = match std::fs::read(dir.join("body.json")) {
             Ok(bytes) => bytes.into(),
             Err(_) => Body::empty(),
         };
 
-        endpoint
+        Ok(endpoint)
+    }
+
+    pub fn from_name(name: &str) -> Self {
+        let name = Endpoint::name_to_dir(&name);
+        let dir = Path::new(".quartz").join("endpoints").join(name);
+
+        Self::from_dir(dir).expect("Could not find endpoint")
     }
 
     pub fn dir(&self) -> PathBuf {
