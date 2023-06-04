@@ -138,33 +138,68 @@ async fn main() {
                 panic!("Failed to switch to {} endpoint", endpoint.red());
             }
         }
-        Commands::List => {
-            let mut current = String::new();
+        Commands::List { depth: max_depth } => {
+            let max_depth = max_depth.unwrap_or(u16::MAX);
+            let mut current = PathBuf::new();
+            let dir = Path::new(".quartz").join("endpoints");
 
             if let Some(endpoint) = Endpoint::from_state() {
-                current = endpoint.name
+                current = endpoint.dir()
             }
 
-            if let Ok(files) = std::fs::read_dir(Path::new(".quartz").join("endpoints")) {
-                for maybe_file in files {
-                    if let Ok(file) = maybe_file {
-                        let endpoint = Endpoint::from_name(file.file_name().to_str().unwrap());
+            // This code is a mess.
+            // I'm sorry.
+            // It will be refactored sometime.
+            struct TraverseEndpoints<'s> { f: &'s dyn Fn(&TraverseEndpoints, Vec<Endpoint>, u16) }
+            let traverse_endpoints = TraverseEndpoints {
+                f: &|recurse, endpoints, depth| {
+                    for endpoint in endpoints {
+                        let children = endpoint.children();
 
-                        if current == endpoint.name {
-                            println!(
-                                "* {: <5} {}",
+                        let mut padding = 0;
+                        while padding < depth {
+                            print!("       ");
+                            padding += 1;
+                        }
+
+                        if current == endpoint.dir() {
+                            print!(
+                                "*  {: <5} {}",
                                 endpoint.colored_method().bold(),
                                 endpoint.name.green()
                             );
                         } else {
-                            println!(
-                                "  {: <5} {}",
+                            print!(
+                                "   {: <5} {}",
                                 endpoint.colored_method().bold(),
                                 endpoint.name
                             );
                         }
+
+                        if !children.is_empty() {
+                            if depth < max_depth {
+                                print!("\n");
+                                (recurse.f)(recurse, children, depth + 1);
+                            } else {
+                                print!("{}\n", " +".dimmed());
+                            }
+                        } else {
+                            print!("\n");
+                        }
                     }
                 }
+            };
+
+            if let Ok(paths) = std::fs::read_dir(dir) {
+                let mut toplevel_endpoints = Vec::<Endpoint>::new();
+
+                for path in paths {
+                    if let Ok(endpoint) = Endpoint::from_dir(path.unwrap().path()) {
+                        toplevel_endpoints.push(endpoint);
+                    }
+                }
+
+                (traverse_endpoints.f)(&traverse_endpoints, toplevel_endpoints, 0);
             }
         }
         Commands::Show { endpoint } => {

@@ -49,7 +49,11 @@ pub enum Commands {
     },
     /// Lists available endpoints
     #[command(alias = "ls")]
-    List,
+    List {
+        /// Set a limit for printing nested endopoints
+        #[arg(long)]
+        depth: Option<u16>,
+    },
     /// Delete endpoint(s)
     #[command(alias = "rm")]
     Remove {

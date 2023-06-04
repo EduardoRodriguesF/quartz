@@ -90,6 +90,35 @@ impl Endpoint {
         toml::to_string(&self)
     }
 
+    pub fn parent(&self) -> Option<Endpoint> {
+        let mut dir = self.dir();
+
+        dir.pop();
+        dir.pop();
+
+        if let Ok(endpoint) = Endpoint::from_dir(dir) {
+            return Some(endpoint);
+        }
+
+        None
+    }
+
+    pub fn children(&self) -> Vec<Endpoint> {
+        let mut list = Vec::<Endpoint>::new();
+
+        if let Ok(files) = std::fs::read_dir(self.dir().join("endpoints")) {
+            for file in files {
+                let path = file.unwrap().path();
+
+                if let Ok(endpoint) = Endpoint::from_dir(path) {
+                    list.push(endpoint);
+                }
+            }
+        }
+
+        list
+    }
+
     /// Records files to build this endpoint with `parse` methods.
     pub fn write(&self) {
         let toml_content = self.to_toml().expect("Failed to generate settings.");
