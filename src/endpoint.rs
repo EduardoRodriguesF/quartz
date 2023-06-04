@@ -149,7 +149,12 @@ impl Endpoint {
             for file in files {
                 let path = file.unwrap().path();
 
-                if let Ok(endpoint) = Endpoint::from_dir(path) {
+                if let Ok(mut endpoint) = Endpoint::from_dir(path) {
+                    let mut parents = self.parents.clone();
+                    parents.push(self.name.clone());
+
+                    endpoint.parents = parents;
+
                     list.push(endpoint);
                 }
             }
