@@ -4,7 +4,12 @@ mod endpoint;
 mod state;
 
 use core::panic;
-use std::{io::Write, path::Path, process::exit};
+use std::{
+    io::Write,
+    path::{Path, PathBuf},
+    process::exit,
+    str::FromStr,
+};
 
 use clap::Parser;
 use cli::{Cli, Commands};
@@ -37,12 +42,18 @@ async fn main() {
                 exit(1);
             };
 
+            let ensure_dirs = vec!["endpoints", "user", "user/log", "user/state"];
+
+            for dir in ensure_dirs {
+                if std::fs::create_dir(quartz_dir.join(PathBuf::from_str(dir).unwrap())).is_err() {
+                    eprintln!("Failed to create {} directory", dir.red());
+                    exit(1);
+                }
+            }
+
             if directory.join(".git").exists() {
                 println!("Git detected");
-                println!(
-                    "Adding user files to {}",
-                    ".gitignore".green()
-                );
+                println!("Adding user files to {}", ".gitignore".green());
 
                 if let Ok(mut gitignore) = std::fs::OpenOptions::new()
                     .write(true)
