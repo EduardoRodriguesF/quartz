@@ -113,6 +113,21 @@ impl Specification {
 
     /// Records files to build this endpoint with `parse` methods.
     pub fn write(&self) {
+        let mut dir = Path::new(".quartz").join("endpoints");
+        for entry in &self.path {
+            dir = dir.join(Endpoint::name_to_dir(&entry));
+
+            let _ = std::fs::create_dir(&dir);
+
+            let mut file = std::fs::OpenOptions::new()
+                .write(true)
+                .truncate(true)
+                .create(true)
+                .open(dir.join("spec"))
+                .unwrap();
+
+            let _ = file.write(entry.as_bytes());
+        }
         std::fs::create_dir_all(self.dir()).expect("Failed to create endpoint.");
 
         if let Some(endpoint) = &self.endpoint {
@@ -127,15 +142,6 @@ impl Specification {
             file.write(&toml_content.as_bytes())
                 .expect("Failed to write to config file.");
         }
-
-        let mut file = std::fs::OpenOptions::new()
-            .write(true)
-            .truncate(true)
-            .create(true)
-            .open(self.dir().join("spec"))
-            .unwrap();
-
-        let _ = file.write(self.head().as_bytes());
     }
 
     /// Updates existing endpoint configuration file.
@@ -188,10 +194,7 @@ impl Specification {
                     let mut path = self.path.clone();
                     path.push(spec);
 
-                    list.push(Specification {
-                        path,
-                        endpoint,
-                    })
+                    list.push(Specification { path, endpoint })
                 }
             }
         }
