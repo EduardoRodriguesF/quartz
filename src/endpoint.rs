@@ -14,7 +14,7 @@ pub struct Specification {
     pub path: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Endpoint {
     pub url: String,
 
@@ -23,9 +23,6 @@ pub struct Endpoint {
 
     /// List of (key, value) pairs.
     pub headers: HashMap<String, String>,
-
-    #[serde(skip_serializing, skip_deserializing)]
-    pub body: Body,
 }
 
 impl Specification {
@@ -211,12 +208,7 @@ impl Endpoint {
         let bytes = std::fs::read(dir.join("endpoint.toml"))?;
         let content = String::from_utf8(bytes)?;
 
-        let mut endpoint: Endpoint = toml::from_str(&content)?;
-
-        endpoint.body = match std::fs::read(dir.join("body.json")) {
-            Ok(bytes) => bytes.into(),
-            Err(_) => Body::empty(),
-        };
+        let endpoint: Endpoint = toml::from_str(&content)?;
 
         Ok(endpoint)
     }
@@ -225,8 +217,15 @@ impl Endpoint {
         toml::to_string(&self)
     }
 
+    pub fn body(&self, spec: &Specification) -> Body {
+        match std::fs::read(spec.dir().join("body.json")) {
+            Ok(bytes) => bytes.into(),
+            Err(_) => Body::empty(),
+        }
+    }
+
     /// Returns the a [`Request`] based of this [`EndpointConfig`].
-    pub fn as_request(&self) -> Result<Request<Body>, hyper::http::Error> {
+    pub fn into_request(&self, spec: &Specification) -> Result<Request<Body>, hyper::http::Error> {
         let mut builder = hyper::Request::builder().uri(&self.url);
 
         if let Ok(method) = hyper::Method::from_bytes(self.method.as_bytes()) {
@@ -237,7 +236,7 @@ impl Endpoint {
             builder = builder.header(key, value);
         }
 
-        builder.body(self.clone().body)
+        builder.body(self.body(spec))
     }
 
     pub fn colored_method(&self) -> colored::ColoredString {
@@ -260,20 +259,6 @@ impl Default for Endpoint {
             method: String::from("GET"),
             url: Default::default(),
             headers: Default::default(),
-            body: Default::default(),
-        }
-    }
-}
-
-impl Clone for Endpoint {
-    fn clone(&self) -> Self {
-        let body = self.as_request().unwrap().into_body();
-
-        Self {
-            url: self.url.clone(),
-            method: self.method.clone(),
-            headers: self.headers.clone(),
-            body,
         }
     }
 }

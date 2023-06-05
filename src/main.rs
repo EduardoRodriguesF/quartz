@@ -72,7 +72,9 @@ async fn main() {
                 exit(1);
             });
 
-            let req = endpoint.as_request().expect("Malformed request.");
+            let req = endpoint
+                .into_request(&specification)
+                .expect("Malformed request.");
             let client = Client::new();
 
             let mut res = client.request(req).await.unwrap();
@@ -347,7 +349,7 @@ async fn main() {
             print: should_print,
         } => {
             let mut specification = Specification::from_state_or_exit();
-            let mut endpoint = specification
+            let endpoint = specification
                 .endpoint
                 .as_ref()
                 .unwrap_or_else(|| {
@@ -355,6 +357,8 @@ async fn main() {
                     exit(1);
                 })
                 .clone();
+
+            let mut body = endpoint.body(&specification);
 
             if expects_stdin {
                 let mut input = String::new();
@@ -365,7 +369,18 @@ async fn main() {
                     }
                 }
 
-                endpoint.body = Body::from(input);
+                body = Body::from(input);
+            }
+
+            if let Ok(mut file) = std::fs::OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .open(specification.dir().join("body.json"))
+            {
+                while let Some(chunk) = body.data().await {
+                    let _ = file.write_all(&chunk.unwrap());
+                }
             }
 
             if should_edit {
@@ -376,7 +391,7 @@ async fn main() {
             }
 
             if should_print {
-                while let Some(chunk) = endpoint.body.data().await {
+                while let Some(chunk) = endpoint.body(&specification).data().await {
                     stdout().write_all(&chunk.unwrap()).await.unwrap();
                 }
             }
