@@ -103,14 +103,6 @@ impl Specification {
         result
     }
 
-    pub fn nesting(&self) -> Vec<String> {
-        let mut list = self.path.clone();
-
-        list.push(self.head());
-
-        list
-    }
-
     /// Records files to build this endpoint with `parse` methods.
     pub fn write(&self) {
         let mut dir = Path::new(".quartz").join("endpoints");
