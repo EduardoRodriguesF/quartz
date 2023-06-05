@@ -136,6 +136,11 @@ async fn main() {
         Commands::Use { endpoint } => {
             let specification = Specification::from_nesting(endpoint);
 
+            if !specification.dir().exists() {
+                eprintln!("Endpoint does not exist");
+                exit(1);
+            }
+
             if let Ok(()) = state::update_state(&specification.path.join(" ")) {
                 println!("Switched to {} endpoint", specification.head().green());
             } else {
