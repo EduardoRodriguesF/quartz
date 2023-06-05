@@ -17,13 +17,7 @@ What Quartz is **not**:
 
 ## Installation
 
-### Using `cargo`
-
-If you have `cargo`, you can install quartz directly from crates.io with the following command
-
-```bash
-$ cargo install quartz-cli
-```
+Read [INSTALLATION.md](./INSTALLATION.md) for instructions.
 
 ## Documentation
 
