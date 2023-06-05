@@ -185,7 +185,7 @@ async fn main() {
                                     spec.head()
                                 );
                             }
-                        } else {
+                        } else if !spec.path.is_empty() {
                             print!("   {}", spec.head());
                         }
 
