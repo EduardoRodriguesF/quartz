@@ -1,5 +1,5 @@
 [package]
-name = "quartz"
+name = "quartz-cli"
 description = "The way to design and test Rest APIs through the command-line"
 version = "0.1.0"
 edition = "2021"
