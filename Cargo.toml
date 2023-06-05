@@ -1,5 +1,6 @@
 [package]
 name = "quartz"
+description = "The way to design and test Rest APIs through the command-line"
 version = "0.1.0"
 edition = "2021"
 author = ["Eduardo Rodrigues <contato@edurodrigues.dev>"]
