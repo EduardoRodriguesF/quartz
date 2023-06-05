@@ -21,7 +21,7 @@ Read [INSTALLATION.md](./INSTALLATION.md) for instructions.
 
 ## Documentation
 
-To get started with quartz, head to the wiki page and dive in!
+To get started with quartz, head to the [wiki page](https://github.com/EduardoRodriguesF/quartz/wiki) and dive in!
 
 ## License
 
