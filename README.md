@@ -15,6 +15,20 @@ What Quartz is **not**:
 
 - A cURL replacement.
 
+## Installation
+
+### Using `cargo`
+
+If you have `cargo`, you can install quartz directly from crates.io with the following command
+
+```bash
+$ cargo install quartz-cli
+```
+
+## Documentation
+
+To get started with quartz, head to the wiki page and dive in!
+
 ## License
 
 This project is under [GNU General Public License v3.0](/LICENSE).
