@@ -15,7 +15,7 @@ use clap::Parser;
 use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
-use endpoint::Endpoint;
+use endpoint::{Endpoint, Specification};
 use hyper::{body::HttpBody, Body, Client};
 use tokio::io::{stdout, AsyncWriteExt as _};
 
@@ -66,7 +66,11 @@ async fn main() {
             }
         }
         Commands::Send => {
-            let endpoint = Endpoint::from_state_or_exit();
+            let specification = Specification::from_state_or_exit();
+            let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
+                eprintln!("No endpoint at {}", specification.head().red());
+                exit(1);
+            });
 
             let req = endpoint.as_request().expect("Malformed request.");
             let client = Client::new();
@@ -80,16 +84,18 @@ async fn main() {
             }
         }
         Commands::Create {
-            mut specs,
+            specs,
             url: maybe_url,
             method: maybe_method,
             header,
             switch,
         } => {
-            let mut config = Endpoint::new(&specs.last().unwrap());
-            specs.pop();
+            let mut specification = Specification {
+                path: specs,
+                endpoint: None,
+            };
 
-            config.parents = specs;
+            let mut endpoint = Endpoint::new();
 
             for item in header {
                 let splitted_item = item.splitn(2, ": ").collect::<Vec<&str>>();
@@ -101,56 +107,63 @@ async fn main() {
                 let key = splitted_item[0];
                 let value = splitted_item[1];
 
-                config.headers.insert(key.to_string(), value.to_string());
+                endpoint.headers.insert(key.to_string(), value.to_string());
             }
 
             if let Some(url) = maybe_url {
-                config.url = url;
+                endpoint.url = url;
             }
 
             if let Some(method) = maybe_method {
-                config.method = method;
+                endpoint.method = method;
             }
 
             if switch {
-                if let Ok(()) = state::update_state(&config.nesting().join(" ")) {
-                    println!("Switched to {} endpoint", config.name.green());
+                if let Ok(()) = state::update_state(&specification.path.join(" ")) {
+                    println!("Switched to {} endpoint", specification.head().green());
                 } else {
-                    eprintln!("Failed to switch to {} endpoint", config.name.red());
+                    eprintln!(
+                        "Failed to switch to {} endpoint",
+                        specification.head().red()
+                    );
                     exit(1)
                 }
             }
 
-            config.write();
+            specification.endpoint = Some(endpoint);
+            specification.write();
         }
         Commands::Use { endpoint } => {
-            let endpoint = Endpoint::from_nesting(endpoint).expect("Endpoint does not exist");
+            let specification = Specification::from_nesting(endpoint);
 
-            if let Ok(()) = state::update_state(&endpoint.nesting().join(" ")) {
-                println!("Switched to {} endpoint", endpoint.name.green());
+            if let Ok(()) = state::update_state(&specification.path.join(" ")) {
+                println!("Switched to {} endpoint", specification.head().green());
             } else {
-                panic!("Failed to switch to {} endpoint", endpoint.name.red());
+                panic!(
+                    "Failed to switch to {} endpoint",
+                    specification.head().red()
+                );
             }
         }
         Commands::List { depth: max_depth } => {
-            let max_depth = max_depth.unwrap_or(u16::MAX);
+            let max_depth = max_depth.unwrap_or(999) as i16;
             let mut current = PathBuf::new();
-            let dir = Path::new(".quartz").join("endpoints");
 
-            if let Some(endpoint) = Endpoint::from_state() {
-                current = endpoint.dir()
+            if let Some(specification) = Specification::from_state() {
+                current = specification.dir()
             }
 
             // This code is a mess.
             // I'm sorry.
             // It will be refactored sometime.
             struct TraverseEndpoints<'s> {
-                f: &'s dyn Fn(&TraverseEndpoints, Vec<Endpoint>, u16),
+                f: &'s dyn Fn(&TraverseEndpoints, Vec<Specification>),
             }
-            let traverse_endpoints = TraverseEndpoints {
-                f: &|recurse, endpoints, depth| {
-                    for endpoint in endpoints {
-                        let children = endpoint.children();
+            let traverse_specs = TraverseEndpoints {
+                f: &|recurse, specifications| {
+                    for spec in specifications {
+                        let depth = (spec.path.len() as i16 - 1).max(0);
+                        let children = spec.children();
 
                         let mut padding = 0;
                         while padding < depth {
@@ -158,24 +171,32 @@ async fn main() {
                             padding += 1;
                         }
 
-                        if current == endpoint.dir() {
-                            print!(
-                                "*  {: <5} {}",
-                                endpoint.colored_method().bold(),
-                                endpoint.name.green()
-                            );
+                        if let Some(endpoint) = spec.endpoint.as_ref() {
+                            if current == spec.dir() {
+                                print!(
+                                    "*  {: <5} {}",
+                                    endpoint.colored_method().bold(),
+                                    spec.head().green()
+                                );
+                            } else {
+                                print!(
+                                    "   {: <5} {}",
+                                    endpoint.colored_method().bold(),
+                                    spec.head()
+                                );
+                            }
                         } else {
-                            print!(
-                                "   {: <5} {}",
-                                endpoint.colored_method().bold(),
-                                endpoint.name
-                            );
+                            print!("   {}", spec.head());
                         }
 
                         if !children.is_empty() {
                             if depth < max_depth {
-                                print!("\n");
-                                (recurse.f)(recurse, children, depth + 1);
+                                // Avoid extra newline from Specification::QUARTZ usage
+                                if !spec.path.is_empty() {
+                                    print!("\n");
+                                }
+
+                                (recurse.f)(recurse, children);
                             } else {
                                 print!("{}\n", " +".dimmed());
                             }
@@ -186,25 +207,19 @@ async fn main() {
                 },
             };
 
-            if let Ok(paths) = std::fs::read_dir(dir) {
-                let mut toplevel_endpoints = Vec::<Endpoint>::new();
-
-                for path in paths {
-                    if let Ok(endpoint) = Endpoint::from_dir(path.unwrap().path()) {
-                        toplevel_endpoints.push(endpoint);
-                    }
-                }
-
-                (traverse_endpoints.f)(&traverse_endpoints, toplevel_endpoints, 0);
-            }
+            (traverse_specs.f)(&traverse_specs, vec![Specification::QUARTZ]);
         }
         Commands::Show => {
-            let endpoint =Endpoint::from_state_or_exit();
+            let specification = Specification::from_state_or_exit();
 
-            println!("{}", endpoint.to_toml().unwrap());
+            if let Some(endpoint) = specification.endpoint {
+                println!("{}", endpoint.to_toml().unwrap());
+            } else {
+                println!("No endpoint configured");
+            }
         }
         Commands::Edit { editor } => {
-            let endpoint = Endpoint::from_state_or_exit();
+            let specification = Specification::from_state_or_exit();
 
             let editor = match editor {
                 Some(editor) => editor,
@@ -212,46 +227,72 @@ async fn main() {
             };
 
             let _ = std::process::Command::new(editor)
-                .arg(endpoint.dir().join("config.toml"))
+                .arg(specification.dir().join("config.toml"))
                 .status()
                 .expect("Failed to open editor");
         }
         Commands::Remove { endpoint } => {
-            let endpoint = Endpoint::from_nesting(endpoint)
-                .expect("Could not find endpoint");
+            let specification = Specification::from_nesting(endpoint);
 
-            if std::fs::remove_dir_all(endpoint.dir()).is_ok() {
-                println!("Deleted endpoint {}", endpoint.name);
+            if std::fs::remove_dir_all(specification.dir()).is_ok() {
+                println!("Deleted endpoint {}", specification.head());
             } else {
-                eprintln!("Failed to delete endpoint {}", endpoint.name);
+                eprintln!("Failed to delete endpoint {}", specification.head());
                 exit(1);
             }
         }
         Commands::Url { command } => match command {
             cli::EndpointUrlCommands::Get => {
-                let endpoint =Endpoint::from_state_or_exit();
+                let specification = Specification::from_state_or_exit();
+                let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
+                    eprintln!("No endpoint at {}", specification.head().red());
+                    exit(1);
+                });
 
                 println!("{}", endpoint.url);
             }
             cli::EndpointUrlCommands::Set { url } => {
-                let mut endpoint = Endpoint::from_state_or_exit();
+                let mut specification = Specification::from_state_or_exit();
+                let mut endpoint = specification
+                    .endpoint
+                    .as_ref()
+                    .unwrap_or_else(|| {
+                        eprintln!("No endpoint at {}", specification.head().red());
+                        exit(1);
+                    })
+                    .clone();
 
                 endpoint.url = url;
 
-                endpoint.update();
+                specification.endpoint = Some(endpoint);
+                specification.update();
             }
         },
         Commands::Method { command } => match command {
-            cli::EndpointMethodCommands::Get => { let endpoint = Endpoint::from_state_or_exit();
+            cli::EndpointMethodCommands::Get => {
+                let specification = Specification::from_state_or_exit();
+                let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
+                    eprintln!("No endpoint at {}", specification.head().red());
+                    exit(1);
+                });
 
                 println!("{}", endpoint.method);
             }
             cli::EndpointMethodCommands::Set { method } => {
-                let mut endpoint = Endpoint::from_state_or_exit();
+                let mut specification = Specification::from_state_or_exit();
+                let mut endpoint = specification
+                    .endpoint
+                    .as_ref()
+                    .unwrap_or_else(|| {
+                        eprintln!("No endpoint at {}", specification.head().red());
+                        exit(1);
+                    })
+                    .clone();
 
                 endpoint.method = method.to_uppercase();
 
-                endpoint.update();
+                specification.endpoint = Some(endpoint);
+                specification.update();
             }
         },
         Commands::Headers {
@@ -259,7 +300,15 @@ async fn main() {
             remove: remove_list,
             list: should_list,
         } => {
-            let mut endpoint = Endpoint::from_state_or_exit();
+            let mut specification = Specification::from_state_or_exit();
+            let mut endpoint = specification
+                .endpoint
+                .as_ref()
+                .unwrap_or_else(|| {
+                    eprintln!("No endpoint at {}", specification.head().red());
+                    exit(1);
+                })
+                .clone();
 
             for key in remove_list {
                 endpoint.headers.remove(&key);
@@ -284,14 +333,23 @@ async fn main() {
                 }
             }
 
-            endpoint.update();
+            specification.endpoint = Some(endpoint);
+            specification.update();
         }
         Commands::Body {
             stdin: expects_stdin,
             edit: should_edit,
             print: should_print,
         } => {
-            let mut endpoint = Endpoint::from_state_or_exit();
+            let mut specification = Specification::from_state_or_exit();
+            let mut endpoint = specification
+                .endpoint
+                .as_ref()
+                .unwrap_or_else(|| {
+                    eprintln!("No endpoint at {}", specification.head().red());
+                    exit(1);
+                })
+                .clone();
 
             if expects_stdin {
                 let mut input = String::new();
@@ -307,7 +365,7 @@ async fn main() {
 
             if should_edit {
                 let _ = std::process::Command::new(config.preferences.editor)
-                    .arg(endpoint.dir().join("body.json"))
+                    .arg(specification.dir().join("body.json"))
                     .status()
                     .expect("Failed to open editor");
             }
@@ -318,7 +376,8 @@ async fn main() {
                 }
             }
 
-            endpoint.update();
+            specification.endpoint = Some(endpoint);
+            specification.update();
         }
         Commands::Config { command } => match command {
             cli::ConfigCommands::Edit => {
