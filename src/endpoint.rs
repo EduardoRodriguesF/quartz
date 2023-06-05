@@ -39,7 +39,7 @@ impl Specification {
     };
 
     pub fn from_nesting(nesting: Vec<String>) -> Self {
-        let mut path = Path::new(".quartz").to_path_buf();
+        let mut path = Path::new(".quartz").join("endpoints");
 
         for parent in &nesting {
             let name = Endpoint::name_to_dir(&parent);
