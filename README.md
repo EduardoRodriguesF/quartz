@@ -25,4 +25,4 @@ To get started with quartz, head to the [wiki page](https://github.com/EduardoRo
 
 ## License
 
-This project is under [GNU General Public License v3.0](/LICENSE).
+This project is under [Apache License 2.0](/LICENSE).
