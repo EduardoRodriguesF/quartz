@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2023-06-08
+
+### Fixed
+
+- Edit command opening non-existant file.
+
 ## [0.1.3] - 2023-06-07
 
 ### Changed
