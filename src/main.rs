@@ -234,7 +234,7 @@ async fn main() {
             };
 
             let _ = std::process::Command::new(editor)
-                .arg(specification.dir().join("config.toml"))
+                .arg(specification.dir().join("endpoint.toml"))
                 .status()
                 .expect("Failed to open editor");
         }
