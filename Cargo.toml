@@ -1,10 +1,10 @@
 [package]
 name = "quartz-cli"
-description = "The way to design and test Rest APIs through the command-line"
+description = "The CLI way to build and test Rest APIs"
 version = "0.1.4"
 edition = "2021"
 author = ["Eduardo Rodrigues <contato@edurodrigues.dev>"]
-license = "GPL-3.0"
+license = "Apache-2.0"
 repository = "https://github.com/EduardoRodriguesF/quartz"
 homepage = "https://github.com/EduardoRodriguesF/quartz"
 keywords = ["cli", "api", "http-client", "curl"]
