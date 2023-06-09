@@ -1,7 +1,7 @@
 [package]
 name = "quartz-cli"
 description = "The CLI way to build and test Rest APIs"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 author = ["Eduardo Rodrigues <contato@edurodrigues.dev>"]
 license = "Apache-2.0"
