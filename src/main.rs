@@ -395,7 +395,7 @@ async fn main() {
             }
 
             if should_print {
-                while let Some(chunk) = endpoint.body(&specification).data().await {
+                if let Some(chunk) = endpoint.body(&specification).data().await {
                     stdout().write_all(&chunk.unwrap()).await.unwrap();
                 }
             }
