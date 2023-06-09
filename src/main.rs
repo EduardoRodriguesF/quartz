@@ -75,7 +75,11 @@ async fn main() {
             let req = endpoint
                 .into_request(&specification)
                 .expect("Malformed request.");
-            let client = Client::new();
+
+            let client = {
+                let https = hyper_tls::HttpsConnector::new();
+                Client::builder().build(https)
+            };
 
             let mut res = client.request(req).await.unwrap();
 
