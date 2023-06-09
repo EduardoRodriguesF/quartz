@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Implement TLS for HTTPS requests to work ([#16]()https://github.com/EduardoRodriguesF/quartz/issues/16).
+
 ## [0.1.4] - 2023-06-08
 
 ### Fixed
