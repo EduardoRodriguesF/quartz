@@ -9,6 +9,7 @@ repository = "https://github.com/EduardoRodriguesF/quartz"
 homepage = "https://github.com/EduardoRodriguesF/quartz"
 keywords = ["cli", "api", "http-client", "curl"]
 categories = ["command-line-utilities"]
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
