@@ -21,6 +21,41 @@ toml = "0.7.3"
 colored = "2.0.0"
 hyper-tls = "0.5.0"
 
+[badges]
+maintenance = { status = "actively-developed" }
+
 [[bin]]
 name = "quartz"
 path = "src/main.rs"
+
+[package.metadata.docs.rs]
+features = ["manpages"]
+
+[package.metadata.deb]
+assets = [
+	[
+        "target/release/quartz",
+        "usr/bin/",
+        "755",
+    ],
+	[
+		"man/quartz/*",
+		"usr/share/man/man1/",
+		"644",
+	],
+	[
+		"README.md",
+		"usr/share/doc/quartz/",
+		"644",
+	],
+	[
+		"CHANGELOG.md",
+		"usr/share/doc/quartz/",
+		"644",
+	],
+	[
+		"LICENSE",
+		"usr/share/doc/quartz/",
+		"644",
+	],
+]
