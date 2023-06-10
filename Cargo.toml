@@ -28,9 +28,6 @@ maintenance = { status = "actively-developed" }
 name = "quartz"
 path = "src/main.rs"
 
-[package.metadata.docs.rs]
-features = ["manpages"]
-
 [package.metadata.deb]
 assets = [
 	[
