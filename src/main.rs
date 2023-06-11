@@ -18,6 +18,7 @@ use config::Config;
 use endpoint::{Endpoint, Specification};
 use hyper::{body::HttpBody, Body, Client};
 use tokio::io::{stdout, AsyncWriteExt as _};
+use tokio::time::Instant;
 
 #[tokio::main]
 async fn main() {
@@ -81,9 +82,12 @@ async fn main() {
                 Client::builder().build(https)
             };
 
+            let start = Instant::now();
             let mut res = client.request(req).await.unwrap();
+            let duration = start.elapsed();
 
             println!("Status: {}", res.status());
+            println!("Time: {}ms", duration.as_millis());
 
             while let Some(chunk) = res.data().await {
                 stdout().write_all(&chunk.unwrap()).await.unwrap();
