@@ -16,7 +16,7 @@ use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
 use endpoint::{Endpoint, Specification};
-use hyper::{body::HttpBody, Body, Client};
+use hyper::{body::{HttpBody, Bytes}, Body, Client};
 use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
 
@@ -86,12 +86,21 @@ async fn main() {
             let mut res = client.request(req).await.unwrap();
             let duration = start.elapsed();
 
-            println!("Status: {}", res.status());
-            println!("Time: {}ms", duration.as_millis());
+            let mut bytes = Bytes::new();
+            let mut size = 0;
 
             while let Some(chunk) = res.data().await {
-                stdout().write_all(&chunk.unwrap()).await.unwrap();
+                if let Ok(chunk) = chunk {
+                    size = chunk.len();
+                    bytes = chunk;
+                }
             }
+
+            println!("Status: {}", res.status());
+            println!("Time: {}ms", duration.as_millis());
+            println!("Size: {} bytes", size);
+
+            let _ = stdout().write_all(&bytes).await;
         }
         Commands::Create {
             specs,
