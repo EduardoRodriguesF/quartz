@@ -106,6 +106,17 @@ pub enum Commands {
         #[command(subcommand)]
         command: ContextCommands,
     },
+    #[command(alias = "var")]
+    Variable {
+        #[arg(long)]
+        get: Option<String>,
+
+        #[arg(long)]
+        set: Option<String>,
+
+        #[arg(short, long)]
+        edit: bool,
+    },
     /// Manage configuration for quartz
     Config {
         #[command(subcommand)]
@@ -145,16 +156,4 @@ pub enum ConfigCommands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum ContextCommands {
-    #[command(alias = "var")]
-    Variable {
-        #[arg(long)]
-        get: Option<String>,
-
-        #[arg(long)]
-        set: Option<String>,
-
-        #[arg(short, long)]
-        edit: bool,
-    },
-}
+pub enum ContextCommands {}
