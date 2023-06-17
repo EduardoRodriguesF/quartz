@@ -482,8 +482,19 @@ async fn main() {
             let _ = context.update();
         }
         Commands::Context { command } => match command {
-            cli::ContextCommands::Create { name } => {
-                let context = Context::new(&name);
+            cli::ContextCommands::Create { name, copy } => {
+                let context = match copy {
+                    Some(copy_from) => {
+                        let mut context = Context::parse(&copy_from).unwrap_or_else(|_| {
+                            eprintln!("No context named {} to copy from.", copy_from.red());
+                            exit(1);
+                        });
+
+                        context.name = name.clone();
+                        context
+                    }
+                    None => Context::new(&name),
+                };
 
                 if context.exists() {
                     eprintln!("A context named {} already exists", name.red());

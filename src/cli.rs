@@ -160,7 +160,12 @@ pub enum ConfigCommands {
 
 #[derive(Debug, Subcommand)]
 pub enum ContextCommands {
+    /// Create a new context
     Create {
+        /// The new context's name
         name: String,
-    }
+        /// Specify another context to copy properties from
+        #[arg(short, long)]
+        copy: Option<String>,
+    },
 }
