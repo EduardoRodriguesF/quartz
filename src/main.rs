@@ -506,6 +506,21 @@ async fn main() {
                     exit(1);
                 }
             }
+            cli::ContextCommands::Remove { context } => {
+                let context = Context::new(&context);
+
+                if !context.exists() {
+                    eprintln!("Context {} does not exist", context.name.red());
+                    exit(1);
+                }
+
+                if std::fs::remove_dir_all(context.dir()).is_ok() {
+                    eprintln!("Deleted {} context", context.name.green());
+                } else {
+                    eprintln!("Failed to delete {} context", context.name.red());
+                    exit(1);
+                }
+            }
         },
         Commands::Config { command } => match command {
             cli::ConfigCommands::Edit => {
