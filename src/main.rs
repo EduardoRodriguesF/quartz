@@ -430,6 +430,7 @@ async fn main() {
             get: maybe_get,
             set: maybe_set,
             edit: should_edit,
+            list: should_list,
         } => {
             let mut context = Context::parse("default").unwrap_or_else(|_| {
                 eprintln!("Failed to parse {} context", "default".red());
@@ -460,6 +461,15 @@ async fn main() {
                 let value = split_set[1];
 
                 context.variables.insert(key.to_string(), value.to_string());
+            }
+
+            if should_list {
+                if let Ok(list) = toml::ser::to_string(&context.variables) {
+                    println!("{}", list);
+                } else {
+                    eprintln!("Failed to list variables");
+                    exit(1);
+                }
             }
 
             if should_edit {

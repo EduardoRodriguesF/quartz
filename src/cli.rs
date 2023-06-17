@@ -114,6 +114,9 @@ pub enum Commands {
         #[arg(long)]
         set: Option<String>,
 
+        #[arg(long)]
+        list: bool,
+
         #[arg(short, long)]
         edit: bool,
     },
