@@ -481,7 +481,21 @@ async fn main() {
 
             let _ = context.update();
         }
-        Commands::Context { command } => match command {},
+        Commands::Context { command } => match command {
+            cli::ContextCommands::Create { name } => {
+                let context = Context::new(&name);
+
+                if context.exists() {
+                    eprintln!("A context named {} already exists", name.red());
+                    exit(1);
+                }
+
+                if context.write().is_err() {
+                    eprintln!("Failed to create {} context", name);
+                    exit(1);
+                }
+            }
+        },
         Commands::Config { command } => match command {
             cli::ConfigCommands::Edit => {
                 let _ = std::process::Command::new(config.preferences.editor)

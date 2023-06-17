@@ -55,6 +55,11 @@ impl Context {
         Ok(())
     }
 
+    /// Returns `true` if this context already exists on the quartz project.
+    pub fn exists(&self) -> bool {
+        self.dir().exists()
+    }
+
     pub fn parse(name: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let mut context = Self::new(name);
 

@@ -159,4 +159,8 @@ pub enum ConfigCommands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum ContextCommands {}
+pub enum ContextCommands {
+    Create {
+        name: String,
+    }
+}
