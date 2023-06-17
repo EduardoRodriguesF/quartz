@@ -509,9 +509,19 @@ async fn main() {
             cli::ContextCommands::List => {
                 if let Ok(entries) = std::fs::read_dir(Path::new(".quartz").join("contexts")) {
                     for entry in entries {
-                        let context_name = entry.unwrap().file_name();
+                        let bytes = entry.unwrap().file_name();
+                        let context_name = bytes.to_str().unwrap();
 
-                        println!("  {}", context_name.to_str().unwrap());
+                        let state = match state::read_state_context() {
+                            Ok(state) => String::from_utf8(state).unwrap(),
+                            Err(_) => String::from("default"),
+                        };
+
+                        if state == context_name {
+                            println!("* {}", context_name.green());
+                        } else {
+                            println!("  {}", context_name);
+                        }
                     }
                 }
             }

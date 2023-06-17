@@ -10,8 +10,19 @@ pub fn state_file_path() -> PathBuf {
         .join("endpoint")
 }
 
+pub fn state_context_file_path() -> PathBuf {
+    Path::new(".quartz")
+        .join("user")
+        .join("state")
+        .join("context")
+}
+
 pub fn read_state() -> Result<Vec<u8>, std::io::Error> {
     std::fs::read(state_file_path())
+}
+
+pub fn read_state_context() -> Result<Vec<u8>, std::io::Error> {
+    std::fs::read(state_context_file_path())
 }
 
 pub fn update_state(endpoint: &str) -> Result<(), std::io::Error> {
