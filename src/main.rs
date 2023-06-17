@@ -1,5 +1,6 @@
 mod cli;
 mod config;
+mod context;
 mod endpoint;
 mod state;
 
@@ -15,8 +16,12 @@ use clap::Parser;
 use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
+use context::Context;
 use endpoint::{Endpoint, Specification};
-use hyper::{body::{HttpBody, Bytes}, Body, Client};
+use hyper::{
+    body::{Bytes, HttpBody},
+    Body, Client,
+};
 use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
 
@@ -43,7 +48,7 @@ async fn main() {
                 exit(1);
             };
 
-            let ensure_dirs = vec!["endpoints", "user", "user/log", "user/state"];
+            let ensure_dirs = vec!["endpoints", "user", "user/log", "user/state", "contexts"];
 
             for dir in ensure_dirs {
                 if std::fs::create_dir(quartz_dir.join(PathBuf::from_str(dir).unwrap())).is_err() {
@@ -64,6 +69,11 @@ async fn main() {
                 {
                     let _ = gitignore.write("\n# Quartz\n.quartz/user".as_bytes());
                 }
+            }
+
+            if Context::default().write().is_err() {
+                eprintln!("Failed to create default context");
+                exit(1);
             }
         }
         Commands::Send => {

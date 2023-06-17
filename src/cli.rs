@@ -117,9 +117,7 @@ pub enum EndpointUrlCommands {
 
     /// Set URL value
     #[command(name = "--set")]
-    Set {
-        url: String,
-    },
+    Set { url: String },
 }
 
 #[derive(Debug, Subcommand)]
