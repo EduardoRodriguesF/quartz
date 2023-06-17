@@ -506,6 +506,15 @@ async fn main() {
                     exit(1);
                 }
             }
+            cli::ContextCommands::List => {
+                if let Ok(entries) = std::fs::read_dir(Path::new(".quartz").join("contexts")) {
+                    for entry in entries {
+                        let context_name = entry.unwrap().file_name();
+
+                        println!("  {}", context_name.to_str().unwrap());
+                    }
+                }
+            }
             cli::ContextCommands::Remove { context } => {
                 let context = Context::new(&context);
 

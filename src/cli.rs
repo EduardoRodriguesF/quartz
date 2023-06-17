@@ -168,8 +168,8 @@ pub enum ContextCommands {
         #[arg(short, long)]
         copy: Option<String>,
     },
+    #[command(alias = "ls")]
+    List,
     #[command(alias = "rm")]
-    Remove {
-        context: String,
-    }
+    Remove { context: String },
 }
