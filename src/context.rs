@@ -19,6 +19,13 @@ impl Default for Context {
 }
 
 impl Context {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            ..Default::default()
+        }
+    }
+
     pub fn dir(&self) -> PathBuf {
         Path::new(".quartz").join("contexts").join(&self.name)
     }
@@ -46,5 +53,19 @@ impl Context {
         }
 
         Ok(())
+    }
+
+    pub fn parse(name: &str) -> Result<Self, Box<dyn std::error::Error>> {
+        let mut context = Self::new(name);
+
+        let var_contents = std::fs::read_to_string(context.dir().join("variables.toml"))?;
+
+        if let Ok(variables) = toml::de::from_str(&var_contents) {
+            context.variables = variables;
+        } else {
+            eprintln!("Malformed variables file");
+        }
+
+        Ok(context)
     }
 }

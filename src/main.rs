@@ -426,6 +426,53 @@ async fn main() {
             specification.endpoint = Some(endpoint);
             specification.update();
         }
+        Commands::Context { command } => match command {
+            cli::ContextCommands::Variable {
+                get: maybe_get,
+                set: maybe_set,
+                edit: should_edit,
+            } => {
+                let mut context = Context::parse("default").unwrap_or_else(|_| {
+                    eprintln!("Failed to parse {} context", "default".red());
+                    exit(1);
+                });
+
+                if let Some(var) = maybe_get {
+                    if let Some(value) = context.variables.get(&var) {
+                        println!("{}", value);
+                    } else {
+                        eprintln!("Variable {} does not exist", var.red());
+                        exit(1);
+                    }
+                }
+
+                if let Some(set) = maybe_set {
+                    let split_set = set.splitn(2, "=").collect::<Vec<&str>>();
+
+                    if split_set.len() != 2 {
+                        eprintln!(
+                            "Malformed argument. Try using {}",
+                            "quartz context variable --set <key>=<value>".green()
+                        );
+                        exit(1);
+                    }
+
+                    let key = split_set[0];
+                    let value = split_set[1];
+
+                    context.variables.insert(key.to_string(), value.to_string());
+                }
+
+                if should_edit {
+                    let _ = std::process::Command::new(config.preferences.editor)
+                        .arg(context.dir().join("variables.toml"))
+                        .status()
+                        .expect("Failed to open editor");
+                }
+
+                let _ = context.update();
+            }
+        },
         Commands::Config { command } => match command {
             cli::ConfigCommands::Edit => {
                 let _ = std::process::Command::new(config.preferences.editor)

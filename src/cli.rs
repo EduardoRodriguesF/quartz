@@ -102,6 +102,10 @@ pub enum Commands {
         #[arg(long, short)]
         print: bool,
     },
+    Context {
+        #[command(subcommand)]
+        command: ContextCommands,
+    },
     /// Manage configuration for quartz
     Config {
         #[command(subcommand)]
@@ -138,4 +142,19 @@ pub enum EndpointMethodCommands {
 pub enum ConfigCommands {
     #[command(name = "--edit")]
     Edit,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum ContextCommands {
+    #[command(alias = "var")]
+    Variable {
+        #[arg(long)]
+        get: Option<String>,
+
+        #[arg(long)]
+        set: Option<String>,
+
+        #[arg(short, long)]
+        edit: bool,
+    },
 }
