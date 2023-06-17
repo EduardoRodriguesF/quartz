@@ -446,6 +446,13 @@ async fn main() {
                 }
             }
 
+            if should_edit {
+                let _ = std::process::Command::new(config.preferences.editor)
+                    .arg(context.dir().join("variables.toml"))
+                    .status()
+                    .expect("Failed to open editor");
+            }
+
             if let Some(set) = maybe_set {
                 let split_set = set.splitn(2, "=").collect::<Vec<&str>>();
 
@@ -470,13 +477,6 @@ async fn main() {
                     eprintln!("Failed to list variables");
                     exit(1);
                 }
-            }
-
-            if should_edit {
-                let _ = std::process::Command::new(config.preferences.editor)
-                    .arg(context.dir().join("variables.toml"))
-                    .status()
-                    .expect("Failed to open editor");
             }
 
             let _ = context.update();
