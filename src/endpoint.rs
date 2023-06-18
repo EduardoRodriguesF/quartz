@@ -6,6 +6,8 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 
+use crate::context::Context;
+
 #[derive(Debug)]
 pub struct Specification {
     pub endpoint: Option<Endpoint>,
@@ -221,6 +223,22 @@ impl Endpoint {
         match std::fs::read(spec.dir().join("body.json")) {
             Ok(bytes) => bytes.into(),
             Err(_) => Body::empty(),
+        }
+    }
+
+    pub fn apply_context(&mut self, context: &Context) {
+        for (key, value) in &context.variables {
+            let key_match = format!("{{{{{}}}}}", key);
+
+            self.url = self.url.replace(&key_match, value);
+            self.method = self.method.replace(&key_match, value);
+
+            self.headers = self.headers.iter().map(|(h_key, h_value)| {
+                let h_key = &h_key.replace(&key_match, value);
+                let h_value = &h_value.replace(&key_match, value);
+
+                (h_key.clone(), h_value.clone())
+            }).collect();
         }
     }
 

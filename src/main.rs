@@ -78,10 +78,18 @@ async fn main() {
         }
         Commands::Send => {
             let specification = Specification::from_state_or_exit();
-            let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
+            let context = match state::read_state_context() {
+                Ok(state) => Context::parse(&String::from_utf8(state).unwrap()),
+                Err(_) => Context::parse("default"),
+            };
+            let mut endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
                 eprintln!("No endpoint at {}", specification.head().red());
                 exit(1);
-            });
+            }).clone();
+
+            if let Ok(context) = context {
+                endpoint.apply_context(&context);
+            }
 
             let req = endpoint
                 .into_request(&specification)
