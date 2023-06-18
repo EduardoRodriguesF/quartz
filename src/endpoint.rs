@@ -25,6 +25,10 @@ pub struct Endpoint {
 
     /// List of (key, value) pairs.
     pub headers: HashMap<String, String>,
+
+    /// Variable values applied from a [`Context`]
+    #[serde(skip_serializing, skip_deserializing)]
+    pub variables: HashMap<String, String>,
 }
 
 impl Specification {
@@ -221,7 +225,17 @@ impl Endpoint {
 
     pub fn body(&self, spec: &Specification) -> Body {
         match std::fs::read(spec.dir().join("body.json")) {
-            Ok(bytes) => bytes.into(),
+            Ok(bytes) => {
+                let mut content = String::from_utf8(bytes).unwrap();
+
+                for (key, value) in &self.variables {
+                    let key_match = format!("{{{{{}}}}}", key);
+
+                    content = content.replace(&key_match, value);
+                }
+
+                content.into()
+            }
             Err(_) => Body::empty(),
         }
     }
@@ -233,13 +247,19 @@ impl Endpoint {
             self.url = self.url.replace(&key_match, value);
             self.method = self.method.replace(&key_match, value);
 
-            self.headers = self.headers.iter().map(|(h_key, h_value)| {
-                let h_key = &h_key.replace(&key_match, value);
-                let h_value = &h_value.replace(&key_match, value);
+            self.headers = self
+                .headers
+                .iter()
+                .map(|(h_key, h_value)| {
+                    let h_key = &h_key.replace(&key_match, value);
+                    let h_value = &h_value.replace(&key_match, value);
 
-                (h_key.clone(), h_value.clone())
-            }).collect();
+                    (h_key.clone(), h_value.clone())
+                })
+                .collect();
         }
+
+        self.variables = context.variables.clone();
     }
 
     /// Returns the a [`Request`] based of this [`EndpointConfig`].
@@ -277,6 +297,7 @@ impl Default for Endpoint {
             method: String::from("GET"),
             url: Default::default(),
             headers: Default::default(),
+            variables: Default::default(),
         }
     }
 }

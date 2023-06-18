@@ -82,10 +82,14 @@ async fn main() {
                 Ok(state) => Context::parse(&String::from_utf8(state).unwrap()),
                 Err(_) => Context::parse("default"),
             };
-            let mut endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
-                eprintln!("No endpoint at {}", specification.head().red());
-                exit(1);
-            }).clone();
+            let mut endpoint = specification
+                .endpoint
+                .as_ref()
+                .unwrap_or_else(|| {
+                    eprintln!("No endpoint at {}", specification.head().red());
+                    exit(1);
+                })
+                .clone();
 
             if let Ok(context) = context {
                 endpoint.apply_context(&context);
