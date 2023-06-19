@@ -518,6 +518,20 @@ async fn main() {
                     exit(1);
                 }
             }
+            cli::ContextCommands::Use { context } => {
+                let context = Context::new(&context);
+
+                if !context.exists() {
+                    eprintln!("Context {} does not exist", context.name.red());
+                    exit(1);
+                }
+
+                if let Ok(()) = state::update_state_context(&context.name) {
+                    println!("Switched to {} context", context.name.green());
+                } else {
+                    panic!("Failed to switch to {} endpoint", context.name.red());
+                }
+            }
             cli::ContextCommands::List => {
                 if let Ok(entries) = std::fs::read_dir(Path::new(".quartz").join("contexts")) {
                     for entry in entries {

@@ -34,3 +34,13 @@ pub fn update_state(endpoint: &str) -> Result<(), std::io::Error> {
 
     state_file.unwrap().write_all(endpoint.as_bytes())
 }
+
+pub fn update_state_context(context: &str) -> Result<(), std::io::Error> {
+    let state_file = std::fs::OpenOptions::new()
+        .truncate(true)
+        .create(true)
+        .write(true)
+        .open(state_context_file_path());
+
+    state_file.unwrap().write_all(context.as_bytes())
+}
