@@ -22,6 +22,7 @@ use hyper::{
     body::{Bytes, HttpBody},
     Body, Client,
 };
+use state::State;
 use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
 
@@ -78,10 +79,7 @@ async fn main() {
         }
         Commands::Send => {
             let specification = Specification::from_state_or_exit();
-            let context = match state::read_state_context() {
-                Ok(state) => Context::parse(&String::from_utf8(state).unwrap()),
-                Err(_) => Context::parse("default"),
-            };
+            let context = Context::parse(&State::Context.get().unwrap_or(String::from("default")));
             let mut endpoint = specification
                 .endpoint
                 .as_ref()
@@ -160,7 +158,7 @@ async fn main() {
             }
 
             if switch {
-                if let Ok(()) = state::update_state(&specification.path.join(" ")) {
+                if let Ok(()) = State::Endpoint.set(&specification.path.join(" ")) {
                     println!("Switched to {} endpoint", specification.head().green());
                 } else {
                     eprintln!(
@@ -182,8 +180,8 @@ async fn main() {
                 exit(1);
             }
 
-            if let Ok(()) = state::update_state(&specification.path.join(" ")) {
-                println!("Switched to {} endpoint", specification.head().green());
+            if let Ok(()) = State::Context.set(&specification.path.join(" ")) {
+                println!("switched to {} endpoint", specification.head().green());
             } else {
                 panic!(
                     "Failed to switch to {} endpoint",
@@ -526,7 +524,7 @@ async fn main() {
                     exit(1);
                 }
 
-                if let Ok(()) = state::update_state_context(&context.name) {
+                if let Ok(()) = State::Context.set(&context.name) {
                     println!("Switched to {} context", context.name.green());
                 } else {
                     panic!("Failed to switch to {} endpoint", context.name.red());
@@ -538,10 +536,7 @@ async fn main() {
                         let bytes = entry.unwrap().file_name();
                         let context_name = bytes.to_str().unwrap();
 
-                        let state = match state::read_state_context() {
-                            Ok(state) => String::from_utf8(state).unwrap(),
-                            Err(_) => String::from("default"),
-                        };
+                        let state = State::Context.get().unwrap_or(String::from("default"));
 
                         if state == context_name {
                             println!("* {}", context_name.green());

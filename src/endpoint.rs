@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 
 use crate::context::Context;
+use crate::state::State;
 
 #[derive(Debug)]
 pub struct Specification {
@@ -62,19 +63,17 @@ impl Specification {
     }
 
     pub fn from_state() -> Option<Self> {
-        if let Ok(bytes) = crate::state::read_state() {
-            if bytes.is_empty() {
+        if let Ok(nesting) = State::Endpoint.get() {
+            if nesting.is_empty() {
                 return None;
             }
 
-            if let Ok(nesting) = String::from_utf8(bytes) {
-                let nesting = nesting
-                    .split(" ")
-                    .map(|s| s.to_string())
-                    .collect::<Vec<String>>();
+            let nesting = nesting
+                .split(" ")
+                .map(|s| s.to_string())
+                .collect::<Vec<String>>();
 
-                return Some(Specification::from_nesting(nesting));
-            }
+            return Some(Specification::from_nesting(nesting));
         }
 
         None

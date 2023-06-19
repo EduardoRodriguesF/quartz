@@ -3,44 +3,34 @@ use std::{
     path::{Path, PathBuf},
 };
 
-pub fn state_file_path() -> PathBuf {
-    Path::new(".quartz")
-        .join("user")
-        .join("state")
-        .join("endpoint")
+pub enum State {
+    Endpoint,
+    Context,
 }
 
-pub fn state_context_file_path() -> PathBuf {
-    Path::new(".quartz")
-        .join("user")
-        .join("state")
-        .join("context")
-}
+impl State {
+    pub const STATE_DIR: &str = ".quartz/user/state";
 
-pub fn read_state() -> Result<Vec<u8>, std::io::Error> {
-    std::fs::read(state_file_path())
-}
+    pub fn file_path(&self) -> PathBuf {
+        Path::new(Self::STATE_DIR).join(match self {
+            Self::Endpoint => "endpoint",
+            Self::Context => "context",
+        })
+    }
 
-pub fn read_state_context() -> Result<Vec<u8>, std::io::Error> {
-    std::fs::read(state_context_file_path())
-}
+    pub fn get(&self) -> Result<String, Box<dyn std::error::Error>> {
+        let bytes = std::fs::read(self.file_path())?;
 
-pub fn update_state(endpoint: &str) -> Result<(), std::io::Error> {
-    let state_file = std::fs::OpenOptions::new()
-        .truncate(true)
-        .create(true)
-        .write(true)
-        .open(state_file_path());
+        Ok(String::from_utf8(bytes)?)
+    }
 
-    state_file.unwrap().write_all(endpoint.as_bytes())
-}
+    pub fn set(&self, value: &str) -> Result<(), std::io::Error> {
+        let file = std::fs::OpenOptions::new()
+            .truncate(true)
+            .create(true)
+            .write(true)
+            .open(self.file_path());
 
-pub fn update_state_context(context: &str) -> Result<(), std::io::Error> {
-    let state_file = std::fs::OpenOptions::new()
-        .truncate(true)
-        .create(true)
-        .write(true)
-        .open(state_context_file_path());
-
-    state_file.unwrap().write_all(context.as_bytes())
+        file?.write_all(value.as_bytes())
+    }
 }
