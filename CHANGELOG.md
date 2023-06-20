@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Multiple contexts can be defined to define variable values wrapped in {{<variable>}} notation when configuring an endpoint or its body.
+- Multiple contexts can be defined to define variable values wrapped in {{<variable>}} notation when configuring an endpoint or its body. ([#14](https://github.com/EduardoRodriguesF/quartz/issues/17))
 
 ## [0.1.6] - 2023-06-10
 
