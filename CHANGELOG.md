@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Multiple contexts can be defined to define variable values wrapped in {{<variable>}} notation when configuring an endpoint or its body. ([#14](https://github.com/EduardoRodriguesF/quartz/issues/17))
 
+### Changed
+- Endpoint response label "Time" has been changed to "Duration". This change was introduce to avoid confusion with Time as in Date time.
+
 ## [0.1.6] - 2023-06-10
 
 ## [0.1.5] - 2023-06-09

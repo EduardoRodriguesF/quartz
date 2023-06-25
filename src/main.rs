@@ -117,7 +117,7 @@ async fn main() {
             }
 
             println!("Status: {}", res.status());
-            println!("Time: {}ms", duration.as_millis());
+            println!("Duration: {}ms", duration.as_millis());
             println!("Size: {} bytes", size);
 
             let _ = stdout().write_all(&bytes).await;
