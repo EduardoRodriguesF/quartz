@@ -99,6 +99,8 @@ async fn main() {
                 })
                 .clone();
 
+            history_entry.endpoint(&endpoint);
+
             if let Ok(context) = context {
                 endpoint.apply_context(&context);
                 history_entry.context(&context);
@@ -129,8 +131,7 @@ async fn main() {
 
             history_entry
                 .path(specification.path)
-                .duration(duration.as_millis() as u64)
-                .endpoint(&endpoint);
+                .duration(duration.as_millis() as u64);
 
             println!("Status: {}", res.status());
             println!("Duration: {}ms", duration.as_millis());
