@@ -2,6 +2,7 @@ mod cli;
 mod config;
 mod context;
 mod endpoint;
+mod history;
 mod state;
 
 use core::panic;
@@ -18,6 +19,7 @@ use colored::Colorize;
 use config::Config;
 use context::Context;
 use endpoint::{Endpoint, Specification};
+use history::{RequestHistory, RequestHistoryEntry};
 use hyper::{
     body::{Bytes, HttpBody},
     Body, Client,
@@ -49,7 +51,13 @@ async fn main() {
                 exit(1);
             };
 
-            let ensure_dirs = vec!["endpoints", "user", "user/log", "user/state", "contexts"];
+            let ensure_dirs = vec![
+                "endpoints",
+                "user",
+                "user/history",
+                "user/state",
+                "contexts",
+            ];
 
             for dir in ensure_dirs {
                 if std::fs::create_dir(quartz_dir.join(PathBuf::from_str(dir).unwrap())).is_err() {
@@ -79,7 +87,9 @@ async fn main() {
         }
         Commands::Send => {
             let specification = Specification::from_state_or_exit();
+            let mut history_entry = RequestHistoryEntry::new();
             let context = Context::parse(&State::Context.get().unwrap_or(String::from("default")));
+
             let mut endpoint = specification
                 .endpoint
                 .as_ref()
@@ -91,6 +101,7 @@ async fn main() {
 
             if let Ok(context) = context {
                 endpoint.apply_context(&context);
+                history_entry.context(&context);
             }
 
             let req = endpoint
@@ -116,11 +127,17 @@ async fn main() {
                 }
             }
 
+            history_entry
+                .path(specification.path)
+                .duration(duration.as_millis() as u64)
+                .endpoint(&endpoint);
+
             println!("Status: {}", res.status());
             println!("Duration: {}ms", duration.as_millis());
             println!("Size: {} bytes", size);
 
             let _ = stdout().write_all(&bytes).await;
+            let _ = history_entry.write();
         }
         Commands::Create {
             specs,

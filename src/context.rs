@@ -4,6 +4,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Context {
     pub name: String,
     pub variables: HashMap<String, String>,
