@@ -106,6 +106,9 @@ pub enum Commands {
         /// Maximum number of requests to be listed
         #[arg(short = 'n', long)]
         max_count: Option<usize>,
+        /// Format date time output
+        #[arg(long)]
+        date: Option<String>,
     },
     Context {
         #[command(subcommand)]
