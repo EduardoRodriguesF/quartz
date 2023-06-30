@@ -102,7 +102,11 @@ pub enum Commands {
         #[arg(long, short)]
         print: bool,
     },
-    History,
+    History {
+        /// Maximum number of requests to be listed
+        #[arg(short = 'n', long)]
+        max_count: Option<usize>,
+    },
     Context {
         #[command(subcommand)]
         command: ContextCommands,

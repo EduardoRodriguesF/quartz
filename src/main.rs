@@ -454,11 +454,16 @@ async fn main() {
             specification.endpoint = Some(endpoint);
             specification.update();
         }
-        Commands::History => {
+        Commands::History { max_count } => {
             let mut history = RequestHistory::new().unwrap();
             let mut count = 0;
+            let max_count = max_count.unwrap_or(usize::MAX);
 
             while let Some(entry) = history.next() {
+                if count >= max_count {
+                    break;
+                }
+
                 count += 1;
                 let endpoint = entry.endpoint.as_ref().unwrap();
 
