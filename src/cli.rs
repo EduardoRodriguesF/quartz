@@ -102,6 +102,7 @@ pub enum Commands {
         #[arg(long, short)]
         print: bool,
     },
+    History,
     Context {
         #[command(subcommand)]
         command: ContextCommands,

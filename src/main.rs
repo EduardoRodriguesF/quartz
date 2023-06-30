@@ -454,6 +454,32 @@ async fn main() {
             specification.endpoint = Some(endpoint);
             specification.update();
         }
+        Commands::History => {
+            let mut history = RequestHistory::new().unwrap();
+            let mut count = 0;
+
+            while let Some(entry) = history.next() {
+                count += 1;
+                let endpoint = entry.endpoint.as_ref().unwrap();
+
+                if count != 1 {
+                    println!();
+                }
+
+                println!(
+                    "{} {}",
+                    endpoint.colored_method(),
+                    entry.path.join(" ").yellow(),
+                );
+                println!(
+                    "Date: {}",
+                    entry
+                        .format_time("%a %b %d %H:%M:%S %Y")
+                        .unwrap_or("Unknown".into())
+                );
+                println!("Url: {}", endpoint.url);
+            }
+        }
         Commands::Variable {
             get: maybe_get,
             set: maybe_set,

@@ -1,7 +1,9 @@
+use chrono::prelude::DateTime;
+use chrono::{NaiveDate, NaiveDateTime, Utc};
 use std::collections::HashMap;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 
@@ -16,11 +18,11 @@ pub struct RequestHistory {
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct RequestHistoryEntry {
-    path: Vec<String>,
-    endpoint: Option<Endpoint>,
-    context: Option<Context>,
-    time: u64,
-    duration: u64,
+    pub path: Vec<String>,
+    pub endpoint: Option<Endpoint>,
+    pub context: Option<Context>,
+    pub time: u64,
+    pub duration: u64,
 }
 
 impl RequestHistory {
@@ -43,6 +45,13 @@ impl RequestHistory {
         })
     }
 
+    pub fn next(&mut self) -> Option<RequestHistoryEntry> {
+        match self.unvisited.pop() {
+            Some(timestemp) => RequestHistoryEntry::from_timestemp(timestemp),
+            _ => None,
+        }
+    }
+
     pub fn dir() -> PathBuf {
         Path::new(".quartz").join("user").join("history")
     }
@@ -60,6 +69,32 @@ impl RequestHistoryEntry {
         entry.time = time as u64;
 
         entry
+    }
+
+    pub fn from_timestemp(timestemp: u64) -> Option<Self> {
+        let mut entry = Self::default();
+
+        entry.time = timestemp;
+
+        if let Ok(bytes) = std::fs::read(entry.file_path()) {
+            let content = String::from_utf8(bytes).unwrap();
+
+            if let Ok(entry) = toml::from_str(&content) {
+                return Some(entry);
+            }
+        }
+
+        None
+    }
+
+    pub fn format_time(&self, format: &str) -> Option<String> {
+        if let Some(datetime) = NaiveDateTime::from_timestamp_millis(self.time as i64) {
+            let result = datetime.format(format).to_string();
+
+            return Some(result);
+        }
+
+        None
     }
 
     pub fn path(&mut self, path: Vec<String>) -> &mut Self {
