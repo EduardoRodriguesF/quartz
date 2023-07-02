@@ -24,6 +24,7 @@ pub struct RequestHistoryEntry {
     pub time: u64,
     pub duration: u64,
     pub status: Option<u16>,
+    pub body: String,
 }
 
 impl RequestHistory {
@@ -125,6 +126,12 @@ impl RequestHistoryEntry {
 
     pub fn status(&mut self, status: u16) -> &mut Self {
         self.status = Some(status);
+
+        self
+    }
+
+    pub fn body(&mut self, bytes: &[u8]) -> &mut Self {
+        self.body = String::from_utf8_lossy(bytes).to_string();
 
         self
     }

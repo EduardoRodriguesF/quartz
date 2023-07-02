@@ -130,6 +130,7 @@ async fn main() {
             }
 
             history_entry
+                .body(&bytes.to_vec())
                 .status(res.status().as_u16())
                 .path(specification.path)
                 .duration(duration.as_millis() as u64);
@@ -494,6 +495,9 @@ async fn main() {
                     entry.format_time(date).unwrap_or("Unknown".into())
                 );
                 println!("Url: {}", endpoint.url);
+
+                println!();
+                println!("{}", entry.body);
             }
         }
         Commands::Variable {
