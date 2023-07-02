@@ -130,6 +130,7 @@ async fn main() {
             }
 
             history_entry
+                .status(res.status().as_u16())
                 .path(specification.path)
                 .duration(duration.as_millis() as u64);
 
@@ -472,11 +473,22 @@ async fn main() {
                     println!();
                 }
 
-                println!(
+                // Heading line
+                print!(
                     "{} {}",
                     endpoint.colored_method(),
                     entry.path.join(" ").yellow(),
                 );
+
+                if let Some(status) = &entry.status {
+                    if let Ok(status) = hyper::StatusCode::from_u16(*status) {
+                        print!(" -> {}", status);
+                    }
+                }
+
+                // End of heading line
+                println!();
+
                 println!(
                     "Date: {}",
                     entry.format_time(date).unwrap_or("Unknown".into())

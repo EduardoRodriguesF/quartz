@@ -23,6 +23,7 @@ pub struct RequestHistoryEntry {
     pub context: Option<Context>,
     pub time: u64,
     pub duration: u64,
+    pub status: Option<u16>,
 }
 
 impl RequestHistory {
@@ -118,6 +119,12 @@ impl RequestHistoryEntry {
 
     pub fn duration(&mut self, duration: u64) -> &mut Self {
         self.duration = duration;
+
+        self
+    }
+
+    pub fn status(&mut self, status: u16) -> &mut Self {
+        self.status = Some(status);
 
         self
     }
