@@ -1,9 +1,9 @@
 use chrono::prelude::DateTime;
-use chrono::{NaiveDate, NaiveDateTime, Utc};
+use chrono::{Local, LocalResult, TimeZone, Utc};
 use std::collections::HashMap;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 
@@ -88,7 +88,8 @@ impl RequestHistoryEntry {
     }
 
     pub fn format_time(&self, format: &str) -> Option<String> {
-        if let Some(datetime) = NaiveDateTime::from_timestamp_millis(self.time as i64) {
+        if let LocalResult::Single(utc) = Utc.timestamp_millis_opt(self.time as i64) {
+            let datetime: DateTime<Local> = utc.with_timezone(&Local);
             let result = datetime.format(format).to_string();
 
             return Some(result);
