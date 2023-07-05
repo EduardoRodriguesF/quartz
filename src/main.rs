@@ -490,11 +490,17 @@ async fn main() {
                 // End of heading line
                 println!();
 
+                let context_name: String = match &entry.context {
+                    Some(context) => context.name.clone(),
+                    None => "none".into(),
+                };
+
+                println!("Url: {}", endpoint.url);
+                println!("Context: {}", context_name);
                 println!(
                     "Date: {}",
                     entry.format_time(date).unwrap_or("Unknown".into())
                 );
-                println!("Url: {}", endpoint.url);
 
                 println!();
                 println!("{}", entry.body);
