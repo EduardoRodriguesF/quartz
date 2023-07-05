@@ -38,7 +38,7 @@ assets = [
         "755",
     ],
 	[
-		"man/quartz/*",
+		"man/man1/*",
 		"usr/share/man/man1/",
 		"644",
 	],
