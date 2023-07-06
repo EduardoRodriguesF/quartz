@@ -200,7 +200,7 @@ async fn main() {
                 exit(1);
             }
 
-            if let Ok(()) = State::Context.set(&specification.path.join(" ")) {
+            if let Ok(()) = State::Endpoint.set(&specification.path.join(" ")) {
                 println!("switched to {} endpoint", specification.head().green());
             } else {
                 panic!(
