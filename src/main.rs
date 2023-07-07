@@ -512,8 +512,16 @@ async fn main() {
             edit: should_edit,
             list: should_list,
         } => {
-            let mut context = Context::parse("default").unwrap_or_else(|_| {
-                eprintln!("Failed to parse {} context", "default".red());
+            let state = State::Context.get().unwrap_or_else(|_| {
+                eprintln!(
+                    "No active context. Try {}",
+                    "quartz context use <CONTEXT>".green()
+                );
+                exit(1);
+            });
+
+            let mut context = Context::parse(&state).unwrap_or_else(|_| {
+                eprintln!("Failed to parse {} context", state.red());
                 exit(1);
             });
 
