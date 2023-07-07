@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `variable` commands would always use the default context instead of the active one, causing completly broken behavior.
+
 ## [0.2.1] - 2023-07-06
 
 ### Fixed
