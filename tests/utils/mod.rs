@@ -4,6 +4,8 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 
+pub type TestResult = Result<(), Box<dyn std::error::Error>>;
+
 pub struct Quartz {
     bin: PathBuf,
     pub tmpdir: PathBuf,
@@ -26,14 +28,16 @@ impl Drop for Quartz {
 }
 
 impl Quartz {
-    pub fn cmd<S>(&self, args: &[S]) -> Result<std::process::Child, std::io::Error>
+    pub fn cmd<S>(&self, args: &[S]) -> Result<std::process::ExitStatus, std::io::Error>
     where
         S: AsRef<OsStr>,
     {
-        Command::new(self.bin.as_path())
+        let mut command = Command::new(self.bin.as_path())
             .current_dir(self.tmpdir.as_path())
             .args(args)
-            .spawn()
+            .spawn()?;
+
+        command.wait()
     }
 
     pub fn dir(&self) -> PathBuf {

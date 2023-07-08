@@ -3,12 +3,13 @@ mod utils;
 use utils::*;
 
 #[test]
-fn init_quartz() {
+fn init_quartz() -> TestResult {
     let quartz = Quartz::default();
 
-    quartz.cmd(&["init"]).unwrap();
+    let status = quartz.cmd(&["init"])?;
 
-    println!("{:?}", quartz.tmpdir.join(".quartz"));
-
+    assert!(status.success(), "init command failed");
     assert!(quartz.dir().exists(), ".quartz was not created");
+
+    Ok(())
 }
