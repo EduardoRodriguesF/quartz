@@ -8,7 +8,7 @@ pub type TestResult = Result<(), Box<dyn std::error::Error>>;
 
 pub struct Quartz {
     bin: PathBuf,
-    pub tmpdir: PathBuf,
+    tmpdir: PathBuf,
 }
 
 impl Default for Quartz {
