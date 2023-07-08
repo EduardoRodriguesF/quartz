@@ -1,9 +1,7 @@
-mod utils;
-
-use utils::*;
+use crate::utils::*;
 
 #[test]
-fn init_quartz() -> TestResult {
+fn it_initializes_quartz() -> TestResult {
     let quartz = Quartz::default();
 
     let status = quartz.cmd(&["init"])?;
