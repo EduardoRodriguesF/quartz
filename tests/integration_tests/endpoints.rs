@@ -6,14 +6,10 @@ fn it_creates_empty_endpoint() -> TestResult {
     let sample_endpoint = "myendpoint";
 
     quartz.cmd(&["init"])?;
-    let status = quartz.cmd(&["create", sample_endpoint])?.status;
-    let list_bytes = quartz.cmd(&["list"])?.stdout;
+    let output = quartz.cmd(&["create", sample_endpoint])?;
+    let list = quartz.cmd(&["list"])?.stdout;
 
-    let list = String::from_utf8(list_bytes)?;
-
-    println!("listing: {}", list);
-
-    assert!(status.success(), "create command failed");
+    assert!(output.status.success(), "{}", output.stderr);
     assert!(
         list.contains(sample_endpoint),
         "Endpoint was not properly created"
@@ -30,7 +26,7 @@ fn it_creates_endpoint_with_url() -> TestResult {
 
     quartz.cmd(&["init"])?;
 
-    let create_result = quartz.cmd(&[
+    let create_output = quartz.cmd(&[
         "create",
         sample_endpoint,
         "--url",
@@ -39,16 +35,12 @@ fn it_creates_endpoint_with_url() -> TestResult {
         "GET",
     ])?;
 
-    quartz.cmd(&["use", sample_endpoint])?;
-    let output = quartz.cmd(&["url", "--get"])?;
-    let url = String::from_utf8_lossy(&output.stdout);
+    assert!(create_output.status.success(), "{}", create_output.stderr);
 
-    assert!(
-        create_result.status.success(),
-        "{}",
-        String::from_utf8_lossy(&create_result.stderr)
-    );
-    assert_eq!(url.trim(), sample_url);
+    quartz.cmd(&["use", sample_endpoint])?;
+    let url_output = quartz.cmd(&["url", "--get"])?;
+
+    assert_eq!(url_output.stdout.trim(), sample_url.trim());
 
     Ok(())
 }
