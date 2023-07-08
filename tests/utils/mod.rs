@@ -41,12 +41,10 @@ impl Quartz {
     where
         S: AsRef<OsStr>,
     {
-        let command = Command::new(self.bin.as_path())
+        Command::new(self.bin.as_path())
             .current_dir(self.tmpdir.as_path())
             .args(args)
-            .spawn()?;
-
-        command.wait_with_output()
+            .output()
     }
 
     pub fn dir(&self) -> PathBuf {
