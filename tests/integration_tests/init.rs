@@ -4,7 +4,7 @@ use crate::utils::*;
 fn it_initializes_quartz() -> TestResult {
     let quartz = Quartz::default();
 
-    let status = quartz.cmd(&["init"])?;
+    let status = quartz.cmd(&["init"])?.status;
 
     assert!(status.success(), "init command failed");
     assert!(quartz.dir().exists(), ".quartz was not created");
