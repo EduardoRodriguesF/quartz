@@ -65,3 +65,19 @@ fn it_creates_endpoint_with_method() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn it_does_not_allow_create_without_reference() -> TestResult {
+    let quartz = Quartz::default();
+
+    quartz.cmd(&["init"])?;
+
+    let create_output = quartz.cmd(&["create"])?;
+
+    assert!(
+        !create_output.status.success(),
+        "created endpoint without reference"
+    );
+
+    Ok(())
+}
