@@ -26,14 +26,7 @@ fn it_creates_endpoint_with_url() -> TestResult {
 
     quartz.cmd(&["init"])?;
 
-    let create_output = quartz.cmd(&[
-        "create",
-        sample_endpoint,
-        "--url",
-        sample_url,
-        "--method",
-        "GET",
-    ])?;
+    let create_output = quartz.cmd(&["create", sample_endpoint, "--url", sample_url])?;
 
     assert!(create_output.status.success(), "{}", create_output.stderr);
 
