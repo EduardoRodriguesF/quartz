@@ -81,3 +81,29 @@ fn it_does_not_allow_create_without_reference() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn it_does_not_allow_create_duplicate() -> TestResult {
+    let quartz = Quartz::default();
+    quartz.cmd(&["init"])?;
+
+    quartz.cmd(&["create", "myendpoint", "--url", "https://original/"])?;
+    let duplicate_create_output =
+        quartz.cmd(&["create", "myendpoint", "--url", "https://overwritten/"])?;
+
+    quartz.cmd(&["use", "myendpoint"])?;
+    let url_output = quartz.cmd(&["url", "--get"])?;
+
+    assert_ne!(
+        url_output.stdout.trim(),
+        "https://overwritten/",
+        "duplicate overwrote original endpoint data"
+    );
+
+    assert!(
+        !duplicate_create_output.status.success(),
+        "created duplicate endpoint"
+    );
+
+    Ok(())
+}
