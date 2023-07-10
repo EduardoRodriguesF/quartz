@@ -67,6 +67,71 @@ fn it_creates_endpoint_with_method() -> TestResult {
 }
 
 #[test]
+fn it_creates_endpoint_with_header() -> TestResult {
+    let quartz = Quartz::default();
+    let sample_endpoint = "myendpoint";
+
+    quartz.cmd(&["init"])?;
+
+    let create_output = quartz.cmd(&[
+        "create",
+        sample_endpoint,
+        "--url",
+        sample_endpoint,
+        "--header",
+        "Content-type: application/json",
+    ])?;
+
+    assert!(create_output.status.success(), "{}", create_output.stderr);
+
+    quartz.cmd(&["use", sample_endpoint])?;
+    let method_output = quartz.cmd(&["headers", "--list"])?;
+
+    assert!(method_output
+        .stdout
+        .contains("Content-type: application/json"));
+
+    Ok(())
+}
+
+#[test]
+fn it_creates_endpoint_with_multiple_headers() -> TestResult {
+    let quartz = Quartz::default();
+    let sample_endpoint = "myendpoint";
+
+    quartz.cmd(&["init"])?;
+
+    let create_output = quartz.cmd(&[
+        "create",
+        sample_endpoint,
+        "--url",
+        sample_endpoint,
+        "--header",
+        "Content-type: application/json",
+        "--header",
+        "Accept: application/json",
+    ])?;
+
+    assert!(create_output.status.success(), "{}", create_output.stderr);
+
+    quartz.cmd(&["use", sample_endpoint])?;
+    let method_output = quartz.cmd(&["headers", "--list"])?;
+
+    assert!(
+        method_output
+            .stdout
+            .contains("Content-type: application/json"),
+        "missing first header"
+    );
+    assert!(
+        method_output.stdout.contains("Accept: application/json"),
+        "missing second header"
+    );
+
+    Ok(())
+}
+
+#[test]
 fn it_does_not_allow_create_without_reference() -> TestResult {
     let quartz = Quartz::default();
 
