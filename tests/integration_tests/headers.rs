@@ -2,19 +2,8 @@ use crate::utils::*;
 
 #[test]
 fn it_adds_new_header() -> TestResult {
-    let quartz = Quartz::default();
-    let sample_endpoint = "myendpoint";
+    let quartz = Quartz::preset_using_sample_endpoint()?;
 
-    quartz.cmd(&["init"])?;
-
-    quartz.cmd(&[
-        "create",
-        sample_endpoint,
-        "--url",
-        "https://httpbin.org/get",
-    ])?;
-
-    quartz.cmd(&["use", sample_endpoint])?;
     let headers_add_output = quartz.cmd(&["headers", "--add", "Content-type: application/json"])?;
     let headers_output = quartz.cmd(&["headers", "--list"])?;
 
@@ -32,19 +21,7 @@ fn it_adds_new_header() -> TestResult {
 
 #[test]
 fn it_adds_multiple_new_header() -> TestResult {
-    let quartz = Quartz::default();
-    let sample_endpoint = "myendpoint";
-
-    quartz.cmd(&["init"])?;
-
-    quartz.cmd(&[
-        "create",
-        sample_endpoint,
-        "--url",
-        "https://httpbin.org/get",
-    ])?;
-
-    quartz.cmd(&["use", sample_endpoint])?;
+    let quartz = Quartz::preset_using_sample_endpoint()?;
 
     let sample_headers = vec![
         "Content-type: application/json",
@@ -78,19 +55,7 @@ fn it_adds_multiple_new_header() -> TestResult {
 
 #[test]
 fn it_overwrites_existing_headers() -> TestResult {
-    let quartz = Quartz::default();
-    let sample_endpoint = "myendpoint";
-
-    quartz.cmd(&["init"])?;
-
-    quartz.cmd(&[
-        "create",
-        sample_endpoint,
-        "--url",
-        "https://httpbin.org/get",
-    ])?;
-
-    quartz.cmd(&["use", sample_endpoint])?;
+    let quartz = Quartz::preset_using_sample_endpoint()?;
 
     quartz.cmd(&[
         "headers",
@@ -125,19 +90,7 @@ fn it_overwrites_existing_headers() -> TestResult {
 
 #[test]
 fn it_removes_header_by_key() -> TestResult {
-    let quartz = Quartz::default();
-    let sample_endpoint = "myendpoint";
-
-    quartz.cmd(&["init"])?;
-
-    quartz.cmd(&[
-        "create",
-        sample_endpoint,
-        "--url",
-        "https://httpbin.org/get",
-    ])?;
-
-    quartz.cmd(&["use", sample_endpoint])?;
+    let quartz = Quartz::preset_using_sample_endpoint()?;
 
     quartz.cmd(&[
         "headers",
@@ -163,19 +116,7 @@ fn it_removes_header_by_key() -> TestResult {
 
 #[test]
 fn it_errors_on_remove_unexistent() -> TestResult {
-    let quartz = Quartz::default();
-    let sample_endpoint = "myendpoint";
-
-    quartz.cmd(&["init"])?;
-
-    quartz.cmd(&[
-        "create",
-        sample_endpoint,
-        "--url",
-        "https://httpbin.org/get",
-    ])?;
-
-    quartz.cmd(&["use", sample_endpoint])?;
+    let quartz = Quartz::preset_using_sample_endpoint()?;
 
     quartz.cmd(&["headers", "--add", "Accept: form"])?;
 
@@ -187,19 +128,7 @@ fn it_errors_on_remove_unexistent() -> TestResult {
 
 #[test]
 fn it_does_not_allow_invalid_header_format() -> TestResult {
-    let quartz = Quartz::default();
-    let sample_endpoint = "myendpoint";
-
-    quartz.cmd(&["init"])?;
-
-    quartz.cmd(&[
-        "create",
-        sample_endpoint,
-        "--url",
-        "https://httpbin.org/get",
-    ])?;
-
-    quartz.cmd(&["use", sample_endpoint])?;
+    let quartz = Quartz::preset_using_sample_endpoint()?;
 
     let headers_output = quartz.cmd(&["headers", "--add", "Content-type"])?;
     assert!(

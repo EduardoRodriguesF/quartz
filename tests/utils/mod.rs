@@ -43,6 +43,28 @@ impl Drop for Quartz {
 }
 
 impl Quartz {
+    pub fn preset_empty_project() -> Result<Self, std::io::Error> {
+        let quartz = Quartz::default();
+        quartz.cmd(&["init"])?;
+
+        Ok(quartz)
+    }
+
+    pub fn preset_using_sample_endpoint() -> Result<Self, std::io::Error> {
+        let quartz = Quartz::preset_empty_project()?;
+        let sample_endpoint = "myendpoint";
+
+        quartz.cmd(&[
+            "create",
+            sample_endpoint,
+            "--url",
+            "https://httpbin.org/get",
+        ])?;
+
+        quartz.cmd(&["use", sample_endpoint])?;
+
+        Ok(quartz)
+    }
     pub fn cmd<S>(&self, args: &[S]) -> Result<QuartzOutput, std::io::Error>
     where
         S: AsRef<OsStr>,

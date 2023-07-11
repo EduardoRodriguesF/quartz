@@ -2,10 +2,9 @@ use crate::utils::*;
 
 #[test]
 fn it_creates_empty_endpoint() -> TestResult {
-    let quartz = Quartz::default();
+    let quartz = Quartz::preset_empty_project()?;
     let sample_endpoint = "myendpoint";
 
-    quartz.cmd(&["init"])?;
     let output = quartz.cmd(&["create", sample_endpoint])?;
     let list = quartz.cmd(&["list"])?.stdout;
 
@@ -20,11 +19,9 @@ fn it_creates_empty_endpoint() -> TestResult {
 
 #[test]
 fn it_creates_endpoint_with_url() -> TestResult {
-    let quartz = Quartz::default();
+    let quartz = Quartz::preset_empty_project()?;
     let sample_endpoint = "myendpoint";
     let sample_url = "https://httpbin.org/get";
-
-    quartz.cmd(&["init"])?;
 
     let create_output = quartz.cmd(&["create", sample_endpoint, "--url", sample_url])?;
 
@@ -40,12 +37,10 @@ fn it_creates_endpoint_with_url() -> TestResult {
 
 #[test]
 fn it_creates_endpoint_with_method() -> TestResult {
-    let quartz = Quartz::default();
+    let quartz = Quartz::preset_empty_project()?;
     let sample_endpoint = "myendpoint";
     let sample_url = "https://httpbin.org/get";
     let method = "POST";
-
-    quartz.cmd(&["init"])?;
 
     let create_output = quartz.cmd(&[
         "create",
@@ -68,10 +63,8 @@ fn it_creates_endpoint_with_method() -> TestResult {
 
 #[test]
 fn it_creates_endpoint_with_header() -> TestResult {
-    let quartz = Quartz::default();
+    let quartz = Quartz::preset_empty_project()?;
     let sample_endpoint = "myendpoint";
-
-    quartz.cmd(&["init"])?;
 
     let create_output = quartz.cmd(&[
         "create",
@@ -96,10 +89,8 @@ fn it_creates_endpoint_with_header() -> TestResult {
 
 #[test]
 fn it_creates_endpoint_with_multiple_headers() -> TestResult {
-    let quartz = Quartz::default();
+    let quartz = Quartz::preset_empty_project()?;
     let sample_endpoint = "myendpoint";
-
-    quartz.cmd(&["init"])?;
 
     let create_output = quartz.cmd(&[
         "create",
@@ -133,9 +124,7 @@ fn it_creates_endpoint_with_multiple_headers() -> TestResult {
 
 #[test]
 fn it_does_not_allow_create_without_reference() -> TestResult {
-    let quartz = Quartz::default();
-
-    quartz.cmd(&["init"])?;
+    let quartz = Quartz::preset_empty_project()?;
 
     let create_output = quartz.cmd(&["create"])?;
 
@@ -149,8 +138,7 @@ fn it_does_not_allow_create_without_reference() -> TestResult {
 
 #[test]
 fn it_does_not_allow_create_duplicate() -> TestResult {
-    let quartz = Quartz::default();
-    quartz.cmd(&["init"])?;
+    let quartz = Quartz::preset_empty_project()?;
 
     quartz.cmd(&["create", "myendpoint", "--url", "https://original/"])?;
     let duplicate_create_output =
