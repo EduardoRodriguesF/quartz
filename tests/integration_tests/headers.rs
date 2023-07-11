@@ -122,3 +122,40 @@ fn it_overwrites_existing_headers() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn it_does_not_allow_invalid_header_format() -> TestResult {
+    let quartz = Quartz::default();
+    let sample_endpoint = "myendpoint";
+
+    quartz.cmd(&["init"])?;
+
+    quartz.cmd(&[
+        "create",
+        sample_endpoint,
+        "--url",
+        "https://httpbin.org/get",
+    ])?;
+
+    quartz.cmd(&["use", sample_endpoint])?;
+
+    let headers_output = quartz.cmd(&["headers", "--add", "Content-type"])?;
+    assert!(
+        !headers_output.status.success(),
+        "allowed header without value separation"
+    );
+
+    let headers_output = quartz.cmd(&["headers", "--add", "Content-type = application/json"])?;
+    assert!(
+        !headers_output.status.success(),
+        "allowed header with incorrect key-value separation"
+    );
+
+    let headers_output = quartz.cmd(&["headers", "--add", "Content-type:application/json"])?;
+    assert!(
+        !headers_output.status.success(),
+        "allowed header without proper spacing between key and value"
+    );
+
+    Ok(())
+}
