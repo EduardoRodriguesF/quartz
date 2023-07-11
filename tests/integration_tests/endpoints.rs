@@ -123,6 +123,32 @@ fn it_creates_endpoint_with_multiple_headers() -> TestResult {
 }
 
 #[test]
+fn it_creates_nested_endpoints() -> TestResult {
+    let quartz = Quartz::preset_empty_project()?;
+
+    let output = quartz.cmd(&[
+        "create",
+        "myendpoint",
+        "childendpoint",
+        "--url",
+        "https://this-is-the-nested-one.com",
+    ])?;
+    assert!(output.status.success(), "{}", output.stderr);
+
+    let output = quartz.cmd(&["use", "myendpoint", "childendpoint"])?;
+    assert!(output.status.success(), "{}", output.stderr);
+
+    let output = quartz.cmd(&["url", "--get"])?;
+    assert_eq!(
+        output.stdout.trim(),
+        "https://this-is-the-nested-one.com",
+        "could not use nested endpoint"
+    );
+
+    Ok(())
+}
+
+#[test]
 fn it_does_not_allow_create_without_reference() -> TestResult {
     let quartz = Quartz::preset_empty_project()?;
 
