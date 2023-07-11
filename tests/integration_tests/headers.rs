@@ -162,6 +162,30 @@ fn it_removes_header_by_key() -> TestResult {
 }
 
 #[test]
+fn it_errors_on_remove_unexistent() -> TestResult {
+    let quartz = Quartz::default();
+    let sample_endpoint = "myendpoint";
+
+    quartz.cmd(&["init"])?;
+
+    quartz.cmd(&[
+        "create",
+        sample_endpoint,
+        "--url",
+        "https://httpbin.org/get",
+    ])?;
+
+    quartz.cmd(&["use", sample_endpoint])?;
+
+    quartz.cmd(&["headers", "--add", "Accept: form"])?;
+
+    let remove_output = quartz.cmd(&["headers", "--remove", "Content-type"])?;
+    assert!(!remove_output.status.success(), "did not throw error");
+
+    Ok(())
+}
+
+#[test]
 fn it_does_not_allow_invalid_header_format() -> TestResult {
     let quartz = Quartz::default();
     let sample_endpoint = "myendpoint";
