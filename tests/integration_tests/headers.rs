@@ -124,6 +124,44 @@ fn it_overwrites_existing_headers() -> TestResult {
 }
 
 #[test]
+fn it_removes_header_by_key() -> TestResult {
+    let quartz = Quartz::default();
+    let sample_endpoint = "myendpoint";
+
+    quartz.cmd(&["init"])?;
+
+    quartz.cmd(&[
+        "create",
+        sample_endpoint,
+        "--url",
+        "https://httpbin.org/get",
+    ])?;
+
+    quartz.cmd(&["use", sample_endpoint])?;
+
+    quartz.cmd(&[
+        "headers",
+        "--add",
+        "Content-type: application/json",
+        "--add",
+        "Accept: form",
+    ])?;
+
+    let remove_output = quartz.cmd(&["headers", "--remove", "Content-type", "--list"])?;
+    assert!(remove_output.status.success(), "{}", remove_output.stderr);
+    assert!(
+        !remove_output.stdout.contains("Content-type"),
+        "did not remove specified header"
+    );
+    assert!(
+        remove_output.stdout.contains("Accept"),
+        "removed specified header, but unrelated header is missing"
+    );
+
+    Ok(())
+}
+
+#[test]
 fn it_does_not_allow_invalid_header_format() -> TestResult {
     let quartz = Quartz::default();
     let sample_endpoint = "myendpoint";
