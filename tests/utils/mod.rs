@@ -1,9 +1,10 @@
 use std::default::Default;
 use std::ffi::OsStr;
+use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
-use std::process::Command;
 use std::process::ExitStatus;
+use std::process::{Command, Stdio};
 use std::time::SystemTime;
 
 pub type TestResult = Result<(), Box<dyn std::error::Error>>;
@@ -65,6 +66,7 @@ impl Quartz {
 
         Ok(quartz)
     }
+
     pub fn cmd<S>(&self, args: &[S]) -> Result<QuartzOutput, std::io::Error>
     where
         S: AsRef<OsStr>,
@@ -73,6 +75,31 @@ impl Quartz {
             .current_dir(self.tmpdir.as_path())
             .args(args)
             .output()?;
+
+        Ok(QuartzOutput {
+            stdout: String::from_utf8_lossy(&output.stdout).into(),
+            stderr: String::from_utf8_lossy(&output.stderr).into(),
+            status: output.status,
+        })
+    }
+
+    pub fn cmd_stdin<S>(&self, args: &[S], stdin: &str) -> Result<QuartzOutput, std::io::Error>
+    where
+        S: AsRef<OsStr>,
+    {
+        let mut child = Command::new(self.bin.as_path())
+            .current_dir(self.tmpdir.as_path())
+            .args(args)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()?;
+
+        let child_stdin = child.stdin.as_mut().unwrap();
+        child_stdin.write_all(stdin.as_bytes())?;
+        // Close stdin to finish and avoid indefinite blocking
+        drop(child_stdin);
+
+        let output = child.wait_with_output()?;
 
         Ok(QuartzOutput {
             stdout: String::from_utf8_lossy(&output.stdout).into(),
