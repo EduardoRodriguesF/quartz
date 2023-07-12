@@ -44,6 +44,10 @@ pub enum Commands {
         /// Endpoint specification
         endpoint: Vec<String>,
     },
+    Status {
+        #[command(subcommand)]
+        command: StatusCommands,
+    },
     /// Lists available endpoints
     #[command(alias = "ls")]
     List {
@@ -133,6 +137,15 @@ pub enum Commands {
         #[command(subcommand)]
         command: ConfigCommands,
     },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum StatusCommands {
+    #[command(name = "--endpoint")]
+    Endpoint,
+
+    #[command(name = "--context")]
+    Context,
 }
 
 #[derive(Debug, Subcommand)]

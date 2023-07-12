@@ -209,6 +209,18 @@ async fn main() {
                 );
             }
         }
+        Commands::Status { command } => match command {
+            cli::StatusCommands::Endpoint => {
+                if let Ok(endpoint) = State::Endpoint.get() {
+                    println!("{}", endpoint);
+                }
+            }
+            cli::StatusCommands::Context => {
+                if let Ok(context) = State::Context.get() {
+                    println!("{}", context);
+                }
+            }
+        },
         Commands::List { depth: max_depth } => {
             let max_depth = max_depth.unwrap_or(999) as i16;
             let mut current = PathBuf::new();
