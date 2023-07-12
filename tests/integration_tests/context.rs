@@ -72,3 +72,20 @@ fn it_can_not_use_unexistent_context() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn it_can_remove_context() -> TestResult {
+    let quartz = Quartz::preset_empty_project()?;
+
+    quartz.cmd(&["context", "create", "example"])?;
+
+    let output = quartz.cmd(&["context", "remove", "example"])?;
+    assert!(output.status.success(), "{}", output.stderr);
+    let list = quartz.cmd(&["context", "list"])?;
+    assert!(
+        !list.stdout.contains("example"),
+        "example context is still listed"
+    );
+
+    Ok(())
+}
