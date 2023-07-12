@@ -89,3 +89,20 @@ fn it_can_remove_context() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn it_cannot_create_duplicate() -> TestResult {
+    let quartz = Quartz::preset_empty_project()?;
+
+    quartz.cmd(&["context", "create", "example"])?;
+    quartz.cmd(&["context", "create", "lorem"])?;
+    let output = quartz.cmd(&["context", "create", "example"])?;
+
+    assert!(
+        !output.status.success(),
+        "{}",
+        "it allowed to create duplicate"
+    );
+
+    Ok(())
+}
