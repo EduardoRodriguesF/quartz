@@ -91,6 +91,16 @@ fn it_can_remove_context() -> TestResult {
 }
 
 #[test]
+fn it_cannot_remove_unexistent_context() -> TestResult {
+    let quartz = Quartz::preset_empty_project()?;
+
+    let output = quartz.cmd(&["context", "remove", "example"])?;
+    assert!(!output.status.success(), "did not exit with error");
+
+    Ok(())
+}
+
+#[test]
 fn it_cannot_create_duplicate() -> TestResult {
     let quartz = Quartz::preset_empty_project()?;
 
