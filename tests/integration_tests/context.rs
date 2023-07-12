@@ -2,7 +2,7 @@ use crate::utils::*;
 
 #[test]
 fn it_starts_with_default_context() -> TestResult {
-    let quartz = Quartz::preset_using_sample_endpoint()?;
+    let quartz = Quartz::preset_empty_project()?;
 
     let output = quartz.cmd(&["status", "--context"])?;
 
@@ -14,7 +14,7 @@ fn it_starts_with_default_context() -> TestResult {
 
 #[test]
 fn it_can_create_context() -> TestResult {
-    let quartz = Quartz::preset_using_sample_endpoint()?;
+    let quartz = Quartz::preset_empty_project()?;
 
     let output = quartz.cmd(&["context", "create", "example"])?;
     let list = quartz.cmd(&["context", "list"])?;
@@ -30,7 +30,7 @@ fn it_can_create_context() -> TestResult {
 
 #[test]
 fn it_can_switch_between_contexts() -> TestResult {
-    let quartz = Quartz::preset_using_sample_endpoint()?;
+    let quartz = Quartz::preset_empty_project()?;
 
     quartz.cmd(&["context", "create", "example"])?;
     quartz.cmd(&["context", "create", "lorem"])?;
@@ -54,7 +54,7 @@ fn it_can_switch_between_contexts() -> TestResult {
 
 #[test]
 fn it_can_not_use_unexistent_context() -> TestResult {
-    let quartz = Quartz::preset_using_sample_endpoint()?;
+    let quartz = Quartz::preset_empty_project()?;
 
     let output = quartz.cmd(&["context", "use", "idontexist"])?;
     assert!(
