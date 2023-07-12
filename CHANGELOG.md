@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `status` command for getting current endpoint and/or context.
+
 ### Fixed
 - `variable` commands would always use the default context instead of the active one, causing completly broken behavior.
 
