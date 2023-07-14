@@ -69,3 +69,22 @@ fn it_can_overwrite_existing_variables() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn each_context_has_its_own_variables() -> TestResult {
+    let quartz = Quartz::preset_using_default_context()?;
+
+    quartz.cmd(&["variable", "--set", "baseUrl=localhost"])?;
+    quartz.cmd(&["context", "create", "example"])?;
+    quartz.cmd(&["context", "use", "example"])?;
+
+    let output = quartz.cmd(&["variable", "--get", "baseUrl"])?;
+    assert_ne!(output.stdout.trim(), "localhost", "");
+
+    quartz.cmd(&["context", "use", "default"])?;
+
+    let output = quartz.cmd(&["variable", "--get", "baseUrl"])?;
+    assert_eq!(output.stdout.trim(), "localhost");
+
+    Ok(())
+}
