@@ -617,7 +617,7 @@ async fn main() {
                 if let Ok(()) = State::Context.set(&context.name) {
                     println!("Switched to {} context", context.name.green());
                 } else {
-                    panic!("Failed to switch to {} endpoint", context.name.red());
+                    panic!("Failed to switch to {} context", context.name.red());
                 }
             }
             cli::ContextCommands::List => {
