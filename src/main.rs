@@ -216,9 +216,7 @@ async fn main() {
                 }
             }
             cli::StatusCommands::Context => {
-                if let Ok(context) = State::Context.get() {
-                    println!("{}", context);
-                }
+                println!("{}", State::Context.get().unwrap_or("default".into()));
             }
         },
         Commands::List { depth: max_depth } => {
@@ -524,13 +522,7 @@ async fn main() {
             edit: should_edit,
             list: should_list,
         } => {
-            let state = State::Context.get().unwrap_or_else(|_| {
-                eprintln!(
-                    "No active context. Try {}",
-                    "quartz context use <CONTEXT>".green()
-                );
-                exit(1);
-            });
+            let state = State::Context.get().unwrap_or("default".into());
 
             let mut context = Context::parse(&state).unwrap_or_else(|_| {
                 eprintln!("Failed to parse {} context", state.red());
