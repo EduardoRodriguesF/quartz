@@ -16,7 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Uses `default` context in case none is specified.
 
 ### Fixed
+
 - `variable` commands would always use the default context instead of the active one, causing completly broken behavior.
+- Setting variables with quotation marks (e.g. `quartz variable --set baseUrl="localhost"`) would cause quartz to save the quotation marks itself. Those are now ignored.
 
 ## [0.2.1] - 2023-07-06
 

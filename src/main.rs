@@ -557,7 +557,7 @@ async fn main() {
                 }
 
                 let key = split_set[0];
-                let value = split_set[1];
+                let value = split_set[1].trim_matches('\'').trim_matches('\"');
 
                 context.variables.insert(key.to_string(), value.to_string());
             }
