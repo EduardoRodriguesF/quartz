@@ -149,6 +149,11 @@ async fn main() {
             header,
             switch,
         } => {
+            if specs.is_empty() {
+                eprintln!("missing endpoint reference");
+                exit(1);
+            }
+
             let mut specification = Specification {
                 path: specs,
                 endpoint: None,

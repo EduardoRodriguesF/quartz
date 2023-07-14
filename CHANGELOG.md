@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Trying to create an endpoint without its reference would not exit with error.
 - `variable` commands would always use the default context instead of the active one, causing completly broken behavior.
 - Setting variables with quotation marks (e.g. `quartz variable --set baseUrl="localhost"`) would cause quartz to save the quotation marks itself. Those are now ignored.
 
