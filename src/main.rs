@@ -159,6 +159,11 @@ async fn main() {
                 endpoint: None,
             };
 
+            if specification.exists() {
+                eprintln!("endpoint already exists");
+                exit(1);
+            }
+
             let mut endpoint = Endpoint::new();
 
             for item in header {

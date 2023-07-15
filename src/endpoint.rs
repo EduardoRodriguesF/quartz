@@ -105,6 +105,10 @@ impl Specification {
         result
     }
 
+    pub fn exists(&self) -> bool {
+        self.dir().exists()
+    }
+
     /// Records files to build this endpoint with `parse` methods.
     pub fn write(&self) {
         let mut dir = Path::new(".quartz").join("endpoints");
