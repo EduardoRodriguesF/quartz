@@ -34,4 +34,4 @@ jobs:
         path: target
         key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
     - name: Run integration tests
-      run: cargo test --verbose --release --tests mod -- --test-threads 1
+      run: cargo test --verbose --release --test mod -- --test-threads 1
