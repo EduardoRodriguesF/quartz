@@ -36,7 +36,7 @@ impl Context {
     pub fn write(&self) -> Result<(), Box<dyn std::error::Error>> {
         let dir = self.dir();
 
-        std::fs::create_dir(&dir)?;
+        std::fs::create_dir(dir)?;
 
         self.update()?;
 
@@ -49,7 +49,7 @@ impl Context {
         let mut var_file = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
-            .open(&self.dir().join("variables.toml"))?;
+            .open(self.dir().join("variables.toml"))?;
 
         if !content.is_empty() {
             var_file.write(content.as_bytes())?;

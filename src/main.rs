@@ -9,7 +9,6 @@ use core::panic;
 use std::{
     io::Write,
     path::{Path, PathBuf},
-    process::exit,
     str::FromStr,
 };
 
@@ -133,7 +132,7 @@ async fn main() {
             }
 
             history_entry
-                .body(&bytes.to_vec())
+                .body(&bytes)
                 .status(res.status().as_u16())
                 .path(specification.path)
                 .duration(duration.as_millis() as u64);
@@ -276,15 +275,15 @@ async fn main() {
                             if depth < max_depth {
                                 // Avoid extra newline from Specification::QUARTZ usage
                                 if !spec.path.is_empty() {
-                                    print!("\n");
+                                    println!();
                                 }
 
                                 (recurse.f)(recurse, children);
                             } else {
-                                print!("{}\n", " +".dimmed());
+                                println!("{}", " +".dimmed());
                             }
                         } else {
-                            print!("\n");
+                            println!();
                         }
                     }
                 },
@@ -546,7 +545,7 @@ async fn main() {
             }
 
             if let Some(set) = maybe_set {
-                let split_set = set.splitn(2, "=").collect::<Vec<&str>>();
+                let split_set = set.splitn(2, '=').collect::<Vec<&str>>();
 
                 if split_set.len() != 2 {
                     panic!(

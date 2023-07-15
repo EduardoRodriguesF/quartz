@@ -45,7 +45,7 @@ impl Specification {
         let mut path = Path::new(".quartz").join("endpoints");
 
         for parent in &nesting {
-            let name = Endpoint::name_to_dir(&parent);
+            let name = Endpoint::name_to_dir(parent);
 
             path.push(name);
         }
@@ -68,7 +68,7 @@ impl Specification {
             }
 
             let nesting = nesting
-                .split(" ")
+                .split(' ')
                 .map(|s| s.to_string())
                 .collect::<Vec<String>>();
 
@@ -95,7 +95,7 @@ impl Specification {
         let mut result = Path::new(".quartz").join("endpoints");
 
         for parent in &self.path {
-            let name = Endpoint::name_to_dir(&parent);
+            let name = Endpoint::name_to_dir(parent);
 
             result = result.join(name);
         }
@@ -111,7 +111,7 @@ impl Specification {
     pub fn write(&self) {
         let mut dir = Path::new(".quartz").join("endpoints");
         for entry in &self.path {
-            dir = dir.join(Endpoint::name_to_dir(&entry));
+            dir = dir.join(Endpoint::name_to_dir(entry));
 
             let _ = std::fs::create_dir(&dir);
 
@@ -135,7 +135,7 @@ impl Specification {
                 .open(self.dir().join("endpoint.toml"))
                 .expect("Failed to open config file.");
 
-            file.write(&toml_content.as_bytes())
+            file.write(toml_content.as_bytes())
                 .expect("Failed to write to config file.");
         }
     }
@@ -152,7 +152,7 @@ impl Specification {
                 .open(self.dir().join("endpoint.toml"))
                 .expect("Failed to open config file.");
 
-            file.write(&toml_content.as_bytes())
+            file.write(toml_content.as_bytes())
                 .expect("Failed to write to config file.");
         }
 
@@ -207,7 +207,7 @@ impl Endpoint {
     }
 
     pub fn name_to_dir(name: &str) -> String {
-        trim_newline(name.replace(&['/', '\\'], "-"))
+        trim_newline(name.replace(['/', '\\'], "-"))
     }
 
     pub fn from_dir(dir: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
@@ -263,7 +263,7 @@ impl Endpoint {
     }
 
     /// Returns the a [`Request`] based of this [`EndpointConfig`].
-    pub fn into_request(&self, spec: &Specification) -> Result<Request<Body>, hyper::http::Error> {
+    pub fn into_request(self, spec: &Specification) -> Result<Request<Body>, hyper::http::Error> {
         let mut builder = hyper::Request::builder().uri(&self.url);
 
         if let Ok(method) = hyper::Method::from_bytes(self.method.as_bytes()) {

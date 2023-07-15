@@ -61,22 +61,22 @@ impl RequestHistory {
 
 impl RequestHistoryEntry {
     pub fn new() -> Self {
-        let mut entry = Self::default();
-
         let time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
-            .as_millis();
+            .as_millis() as u64;
 
-        entry.time = time as u64;
-
-        entry
+        Self {
+            time,
+            ..Default::default()
+        }
     }
 
     pub fn from_timestemp(timestemp: u64) -> Option<Self> {
-        let mut entry = Self::default();
-
-        entry.time = timestemp;
+        let entry = Self {
+            time: timestemp,
+            ..Default::default()
+        };
 
         if let Ok(bytes) = std::fs::read(entry.file_path()) {
             let content = String::from_utf8(bytes).unwrap();

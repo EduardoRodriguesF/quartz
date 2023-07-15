@@ -11,5 +11,5 @@ fn main() {
     let src_path = Path::new(&cwd).join("man").join("man1").join("quartz.1");
     let dest_path = Path::new(&out_dir).join("quartz.1");
 
-    fs::copy(&src_path, &dest_path).expect("Failed to copy manpage file");
+    fs::copy(src_path, dest_path).expect("Failed to copy manpage file");
 }
