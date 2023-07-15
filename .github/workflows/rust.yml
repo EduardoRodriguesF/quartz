@@ -1,4 +1,4 @@
-name: Rust
+name: Cargo
 
 on:
   push:
@@ -13,12 +13,25 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: cargo build --verbose --release
+      - name: Cache build artifacts
+        uses: actions/cache@v2
+        with:
+          path: target
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+  integration_tests:
+    needs: build
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
+    - name: Restore build artifacts
+      uses: actions/cache@v2
+      with:
+        path: target
+        key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
     - name: Run tests
-      run: cargo test --verbose -- --test-threads 1
+      run: cargo test --verbose --tests mod -- --test-threads 1
