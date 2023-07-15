@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::process::exit;
 
 use crate::context::Context;
 use crate::state::State;
@@ -83,8 +82,7 @@ impl Specification {
         match Self::from_state() {
             Some(endpoint) => endpoint,
             None => {
-                eprintln!("No endpoint in use. Try {}", "quartz use <ENDPOINT>".cyan());
-                exit(1)
+                panic!("no endpoint in use. Try {}", "quartz use <ENDPOINT>".cyan());
             }
         }
     }
@@ -185,8 +183,7 @@ impl Specification {
 
                 if let Ok(vec) = std::fs::read(path.join("spec")) {
                     let spec = String::from_utf8(vec).unwrap_or_else(|_| {
-                        eprintln!("Failed to get endpoint specification");
-                        exit(1);
+                        panic!("failed to get endpoint specification");
                     });
 
                     let mut path = self.path.clone();

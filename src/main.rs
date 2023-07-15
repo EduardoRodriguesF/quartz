@@ -33,22 +33,28 @@ async fn main() {
     let args = Cli::parse();
     let config = Config::parse();
 
+    std::panic::set_hook(Box::new(|info| {
+        if let Some(payload) = info.payload().downcast_ref::<String>() {
+            eprintln!("{}: {payload}", "error".red().bold());
+        } else {
+            eprintln!("{}: {info}", "error".red().bold());
+        }
+    }));
+
     match args.command {
         Commands::Init { directory } => {
             let directory = directory.unwrap_or(Path::new(".").to_path_buf());
             let quartz_dir = directory.join(".quartz");
 
             if quartz_dir.exists() {
-                eprintln!(
+                panic!(
                     "quartz already initialized at {}",
-                    directory.to_str().unwrap().red()
+                    directory.to_string_lossy()
                 );
-                exit(1);
             }
 
             if std::fs::create_dir(&quartz_dir).is_err() {
-                eprintln!("Failed to initialize quartz project");
-                exit(1);
+                panic!("failed to initialize quartz project");
             };
 
             let ensure_dirs = vec![
@@ -61,8 +67,7 @@ async fn main() {
 
             for dir in ensure_dirs {
                 if std::fs::create_dir(quartz_dir.join(PathBuf::from_str(dir).unwrap())).is_err() {
-                    eprintln!("Failed to create {} directory", dir.red());
-                    exit(1);
+                    panic!("failed to create {} directory", dir);
                 }
             }
 
@@ -81,8 +86,7 @@ async fn main() {
             }
 
             if Context::default().write().is_err() {
-                eprintln!("Failed to create default context");
-                exit(1);
+                panic!("failed to create default context");
             }
         }
         Commands::Send => {
@@ -94,8 +98,7 @@ async fn main() {
                 .endpoint
                 .as_ref()
                 .unwrap_or_else(|| {
-                    eprintln!("No endpoint at {}", specification.head().red());
-                    exit(1);
+                    panic!("no endpoint at {}", specification.head().red());
                 })
                 .clone();
 
@@ -150,8 +153,7 @@ async fn main() {
             switch,
         } => {
             if specs.is_empty() {
-                eprintln!("missing endpoint reference");
-                exit(1);
+                panic!("missing endpoint reference");
             }
 
             let mut specification = Specification {
@@ -160,8 +162,7 @@ async fn main() {
             };
 
             if specification.exists() {
-                eprintln!("endpoint already exists");
-                exit(1);
+                panic!("endpoint already exists");
             }
 
             let mut endpoint = Endpoint::new();
@@ -191,11 +192,10 @@ async fn main() {
                 if let Ok(()) = State::Endpoint.set(&specification.path.join(" ")) {
                     println!("Switched to {} endpoint", specification.head().green());
                 } else {
-                    eprintln!(
-                        "Failed to switch to {} endpoint",
+                    panic!(
+                        "failed to switch to {} endpoint",
                         specification.head().red()
                     );
-                    exit(1)
                 }
             }
 
@@ -206,8 +206,7 @@ async fn main() {
             let specification = Specification::from_nesting(endpoint);
 
             if !specification.dir().exists() {
-                eprintln!("Endpoint does not exist");
-                exit(1);
+                panic!("endpoint does not exist");
             }
 
             if let Ok(()) = State::Endpoint.set(&specification.path.join(" ")) {
@@ -321,16 +320,14 @@ async fn main() {
             if std::fs::remove_dir_all(specification.dir()).is_ok() {
                 println!("Deleted endpoint {}", specification.head());
             } else {
-                eprintln!("Failed to delete endpoint {}", specification.head());
-                exit(1);
+                panic!("failed to delete endpoint {}", specification.head());
             }
         }
         Commands::Url { command } => match command {
             cli::EndpointUrlCommands::Get => {
                 let specification = Specification::from_state_or_exit();
                 let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
-                    eprintln!("No endpoint at {}", specification.head().red());
-                    exit(1);
+                    panic!("no endpoint at {}", specification.head().red());
                 });
 
                 println!("{}", endpoint.url);
@@ -341,8 +338,7 @@ async fn main() {
                     .endpoint
                     .as_ref()
                     .unwrap_or_else(|| {
-                        eprintln!("No endpoint at {}", specification.head().red());
-                        exit(1);
+                        panic!("no endpoint at {}", specification.head().red());
                     })
                     .clone();
 
@@ -356,8 +352,7 @@ async fn main() {
             cli::EndpointMethodCommands::Get => {
                 let specification = Specification::from_state_or_exit();
                 let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
-                    eprintln!("No endpoint at {}", specification.head().red());
-                    exit(1);
+                    panic!("no endpoint at {}", specification.head().red());
                 });
 
                 println!("{}", endpoint.method);
@@ -368,8 +363,7 @@ async fn main() {
                     .endpoint
                     .as_ref()
                     .unwrap_or_else(|| {
-                        eprintln!("No endpoint at {}", specification.head().red());
-                        exit(1);
+                        panic!("no endpoint at {}", specification.head().red());
                     })
                     .clone();
 
@@ -389,8 +383,7 @@ async fn main() {
                 .endpoint
                 .as_ref()
                 .unwrap_or_else(|| {
-                    eprintln!("No endpoint at {}", specification.head().red());
-                    exit(1);
+                    panic!("no endpoint at {}", specification.head().red());
                 })
                 .clone();
 
@@ -402,7 +395,7 @@ async fn main() {
                 let splitted_item = header.splitn(2, ": ").collect::<Vec<&str>>();
 
                 if splitted_item.len() <= 1 {
-                    panic!("Malformed header argument: {}", header);
+                    panic!("malformed header argument: {}", header);
                 }
 
                 let key = splitted_item[0];
@@ -430,8 +423,7 @@ async fn main() {
                 .endpoint
                 .as_ref()
                 .unwrap_or_else(|| {
-                    eprintln!("No endpoint at {}", specification.head().red());
-                    exit(1);
+                    panic!("no endpoint at {}", specification.head().red());
                 })
                 .clone();
 
@@ -535,16 +527,14 @@ async fn main() {
             let state = State::Context.get().unwrap_or("default".into());
 
             let mut context = Context::parse(&state).unwrap_or_else(|_| {
-                eprintln!("Failed to parse {} context", state.red());
-                exit(1);
+                panic!("failed to parse {} context", state);
             });
 
             if let Some(var) = maybe_get {
                 if let Some(value) = context.variables.get(&var) {
                     println!("{}", value);
                 } else {
-                    eprintln!("Variable {} does not exist", var.red());
-                    exit(1);
+                    panic!("variable {} does not exist", var);
                 }
             }
 
@@ -559,11 +549,10 @@ async fn main() {
                 let split_set = set.splitn(2, "=").collect::<Vec<&str>>();
 
                 if split_set.len() != 2 {
-                    eprintln!(
-                        "Malformed argument. Try using {}",
-                        "quartz context variable --set <key>=<value>".green()
+                    panic!(
+                        "malformed argument. Try using {}",
+                        "quartz variable --set <key>=<value>".green()
                     );
-                    exit(1);
                 }
 
                 let key = split_set[0];
@@ -576,8 +565,7 @@ async fn main() {
                 if let Ok(list) = toml::ser::to_string(&context.variables) {
                     println!("{}", list);
                 } else {
-                    eprintln!("Failed to list variables");
-                    exit(1);
+                    panic!("failed to list variables");
                 }
             }
 
@@ -588,8 +576,7 @@ async fn main() {
                 let context = match copy {
                     Some(copy_from) => {
                         let mut context = Context::parse(&copy_from).unwrap_or_else(|_| {
-                            eprintln!("No context named {} to copy from.", copy_from.red());
-                            exit(1);
+                            panic!("no context named {} to copy from.", copy_from.red());
                         });
 
                         context.name = name.clone();
@@ -599,27 +586,24 @@ async fn main() {
                 };
 
                 if context.exists() {
-                    eprintln!("A context named {} already exists", name.red());
-                    exit(1);
+                    panic!("A context named {} already exists", name.red());
                 }
 
                 if context.write().is_err() {
-                    eprintln!("Failed to create {} context", name);
-                    exit(1);
+                    panic!("Failed to create {} context", name);
                 }
             }
             cli::ContextCommands::Use { context } => {
                 let context = Context::new(&context);
 
                 if !context.exists() {
-                    eprintln!("Context {} does not exist", context.name.red());
-                    exit(1);
+                    panic!("context {} does not exist", context.name.red());
                 }
 
                 if let Ok(()) = State::Context.set(&context.name) {
                     println!("Switched to {} context", context.name.green());
                 } else {
-                    panic!("Failed to switch to {} context", context.name.red());
+                    panic!("failed to switch to {} context", context.name.red());
                 }
             }
             cli::ContextCommands::List => {
@@ -642,15 +626,13 @@ async fn main() {
                 let context = Context::new(&context);
 
                 if !context.exists() {
-                    eprintln!("Context {} does not exist", context.name.red());
-                    exit(1);
+                    panic!("context {} does not exist", context.name.red());
                 }
 
                 if std::fs::remove_dir_all(context.dir()).is_ok() {
-                    eprintln!("Deleted {} context", context.name.green());
+                    println!("Deleted {} context", context.name.green());
                 } else {
-                    eprintln!("Failed to delete {} context", context.name.red());
-                    exit(1);
+                    panic!("failed to delete {} context", context.name.red());
                 }
             }
         },
