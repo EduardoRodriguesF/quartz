@@ -52,7 +52,7 @@ impl Context {
             .open(self.dir().join("variables.toml"))?;
 
         if !content.is_empty() {
-            var_file.write(content.as_bytes())?;
+            var_file.write_all(content.as_bytes())?;
         }
 
         Ok(())

@@ -122,7 +122,7 @@ impl Specification {
                 .open(dir.join("spec"))
                 .unwrap();
 
-            let _ = file.write(entry.as_bytes());
+            let _ = file.write_all(entry.as_bytes());
         }
         std::fs::create_dir_all(self.dir()).expect("Failed to create endpoint.");
 
@@ -135,7 +135,7 @@ impl Specification {
                 .open(self.dir().join("endpoint.toml"))
                 .expect("Failed to open config file.");
 
-            file.write(toml_content.as_bytes())
+            file.write_all(toml_content.as_bytes())
                 .expect("Failed to write to config file.");
         }
     }
@@ -152,7 +152,7 @@ impl Specification {
                 .open(self.dir().join("endpoint.toml"))
                 .expect("Failed to open config file.");
 
-            file.write(toml_content.as_bytes())
+            file.write_all(toml_content.as_bytes())
                 .expect("Failed to write to config file.");
         }
 
@@ -162,7 +162,7 @@ impl Specification {
             .open(self.dir().join("spec"))
             .unwrap();
 
-        let _ = file.write(self.head().as_bytes());
+        let _ = file.write_all(self.head().as_bytes());
     }
 
     pub fn children(&self) -> Vec<Specification> {

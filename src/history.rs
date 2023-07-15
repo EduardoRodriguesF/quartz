@@ -148,7 +148,7 @@ impl RequestHistoryEntry {
             .create(true)
             .write(true)
             .open(self.file_path())?
-            .write(content.as_bytes())?;
+            .write_all(content.as_bytes())?;
 
         Ok(())
     }
