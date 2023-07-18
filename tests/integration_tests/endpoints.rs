@@ -149,14 +149,14 @@ fn it_creates_nested_endpoints() -> TestResult {
 }
 
 #[test]
-fn it_does_not_allow_create_without_reference() -> TestResult {
+fn it_does_not_allow_create_without_handle() -> TestResult {
     let quartz = Quartz::preset_empty_project()?;
 
     let create_output = quartz.cmd(&["create"])?;
 
     assert!(
         !create_output.status.success(),
-        "created endpoint without reference"
+        "created endpoint without handle"
     );
 
     Ok(())

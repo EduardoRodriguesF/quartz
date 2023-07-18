@@ -18,13 +18,13 @@ pub enum Commands {
     },
     /// Sends request from endpoint
     Send {
-        /// Endpoint specification
-        endpoint: Vec<String>,
+        /// Endpoint handle
+        handle: Vec<String>,
     },
     /// Creates a new endpoint
     Create {
-        /// New endpoint specification
-        specs: Vec<String>,
+        /// New endpoint
+        handle: Vec<String>,
 
         /// Set URL value
         #[arg(long)]
@@ -44,8 +44,8 @@ pub enum Commands {
     },
     /// Switch to a given endpoint
     Use {
-        /// Endpoint specification
-        endpoint: Vec<String>,
+        /// Endpoint handle
+        handle: Vec<String>,
     },
     Status {
         #[command(subcommand)]
@@ -62,12 +62,12 @@ pub enum Commands {
     #[command(alias = "rm")]
     Remove {
         /// Endpoint specification
-        endpoint: Vec<String>,
+        handle: Vec<String>,
     },
     /// Print endpoint configuration
     Show {
         /// Endpoint specification
-        endpoint: Vec<String>,
+        handle: Vec<String>,
     },
     /// Opens an editor to modify endpoint configuration
     Edit {

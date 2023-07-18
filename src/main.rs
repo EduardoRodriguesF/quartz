@@ -17,7 +17,7 @@ use cli::{Cli, Commands};
 use colored::Colorize;
 use config::Config;
 use context::Context;
-use endpoint::{Endpoint, Specification};
+use endpoint::{Endpoint, EndpointHandle};
 use history::{RequestHistory, RequestHistoryEntry};
 use hyper::{
     body::{Bytes, HttpBody},
@@ -88,10 +88,10 @@ async fn main() {
                 panic!("failed to create default context");
             }
         }
-        Commands::Send { endpoint } => {
-            let specification = match !endpoint.is_empty() {
-                true => Specification::from_nesting(endpoint),
-                false => Specification::from_state_or_exit(),
+        Commands::Send { handle } => {
+            let specification = match !handle.is_empty() {
+                true => EndpointHandle::from_handle(handle),
+                false => EndpointHandle::from_state_or_exit(),
             };
             let mut history_entry = RequestHistoryEntry::new();
             let context = Context::parse(&State::Context.get().unwrap_or(String::from("default")));
@@ -148,22 +148,19 @@ async fn main() {
             let _ = history_entry.write();
         }
         Commands::Create {
-            specs,
+            handle,
             url: maybe_url,
             method: maybe_method,
             header,
             switch,
         } => {
-            if specs.is_empty() {
-                panic!("missing endpoint reference");
+            if handle.is_empty() {
+                panic!("missing endpoint handle");
             }
 
-            let mut specification = Specification {
-                path: specs,
-                endpoint: None,
-            };
+            let mut handle = EndpointHandle::from_handle(handle);
 
-            if specification.exists() {
+            if handle.exists() {
                 panic!("endpoint already exists");
             }
 
@@ -191,21 +188,18 @@ async fn main() {
             }
 
             if switch {
-                if let Ok(()) = State::Endpoint.set(&specification.path.join(" ")) {
-                    println!("Switched to {} endpoint", specification.head().green());
+                if let Ok(()) = State::Endpoint.set(&handle.path.join(" ")) {
+                    println!("Switched to {} endpoint", handle.head().green());
                 } else {
-                    panic!(
-                        "failed to switch to {} endpoint",
-                        specification.head().red()
-                    );
+                    panic!("failed to switch to {} endpoint", handle.head().red());
                 }
             }
 
-            specification.endpoint = Some(endpoint);
-            specification.write();
+            handle.endpoint = Some(endpoint);
+            handle.write();
         }
-        Commands::Use { endpoint } => {
-            let specification = Specification::from_nesting(endpoint);
+        Commands::Use { handle } => {
+            let specification = EndpointHandle::from_handle(handle);
 
             if !specification.dir().exists() {
                 panic!("endpoint does not exist");
@@ -234,7 +228,7 @@ async fn main() {
             let max_depth = max_depth.unwrap_or(999) as i16;
             let mut current = PathBuf::new();
 
-            if let Some(specification) = Specification::from_state() {
+            if let Some(specification) = EndpointHandle::from_state() {
                 current = specification.dir()
             }
 
@@ -242,9 +236,9 @@ async fn main() {
             // I'm sorry.
             // It will be refactored sometime.
             struct TraverseEndpoints<'s> {
-                f: &'s dyn Fn(&TraverseEndpoints, Vec<Specification>),
+                f: &'s dyn Fn(&TraverseEndpoints, Vec<EndpointHandle>),
             }
-            let traverse_specs = TraverseEndpoints {
+            let traverse_handles = TraverseEndpoints {
                 f: &|recurse, specifications| {
                     for spec in specifications {
                         let depth = (spec.path.len() as i16 - 1).max(0);
@@ -292,12 +286,12 @@ async fn main() {
                 },
             };
 
-            (traverse_specs.f)(&traverse_specs, vec![Specification::QUARTZ]);
+            (traverse_handles.f)(&traverse_handles, vec![EndpointHandle::QUARTZ]);
         }
-        Commands::Show { endpoint } => {
-            let specification = match !endpoint.is_empty() {
-                true => Specification::from_nesting(endpoint),
-                false => Specification::from_state_or_exit(),
+        Commands::Show { handle } => {
+            let specification = match !handle.is_empty() {
+                true => EndpointHandle::from_handle(handle),
+                false => EndpointHandle::from_state_or_exit(),
             };
 
             if let Some(endpoint) = specification.endpoint {
@@ -307,7 +301,7 @@ async fn main() {
             }
         }
         Commands::Edit { editor } => {
-            let specification = Specification::from_state_or_exit();
+            let specification = EndpointHandle::from_state_or_exit();
 
             let editor = match editor {
                 Some(editor) => editor,
@@ -319,8 +313,8 @@ async fn main() {
                 .status()
                 .expect("Failed to open editor");
         }
-        Commands::Remove { endpoint } => {
-            let specification = Specification::from_nesting(endpoint);
+        Commands::Remove { handle } => {
+            let specification = EndpointHandle::from_handle(handle);
 
             if std::fs::remove_dir_all(specification.dir()).is_ok() {
                 println!("Deleted endpoint {}", specification.head());
@@ -330,7 +324,7 @@ async fn main() {
         }
         Commands::Url { command } => match command {
             cli::EndpointUrlCommands::Get => {
-                let specification = Specification::from_state_or_exit();
+                let specification = EndpointHandle::from_state_or_exit();
                 let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
                     panic!("no endpoint at {}", specification.head().red());
                 });
@@ -338,7 +332,7 @@ async fn main() {
                 println!("{}", endpoint.url);
             }
             cli::EndpointUrlCommands::Set { url } => {
-                let mut specification = Specification::from_state_or_exit();
+                let mut specification = EndpointHandle::from_state_or_exit();
                 let mut endpoint = specification
                     .endpoint
                     .as_ref()
@@ -355,7 +349,7 @@ async fn main() {
         },
         Commands::Method { command } => match command {
             cli::EndpointMethodCommands::Get => {
-                let specification = Specification::from_state_or_exit();
+                let specification = EndpointHandle::from_state_or_exit();
                 let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
                     panic!("no endpoint at {}", specification.head().red());
                 });
@@ -363,7 +357,7 @@ async fn main() {
                 println!("{}", endpoint.method);
             }
             cli::EndpointMethodCommands::Set { method } => {
-                let mut specification = Specification::from_state_or_exit();
+                let mut specification = EndpointHandle::from_state_or_exit();
                 let mut endpoint = specification
                     .endpoint
                     .as_ref()
@@ -383,7 +377,7 @@ async fn main() {
             remove: remove_list,
             list: should_list,
         } => {
-            let mut specification = Specification::from_state_or_exit();
+            let mut specification = EndpointHandle::from_state_or_exit();
             let mut endpoint = specification
                 .endpoint
                 .as_ref()
@@ -423,7 +417,7 @@ async fn main() {
             edit: should_edit,
             print: should_print,
         } => {
-            let mut specification = Specification::from_state_or_exit();
+            let mut specification = EndpointHandle::from_state_or_exit();
             let endpoint = specification
                 .endpoint
                 .as_ref()

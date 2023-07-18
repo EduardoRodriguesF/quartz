@@ -9,7 +9,7 @@ use crate::context::Context;
 use crate::state::State;
 
 #[derive(Debug)]
-pub struct Specification {
+pub struct EndpointHandle {
     pub endpoint: Option<Endpoint>,
 
     /// List of ordered parent names
@@ -31,7 +31,7 @@ pub struct Endpoint {
     pub variables: HashMap<String, String>,
 }
 
-impl Specification {
+impl EndpointHandle {
     /// Points to top-level quartz folder.
     ///
     /// This constant can be used to traverse through all specifications starting
@@ -41,10 +41,10 @@ impl Specification {
         endpoint: None,
     };
 
-    pub fn from_nesting(nesting: Vec<String>) -> Self {
+    pub fn from_handle(handle: Vec<String>) -> Self {
         let mut path = Path::new(".quartz").join("endpoints");
 
-        for parent in &nesting {
+        for parent in &handle {
             let name = Endpoint::name_to_dir(parent);
 
             path.push(name);
@@ -56,7 +56,7 @@ impl Specification {
         };
 
         Self {
-            path: nesting,
+            path: handle,
             endpoint,
         }
     }
@@ -72,7 +72,7 @@ impl Specification {
                 .map(|s| s.to_string())
                 .collect::<Vec<String>>();
 
-            return Some(Specification::from_nesting(nesting));
+            return Some(EndpointHandle::from_handle(nesting));
         }
 
         None
@@ -165,8 +165,8 @@ impl Specification {
         let _ = file.write_all(self.head().as_bytes());
     }
 
-    pub fn children(&self) -> Vec<Specification> {
-        let mut list = Vec::<Specification>::new();
+    pub fn children(&self) -> Vec<EndpointHandle> {
+        let mut list = Vec::<EndpointHandle>::new();
 
         if let Ok(paths) = std::fs::read_dir(self.dir()) {
             for path in paths {
@@ -189,7 +189,7 @@ impl Specification {
                     let mut path = self.path.clone();
                     path.push(spec);
 
-                    list.push(Specification { path, endpoint })
+                    list.push(EndpointHandle { path, endpoint })
                 }
             }
         }
@@ -223,7 +223,7 @@ impl Endpoint {
         toml::to_string(&self)
     }
 
-    pub fn body(&self, spec: &Specification) -> Body {
+    pub fn body(&self, spec: &EndpointHandle) -> Body {
         match std::fs::read(spec.dir().join("body.json")) {
             Ok(bytes) => {
                 let mut content = String::from_utf8(bytes).unwrap();
@@ -263,7 +263,7 @@ impl Endpoint {
     }
 
     /// Returns the a [`Request`] based of this [`EndpointConfig`].
-    pub fn into_request(self, spec: &Specification) -> Result<Request<Body>, hyper::http::Error> {
+    pub fn into_request(self, spec: &EndpointHandle) -> Result<Request<Body>, hyper::http::Error> {
         let mut builder = hyper::Request::builder().uri(&self.url);
 
         if let Ok(method) = hyper::Method::from_bytes(self.method.as_bytes()) {

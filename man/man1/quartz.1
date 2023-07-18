@@ -20,14 +20,14 @@ Built to be a version-controllable tool, wrapping a
 .Nm
 project in a Git repository is as easy as maintaining configuration files.
 .
-.Sh ENDPOINT REFS
+.Sh ENDPOINT HANDLES
 In
 .Nm ,
 endpoints can be nested within other endpoints. In order to specify which endpoint we want to deal with, we use
-.Em references
+.Em handle
 as paths.
 .Pp
-If we were to use an endpoint ":id" that is inside "users", our reference would be the nesting path to reach the desired endpoint.
+If we were to use an endpoint ":id" that is inside "users", our handle would be the nesting path to reach the desired endpoint.
 .Pp
 .Dl $ quartz use users :id
 .Pp
@@ -45,8 +45,8 @@ The program will exit with an error if the path already contains a
 .Nm
 project, indicated by the existance of a .quartz directory.
 .
-.Ss create <REF...>
-Create a new endpoint from a new reference.
+.Ss create <HANDLE...>
+Create a new endpoint from a new handle.
 .Pp
 The options are as follows:
 .
@@ -80,16 +80,16 @@ Switch the newly created endpoint. it is equivalent as chaining create and use c
 .Pp
 .Dl $ quartz create myendpoint && quartz use myendpoint
 .
-.Ss use <REF...>
-Switch to endpoint reference. Using an endpoint allows for operations like "send", "edit" and other endpoint commands.
+.Ss use <HANDLE...>
+Switch to endpoint from its handle. Using an endpoint allows for operations like "send", "edit" and other endpoint commands.
 .
 .Ss send
 Sends the configured endpoint request and display the response status and body.
 .Pp
 For the time being, those are the only available informations. More ways to fetch specific response informations will be added soon.
 .
-.Ss rm, remove <REF...>
-Deletes an endpoint based on its reference.
+.Ss rm, remove <HANDLE...>
+Deletes an endpoint based on its handle.
 .
 .Ss show
 Display the configuration file for the endpoint in use.
