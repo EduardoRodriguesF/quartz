@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `send` and `show` commands can receive endpoint references for more convenient usage.
+
 ## [0.3.0] - 2023-07-15
 
 ### Added

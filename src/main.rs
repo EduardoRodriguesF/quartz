@@ -88,8 +88,11 @@ async fn main() {
                 panic!("failed to create default context");
             }
         }
-        Commands::Send => {
-            let specification = Specification::from_state_or_exit();
+        Commands::Send { endpoint } => {
+            let specification = match !endpoint.is_empty() {
+                true => Specification::from_nesting(endpoint),
+                false => Specification::from_state_or_exit(),
+            };
             let mut history_entry = RequestHistoryEntry::new();
             let context = Context::parse(&State::Context.get().unwrap_or(String::from("default")));
 
@@ -291,8 +294,11 @@ async fn main() {
 
             (traverse_specs.f)(&traverse_specs, vec![Specification::QUARTZ]);
         }
-        Commands::Show => {
-            let specification = Specification::from_state_or_exit();
+        Commands::Show { endpoint } => {
+            let specification = match !endpoint.is_empty() {
+                true => Specification::from_nesting(endpoint),
+                false => Specification::from_state_or_exit(),
+            };
 
             if let Some(endpoint) = specification.endpoint {
                 println!("{}", endpoint.to_toml().unwrap());

@@ -17,7 +17,10 @@ pub enum Commands {
         directory: Option<PathBuf>,
     },
     /// Sends request from endpoint
-    Send,
+    Send {
+        /// Endpoint specification
+        endpoint: Vec<String>,
+    },
     /// Creates a new endpoint
     Create {
         /// New endpoint specification
@@ -62,7 +65,10 @@ pub enum Commands {
         endpoint: Vec<String>,
     },
     /// Print endpoint configuration
-    Show,
+    Show {
+        /// Endpoint specification
+        endpoint: Vec<String>,
+    },
     /// Opens an editor to modify endpoint configuration
     Edit {
         #[arg(long)]
