@@ -31,6 +31,7 @@ name = "quartz"
 path = "src/main.rs"
 
 [package.metadata.deb]
+name = "quartz"
 assets = [
 	[
         "target/release/quartz",

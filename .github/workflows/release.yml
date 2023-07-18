@@ -1,0 +1,115 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  create:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Extract Changes
+        id: extract_changes
+        run: |
+          changes=$(./extract_changes.sh ${{ github.ref }} CHANGELOG.md)
+          echo "changes=$changes" >> $GITHUB_OUTPUT
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: ${{ steps.extract_changes.outputs.changes }}
+          draft: false
+          prerelease: false
+  publish_crate:
+    name: Publish on crates.io
+    needs: create
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+  deb:
+    name: Upload deb package
+    needs: create
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+          target: x86_64-unknown-linux-musl
+      - name: Install cargo-deb
+        run: cargo install cargo-deb
+      - name: Build deb package
+        id: build_deb
+        run: |
+          pkg=$(cargo deb)
+          pkg_sum=$(shasum -a 256 "$pkg")
+
+          echo "deb_pkg=$pkg" >> $GITHUB_OUTPUT
+          echo "deb_pkg_sum=$pkg" >> $GITHUB_OUTPUT
+      - name: Upload release deb
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload ${{ github.ref }} ${{ steps.build_deb.outputs.deb_pkg }} ${{ steps.build_deb.outputs.deb_pkg_sum }}
+  build:
+    name: Build
+    needs: create
+    runs-on: ${{ matrix.os }}
+    env:
+      CARGO: cargo
+      # When CARGO is set to CROSS, this is set to `--target matrix.target`.
+      TARGET_FLAGS: ""
+      # When CARGO is set to CROSS, TARGET_DIR includes matrix.target.
+      TARGET_DIR: ./target
+    strategy:
+      matrix:
+        build: [linux, linux-arm, macos]
+        include:
+        - build: linux
+          os: ubuntu-latest
+          rust: nightly
+          target: x86_64-unknown-linux-musl
+        - build: linux-arm
+          os: ubuntu-latest
+          rust: nightly
+          target: arm-unknown-linux-gnueabihf
+        - build: macos
+          os: macos-latest
+          rust: nightly
+          target: x86_64-apple-darwin
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          target: ${{ matrix.target }}
+      - name: Build
+        run: ${{ env.CARGO }} build --verbose --release --target ${{ matrix.target }}
+      - name: Build archive
+        shell: bash
+        run: |
+          staging="quartz-${{ github.ref }}-${{ matrix.target }}"
+          mkdir -p "$staging"/doc
+
+          cp {README.md,LICENSE} "$staging/"
+          cp CHANGELOG.md "$staging/doc/"
+
+          cp man/man1/quartz.1 "$staging/doc/"
+          cp "target/${{ matrix.target }}/release/quartz" "$staging/"
+          tar czf "$staging.tar.gz" "$staging"
+          shasum -a 256 "$staging.tar.gz" > "$staging.tar.gz.sha256"
+          echo "ASSET=$staging.tar.gz" >> $GITHUB_ENV
+          echo "ASSET_SUM=$staging.tar.gz.sha256" >> $GITHUB_ENV
+      - name: Upload release archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload ${{ github.ref }} ${{ env.ASSET }} ${{ env.ASSET_SUM }}

@@ -3,10 +3,11 @@ name: Cargo
 on:
   push:
     branches:
-      - '**'
+      - 'master'
   pull_request:
     branches:
       - '**'
+  workflow_call:
 
 env:
   CARGO_TERM_COLOR: always
