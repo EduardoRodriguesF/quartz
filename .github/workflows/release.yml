@@ -66,6 +66,7 @@ jobs:
       # When CARGO is set to CROSS, TARGET_DIR includes matrix.target.
       TARGET_DIR: ./target
     strategy:
+      fail-fast: false
       matrix:
         build: [linux, linux-arm, macos]
         include:
