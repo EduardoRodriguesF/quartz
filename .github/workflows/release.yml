@@ -19,15 +19,9 @@ jobs:
           echo "changes=$changes" >> $GITHUB_OUTPUT
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        run: gh release create ${{ github.ref }} --title "${{ github.ref }}" --latest --notes "${{ steps.extract_changes.outputs.changes }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          body: ${{ steps.extract_changes.outputs.changes }}
-          draft: false
-          prerelease: false
+          GH_TOKEN: ${{ github.token }}
   publish_crate:
     name: Publish on crates.io
     needs: create
