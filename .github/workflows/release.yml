@@ -15,11 +15,11 @@ jobs:
       - name: Extract Changes
         id: extract_changes
         run: |
-          changes=$(./extract_changes.sh ${{ github.ref }} CHANGELOG.md)
+          changes=$(./extract_changes.sh ${{ github.ref_name }} CHANGELOG.md)
           echo "changes=$changes" >> $GITHUB_OUTPUT
       - name: Create Release
         id: create_release
-        run: gh release create ${{ github.ref }} --title "${{ github.ref }}" --latest --notes "${{ steps.extract_changes.outputs.changes }}"
+        run: gh release create ${{ github.ref_name }} --title "${{ github.ref_name }}" --latest --notes "${{ steps.extract_changes.outputs.changes }}"
         env:
           GH_TOKEN: ${{ github.token }}
   publish_crate:
@@ -52,11 +52,12 @@ jobs:
       - name: Upload release deb
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload ${{ github.ref }} ${{ steps.build_deb.outputs.deb_pkg }} ${{ steps.build_deb.outputs.deb_pkg_sum }}
+        run: gh release upload ${{ github.ref_name }} ${{ steps.build_deb.outputs.deb_pkg }} ${{ steps.build_deb.outputs.deb_pkg_sum }}
   build:
     name: Build
     needs: create
     runs-on: ${{ matrix.os }}
+    permissions: write-all
     env:
       CARGO: cargo
       # When CARGO is set to CROSS, this is set to `--target matrix.target`.
@@ -91,7 +92,7 @@ jobs:
       - name: Build archive
         shell: bash
         run: |
-          staging="quartz-${{ github.ref }}-${{ matrix.target }}"
+          staging="quartz-${{ github.ref_name }}-${{ matrix.target }}"
           mkdir -p "$staging"/doc
 
           cp {README.md,LICENSE} "$staging/"
@@ -106,4 +107,4 @@ jobs:
       - name: Upload release archive
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload ${{ github.ref }} ${{ env.ASSET }} ${{ env.ASSET_SUM }}
+        run: gh release upload ${{ github.ref_name }} ${{ env.ASSET }} ${{ env.ASSET_SUM }}
