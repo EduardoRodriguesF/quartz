@@ -119,7 +119,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload ${{ github.ref_name }} ${{ env.ASSET }}
-      - name:
+      - name: Mark as able to brew
         if: matrix.os == 'macos-latest' && matrix.target == 'x86_64-apple-darwin'
         run: echo "SHOULD_BREW=true" >> $GITHUB_ENV
   homebrew:
