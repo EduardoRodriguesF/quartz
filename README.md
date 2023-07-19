@@ -17,7 +17,24 @@ What Quartz is **not**:
 
 ## Installation
 
-Read [INSTALLATION.md](./INSTALLATION.md) for instructions.
+<details>
+    <summary>Install script (cURL)</summary>
+
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/EduardoRodriguesF/quartz/master/install.sh)"
+</details>
+
+<details>
+    <summary>Cargo</summary>
+
+    cargo install quartz-cli
+</details>
+
+<details>
+    <summary>Homebrew</summary>
+
+    brew tap eduardorodriguesf/quartz
+    brew install quartz
+</details>
 
 ## Documentation
 
