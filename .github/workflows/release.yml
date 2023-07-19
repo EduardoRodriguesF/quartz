@@ -122,3 +122,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload ${{ github.ref_name }} ${{ env.ASSET }} ${{ env.ASSET_SUM }}
+  homebrew:
+    name: Update Homebrew formula
+    needs: [create, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dawidd6/action-homebrew-bump-formula@v3
+        with:
+          token: ${{ secrets.HOMEBREW_TOKEN }}
+          tap: eduardorodriguesf/homebrew-quartz
+          formula: quartz
