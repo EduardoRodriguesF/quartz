@@ -1,5 +1,12 @@
 #!/bin/bash
 
+get_latest_release() {
+  curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+    grep '"tag_name":' |                                            # Get tag line
+    sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
+}
+
+
 # Detect OS
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     platform="linux"
@@ -34,10 +41,11 @@ elif [ "$platform" == "macos" ]; then
     fi
 fi
 
-url="https://github.com/EduardoRodriguesF/quartz/releases/latest/download/quartz-$target.tar.gz"
+version=$(get_latest_release EduardoRodriguesF/quartz)
+url="https://github.com/EduardoRodriguesF/quartz/releases/latest/download/quartz-$version-$target.tar.gz"
 
 # Download and extract the tarball
-echo "Downloading latest release for $platform ($target)..."
+echo "Downloading quartz $version for $platform ($target)..."
 curl -L -o quartz.tar.gz $url
 tar -xzf quartz.tar.gz
 
