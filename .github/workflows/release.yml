@@ -125,7 +125,7 @@ jobs:
   homebrew:
     name: Update Homebrew formula
     needs: [create, build]
-    if: github.env.SHOULD_BREW
+    if: ${{ env.SHOULD_BREW == true }}
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
