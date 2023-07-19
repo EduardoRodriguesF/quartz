@@ -68,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [linux, linux-arm, macos]
+        build: [linux, linux-arm, macos, macos-arm]
         include:
         - build: linux
           os: ubuntu-latest
@@ -82,6 +82,10 @@ jobs:
           os: macos-latest
           rust: stable
           target: x86_64-apple-darwin
+        - build: macos-arm
+          os: macos-latest
+          rust: stable
+          target: aarch64-apple-darwin
     steps:
       - uses: actions/checkout@v3
       - name: Install Rust
