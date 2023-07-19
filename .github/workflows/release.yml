@@ -95,16 +95,13 @@ jobs:
         shell: bash
         run: |
           cargo install cross
-          echo "CARGO=cross" >> $GITHUB_ENV
-          echo "TARGET_FLAGS=--target ${{ matrix.target }}" >> $GITHUB_ENV
-          echo "TARGET_DIR=./target/${{ matrix.target }}" >> $GITHUB_ENV
       - name: Install essential packages (apt)
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt update -y
           sudo apt install pkg-config libssl-dev -y
       - name: Build
-        run: ${{ env.CARGO }} build --verbose --release --features pcre2 ${{ env.TARGET_FLAGS }}
+        run: cross build --verbose --release --target ${{ matrix.target }}
       - name: Build archive
         shell: bash
         run: |
