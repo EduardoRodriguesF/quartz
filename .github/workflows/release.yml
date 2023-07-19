@@ -24,7 +24,7 @@ jobs:
     needs: create
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
   deb:
     name: Upload deb package
@@ -45,14 +45,12 @@ jobs:
         id: build_deb
         run: |
           pkg=$(cargo deb)
-          pkg_sum=$(shasum -a 256 "$pkg")
 
           echo "deb_pkg=$pkg" >> $GITHUB_OUTPUT
-          echo "deb_pkg_sum=$pkg" >> $GITHUB_OUTPUT
       - name: Upload release deb
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload ${{ github.ref_name }} ${{ steps.build_deb.outputs.deb_pkg }} ${{ steps.build_deb.outputs.deb_pkg_sum }}
+        run: gh release upload ${{ github.ref_name }} ${{ steps.build_deb.outputs.deb_pkg }}
   build:
     name: Build
     needs: create
@@ -93,16 +91,20 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
+      - name: Use Cross
+        shell: bash
+        run: |
+          cargo install cross
+          echo "CARGO=cross" >> $GITHUB_ENV
+          echo "TARGET_FLAGS=--target ${{ matrix.target }}" >> $GITHUB_ENV
+          echo "TARGET_DIR=./target/${{ matrix.target }}" >> $GITHUB_ENV
       - name: Install essential packages (apt)
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt update -y
-          sudo apt install build-essential pkg-config libssl-dev -y
-      - name: Install essential packages (brew)
-        if: matrix.os == 'macos-latest'
-        run: brew install openssl@1.1
+          sudo apt install pkg-config libssl-dev -y
       - name: Build
-        run: ${{ env.CARGO }} build --verbose --release --target ${{ matrix.target }}
+        run: ${{ env.CARGO }} build --verbose --release --features pcre2 ${{ env.TARGET_FLAGS }}
       - name: Build archive
         shell: bash
         run: |
@@ -115,13 +117,11 @@ jobs:
           cp man/man1/quartz.1 "$staging/doc/"
           cp "target/${{ matrix.target }}/release/quartz" "$staging/"
           tar czf "$staging.tar.gz" "$staging"
-          shasum -a 256 "$staging.tar.gz" > "$staging.tar.gz.sha256"
           echo "ASSET=$staging.tar.gz" >> $GITHUB_ENV
-          echo "ASSET_SUM=$staging.tar.gz.sha256" >> $GITHUB_ENV
       - name: Upload release archive
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload ${{ github.ref_name }} ${{ env.ASSET }} ${{ env.ASSET_SUM }}
+        run: gh release upload ${{ github.ref_name }} ${{ env.ASSET }}
   homebrew:
     name: Update Homebrew formula
     needs: [create, build]
