@@ -91,15 +91,15 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
-      - name: Use Cross
-        shell: bash
-        run: |
-          cargo install cross
       - name: Install essential packages (apt)
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt update -y
-          sudo apt install pkg-config libssl-dev -y
+          sudo apt install openssl libssl-dev -y
+      - name: Use Cross
+        shell: bash
+        run: |
+          cargo install cross
       - name: Build
         run: cross build --verbose --release --target ${{ matrix.target }}
       - name: Build archive
