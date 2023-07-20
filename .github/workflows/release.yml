@@ -91,11 +91,6 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
-      - name: Install essential packages (apt)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt update -y
-          sudo apt install openssl libssl-dev -y
       - name: Use Cross
         shell: bash
         run: |
