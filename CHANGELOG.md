@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- UI configuration section, featuring `colors` flag to enable/disable colored outputs.
+
 ### Fixed
 
 - Piping quartz through grep or pagers would make it loose its colors.

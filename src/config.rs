@@ -4,6 +4,7 @@ use std::path::PathBuf;
 #[derive(Default, Deserialize)]
 pub struct Config {
     pub preferences: Preferences,
+    pub ui: UiConfig,
 }
 
 impl Config {
@@ -37,6 +38,17 @@ impl Config {
 #[derive(Deserialize)]
 pub struct Preferences {
     pub editor: String,
+}
+
+#[derive(Deserialize)]
+pub struct UiConfig {
+    pub colors: bool,
+}
+
+impl Default for UiConfig {
+    fn default() -> Self {
+        Self { colors: true }
+    }
 }
 
 impl Default for Preferences {

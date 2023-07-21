@@ -32,8 +32,8 @@ async fn main() {
     let args = Cli::parse();
     let config = Config::parse();
 
-    // Ensures pagers and/or grep keeps the output colored
-    colored::control::set_override(true);
+    // When true, ensures pagers and/or grep keeps the output colored
+    colored::control::set_override(config.ui.colors);
 
     std::panic::set_hook(Box::new(|info| {
         if let Some(payload) = info.payload().downcast_ref::<String>() {
