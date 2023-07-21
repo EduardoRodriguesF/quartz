@@ -1,4 +1,4 @@
-name: Create Release
+name: Release
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   create:
-    name: Create Release
+    name: Create release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -51,8 +51,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload ${{ github.ref_name }} ${{ steps.build_deb.outputs.deb_pkg }}
-  build:
-    name: Build
+  build_archive:
+    name: Build archive
     needs: create
     runs-on: ${{ matrix.os }}
     permissions:
@@ -95,7 +95,7 @@ jobs:
         shell: bash
         run: |
           cargo install cross
-      - name: Build
+      - name: Build binary
         run: cross build --verbose --release --target ${{ matrix.target }}
       - name: Build archive
         shell: bash
@@ -116,7 +116,7 @@ jobs:
         run: gh release upload ${{ github.ref_name }} ${{ env.ASSET }}
   homebrew:
     name: Update Homebrew formula
-    needs: [create, build]
+    needs: build_archive
     runs-on: ubuntu-latest
     steps:
       - uses: dawidd6/action-homebrew-bump-formula@v3
