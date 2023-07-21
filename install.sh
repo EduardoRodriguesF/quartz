@@ -42,7 +42,9 @@ elif [ "$platform" == "macos" ]; then
 fi
 
 version=$(get_latest_release EduardoRodriguesF/quartz)
-url="https://github.com/EduardoRodriguesF/quartz/releases/latest/download/quartz-$version-$target.tar.gz"
+dir="quartz-$version-$target"
+
+url="https://github.com/EduardoRodriguesF/quartz/releases/latest/download/$dir.tar.gz"
 
 # Download and extract the tarball
 echo "Downloading quartz $version for $platform ($target)..."
@@ -50,7 +52,11 @@ curl -L -o quartz.tar.gz $url
 tar -xzf quartz.tar.gz
 
 # Add the binary to a directory in $PATH
-sudo mv quartz /usr/local/bin/
+sudo mv $dir/quartz /usr/local/bin/
+sudo cp $dir/doc/quartz.1 /usr/share/man/man1/
 
 # Cleanup
 rm quartz.tar.gz
+rm -rf $dir
+
+echo "quartz $version was installed"
