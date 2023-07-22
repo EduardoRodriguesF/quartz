@@ -59,14 +59,23 @@ The options are as follows:
 **\-\-url** *URL*
 : Sets the new endpoint's URL.
 
-**\-\-method** *method*
+**\-\-method** *METHOD*
 : Sets the new endpoint's URL.
 
-**\-\-header** *header*
+**\-\-header** *HEADER*
 : Set a header entry for the new endpoint in "key: value" format. It can set multiple entries by using the argument multiple times.
 
 **\-\-use**
 : Immediatly switches to this handle after creating it.
+
+## status <*OPTION*>
+Display the current status of quartz.
+
+**\-\-endpoint**
+: Display the handle for the endpoint in use.
+
+**\-\-context**
+: Display the context in use.
 
 ## ls, list
 Lists all available endpoint handles.
@@ -99,3 +108,45 @@ The editor it uses is configured through *config* command, which is **vim(1)** b
 
 **\-\-editor** *EDITOR*
 : Defines the editor to be used for that run, overriding the **quartz** settings.
+
+## url
+Manage current endpoint's URL.
+
+**\-\-get**
+: Display the URL.
+
+**\-\-set** *URL*
+: Set a new value for URL.
+
+## method
+Manage current endpoint's method.
+
+**\-\-get**
+: Display the method.
+
+**\-\-set** *URL*
+: Set a new value for URL.
+
+## headers [*OPTIONS*]
+Manage current endpoint's headers. All flags can be used simultaneously to speed up its usage.
+
+**\-\-add** *HEADER*
+: Adds a new header entry in "key: value" format. 
+
+**\-\-remove** *KEY*
+: Removes a header by its key. 
+
+**\-\-list**
+: Display all headers for endpoint in use.
+
+## body [*OPTIONS*]
+Manage current endpoint's request body.
+
+**\-\-stdin**
+: Expect a new request body via standard input.
+
+**\-e**, **\-\-edit**
+: Opens an editor to modify the endpoint's request body.
+
+**\-p**, **\-\-print**
+: Print request body.
