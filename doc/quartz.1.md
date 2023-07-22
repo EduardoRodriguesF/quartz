@@ -172,15 +172,30 @@ Manage current context's variables.
 **\-\-list**
 : Print all variables.
 
-**\-e** **\-\-edit**
+**\-e**, **\-\-edit**
 : Opens an editor to modify the context variables file.
 
-## context
+# CONTEXT COMMANDS
 Endpoints can benefit from variables. The collection of variables to be used are defined by the active *context*.
 
 By default, **quartz** uses the **default** context containing nothing.
 
 To manage context variables, see *variable* command.
+
+## context create <*NAME*>
+Create a new context.
+
+**\-c**, **\-\-copy** *CONTEXT*
+: Copies variables from another existing context.
+
+## context use <*CONTEXT*>
+: Switch to another context.
+
+## context list
+: Print all available contexts.
+
+## context remove <*CONTEXT*>
+: Delete the specified context.
 
 # FILES
 
