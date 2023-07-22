@@ -17,35 +17,20 @@ The tool is organized across multiple configuration files to make it easy to int
 
 # ENDPOINT HANDLE
 
-In **quartz**, *endpoints*'s locations are specified by its *handle*. A handle is a unique combination of keywords to find an endpoint. If we were to use an endpoint named "users by-id", this is translated as:
+In **quartz**, *endpoint* references are specified by a *handle*. A handle is a unique combination of keywords to find an endpoint. If we were to use an endpoint named "users by-id", this is translated as:
 
 - users
     - by-id
 
-**users** can have multiple other handles inside it, and so can **by-id**. Take a look at a more complete example:
+Handles with one or more keywords are organized across the handle tree. For example: if we created a "users create", both "users create" and "users by-id" use the same parent handle.
+Deleting a handle also deletes its sub-handles as well.
 
-- products
-    - by-category
-    - by-id
-- auth
-    - users
-        - create
-        - by-id
-        - token
-            - verify
-
-Each of these bullet points are a unique endpoint at an specific handle, which is defined by the sequence of keywords like
-
-```
-auth users create
-```
-
-Keep in mind that each path could also be an endpoint, or simply an empty handle for organization purposes.
+**quartz** allows as much level of nesting as you wish.
 
 # COMMANDS
 
 ## init [*PATH*]
-Initialize a new **quartz** project. It creates a *.quartz* directory with essential subdirectories
+Initialize **quartz**. It creates a *.quartz* directory to keep track of endpoints, contexts, history and other essential informations.
 
 If no path is given, **quartz** initializes in the current directory.
 
@@ -71,14 +56,18 @@ The options are as follows:
 ## status <*OPTION*>
 Display the current status of quartz.
 
+The options are as follows:
+
 **\-\-endpoint**
-: Display the handle for the endpoint in use.
+: Print the handle for the endpoint in use.
 
 **\-\-context**
-: Display the context in use.
+: Print the context in use.
 
 ## ls, list
-Lists all available endpoint handles.
+List all available endpoint handles.
+
+The options are as follows:
 
 **\-\-depth** *N*
 : Set a limit for how deep the listing goes. For reference, a depth of 1 would show top-level handles.
@@ -87,10 +76,10 @@ Lists all available endpoint handles.
 Switch to an endpoint by its handle. Using an endpoint allows for operations like *send*, *edit* and other endpoint commands.
 
 ## send
-Sends the request using the current endpoint and outputs the response.
+Send the request using the current endpoint and outputs the response.
 
 ## rm, remove <*HANDLE*>...
-Deletes the specified handle recursively.
+Delete the specified handle recursively.
 
 ## show [*HANDLE*]...
 Display the *endpoint.toml* file of the specified endpoint.
@@ -106,11 +95,15 @@ The original file is used, so malformed TOML files might break the endpoint allt
 
 The editor it uses is configured through *config* command, which is **vim(1)** by default.
 
+The options are as follows:
+
 **\-\-editor** *EDITOR*
 : Defines the editor to be used for that run, overriding the **quartz** settings.
 
 ## url
 Manage current endpoint's URL.
+
+The options are as follows:
 
 **\-\-get**
 : Display the URL.
@@ -121,14 +114,18 @@ Manage current endpoint's URL.
 ## method
 Manage current endpoint's method.
 
+The options are as follows:
+
 **\-\-get**
 : Display the method.
 
 **\-\-set** *URL*
 : Set a new value for URL.
 
-## headers [*OPTIONS*]
-Manage current endpoint's headers. All flags can be used simultaneously to speed up its usage.
+## headers
+Manage current endpoint's headers. All options can be used simultaneously to speed up its usage.
+
+The options are as follows:
 
 **\-\-add** *HEADER*
 : Adds a new header entry in "key: value" format. 
@@ -139,8 +136,10 @@ Manage current endpoint's headers. All flags can be used simultaneously to speed
 **\-\-list**
 : Display all headers for endpoint in use.
 
-## body [*OPTIONS*]
+## body
 Manage current endpoint's request body.
+
+The options are as follows:
 
 **\-\-stdin**
 : Expect a new request body via standard input.
@@ -154,6 +153,8 @@ Manage current endpoint's request body.
 ## history
 Print request history. It uses informations about past requests saved in *.quartz/user/history/*.
 
+The options are as follows:
+
 **\-n**, **\-\-max-count** *N*
 : Maximum number of requests to be listed.
 
@@ -162,6 +163,8 @@ Print request history. It uses informations about past requests saved in *.quart
 
 ## variable
 Manage current context's variables.
+
+The options are as follows:
 
 **\-\-get** *KEY*
 : Print a variable value.
@@ -173,7 +176,7 @@ Manage current context's variables.
 : Print all variables.
 
 **\-e**, **\-\-edit**
-: Opens an editor to modify the context variables file.
+: Open an editor to modify the context variables file.
 
 # CONTEXT COMMANDS
 Endpoints can benefit from variables. The collection of variables to be used are defined by the active *context*.
@@ -184,6 +187,8 @@ To manage context variables, see *variable* command.
 
 ## context create <*NAME*>
 Create a new context.
+
+The options are as follows:
 
 **\-c**, **\-\-copy** *CONTEXT*
 : Copies variables from another existing context.
