@@ -302,7 +302,7 @@ async fn main() {
             if let Some(endpoint) = specification.endpoint {
                 println!("{}", endpoint.to_toml().unwrap());
             } else {
-                println!("No endpoint configured");
+                panic!("no endpoint configured");
             }
         }
         Commands::Edit { editor } => {
