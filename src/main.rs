@@ -30,7 +30,7 @@ use tokio::time::Instant;
 #[tokio::main]
 async fn main() {
     let args = Cli::parse();
-    let config = Config::parse();
+    let mut config = Config::parse();
 
     // When true, ensures pagers and/or grep keeps the output colored
     colored::control::set_override(config.ui.colors);
@@ -90,6 +90,8 @@ async fn main() {
             if Context::default().write().is_err() {
                 panic!("failed to create default context");
             }
+
+            config.write().expect("failed to save configuration file");
         }
         Commands::Send { handle } => {
             let specification = match !handle.is_empty() {
@@ -639,11 +641,43 @@ async fn main() {
             }
         },
         Commands::Config { command } => match command {
+            cli::ConfigCommands::Get { key } => {
+                let value: String = match key.as_str() {
+                    "preferences.editor" => config.preferences.editor,
+                    "ui.colors" => config.ui.colors.to_string(),
+                    _ => panic!("invalid key"),
+                };
+
+                println!("{value}");
+            }
             cli::ConfigCommands::Edit => {
                 let _ = std::process::Command::new(config.preferences.editor)
                     .arg(Config::filepath().to_str().unwrap())
                     .status()
                     .expect("Failed to open editor");
+            }
+            cli::ConfigCommands::Set { key, value } => {
+                match key.as_str() {
+                    "preferences.editor" => config.preferences.editor = value,
+                    "ui.colors" => {
+                        let value = match value.as_str() {
+                            "true" => true,
+                            _ => false,
+                        };
+
+                        config.ui.colors = value
+                    }
+                    _ => panic!("invalid key"),
+                };
+
+                if config.write().is_err() {
+                    panic!("failed to save config change");
+                }
+            }
+            cli::ConfigCommands::List => {
+                let content = toml::to_string(&config).expect("could not parse configuration file");
+
+                println!("{content}");
             }
         },
     }

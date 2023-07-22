@@ -183,6 +183,17 @@ pub enum EndpointMethodCommands {
 pub enum ConfigCommands {
     #[command(name = "--edit")]
     Edit,
+
+    #[command(name = "--get")]
+    Get { key: String },
+
+    /// Sets a configuration.
+    #[command(name = "--set")]
+    Set { key: String, value: String },
+
+    /// Outputs quartz configuration file
+    #[command(name = "--list")]
+    List,
 }
 
 #[derive(Debug, Subcommand)]
