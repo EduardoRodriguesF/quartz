@@ -10,7 +10,7 @@ jobs:
     name: Publish (dry-run)
     runs-on: ubuntu-latest
     steps:
-      - uses: action/checkout@v3
+      - uses: actions/checkout@v3
       - run: cargo publish --dry-run --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
   create:
     name: Create release
@@ -133,6 +133,7 @@ jobs:
           formula: quartz
   test_install_script:
     name: Test install script
+    needs: build_archive
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
