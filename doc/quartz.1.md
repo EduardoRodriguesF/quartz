@@ -37,24 +37,24 @@ If no path is given, **quartz** initializes in the current directory.
 An error will be thrown upon trying to init into an already existing **quartz** project location.
 
 ## create <*HANDLE*>...
-Create a new handle with an endpoint.
+Create a new handle.
 
 The options are as follows:
 
 **\-\-url** *URL*
-: Sets the new endpoint's URL.
+: Set handle's endpoint URL.
 
 **\-\-method** *METHOD*
-: Sets the new endpoint's URL.
+: Set handle's endpoint method.
 
 **\-\-header** *HEADER*
-: Set a header entry for the new endpoint in "key: value" format. It can set multiple entries by using the argument multiple times.
+: Set a header entry in "key: value" format. It can set multiple entries by using the argument multiple times.
 
 **\-\-use**
 : Immediatly switches to this handle after creating it.
 
 ## status <*OPTION*>
-Display the current status of quartz.
+Print the current status of **quartz**.
 
 The options are as follows:
 
@@ -65,31 +65,31 @@ The options are as follows:
 : Print the context in use.
 
 ## ls, list
-List all available endpoint handles.
+List all available handles.
 
 The options are as follows:
 
 **\-\-depth** *N*
-: Set a limit for how deep the listing goes. For reference, a depth of 1 would show top-level handles.
+: Set a limit for how deep the listing goes in sub-handles. For reference, a depth of 1 would show top-level handles.
 
 ## use <*HANDLE*>...
-Switch to an endpoint by its handle. Using an endpoint allows for operations like *send*, *edit* and other endpoint commands.
+Switch to a handle. Using a handle with endpoint allows for operations like *send*, *edit* and other endpoint commands.
 
 ## send
-Send the request using the current endpoint and outputs the response.
+Send the request using the current handle's endpoint and outputs the response.
 
 ## rm, remove <*HANDLE*>...
 Delete the specified handle recursively.
 
 ## show [*HANDLE*]...
-Display the *endpoint.toml* file of the specified endpoint.
+Print endpoint informations at a handle.
 
 If no handle is provided, quartz will display the currently active endpoint.
 
 The *endpoint.toml* file only includes **URL**, **method**, and **headers**. To get the request body, see *body* command.
 
 ## edit
-Opens an editor to modify *endpoint.toml* in use. 
+Open an editor to modify endpoint in use. 
 
 The original file is used, so malformed TOML files might break the endpoint alltogether.
 
@@ -101,7 +101,7 @@ The options are as follows:
 : Defines the editor to be used for that run, overriding the **quartz** settings.
 
 ## url
-Manage current endpoint's URL.
+Manage current handle's endpoint URL.
 
 The options are as follows:
 
@@ -112,29 +112,29 @@ The options are as follows:
 : Set a new value for URL.
 
 ## method
-Manage current endpoint's method.
+Manage current handle's endpoint method.
 
 The options are as follows:
 
 **\-\-get**
-: Display the method.
+: Print method.
 
 **\-\-set** *URL*
-: Set a new value for URL.
+: Set a value for URL.
 
 ## headers
-Manage current endpoint's headers. All options can be used simultaneously to speed up its usage.
+Manage current handle's endpoint headers. All options can be used simultaneously to speed up its usage.
 
 The options are as follows:
 
 **\-\-add** *HEADER*
-: Adds a new header entry in "key: value" format. 
+: Add new header entry in "key: value" format. 
 
 **\-\-remove** *KEY*
-: Removes a header by its key. 
+: Removes a header. 
 
 **\-\-list**
-: Display all headers for endpoint in use.
+: Print headers.
 
 ## body
 Manage current endpoint's request body.
@@ -145,7 +145,7 @@ The options are as follows:
 : Expect a new request body via standard input.
 
 **\-e**, **\-\-edit**
-: Opens an editor to modify the endpoint's request body.
+: Open an editor to modify the endpoint's request body.
 
 **\-p**, **\-\-print**
 : Print request body.
@@ -161,7 +161,7 @@ The options are as follows:
 **\-\-date *FORMAT*
 : Format date time output.
 
-## variable
+## var, variable
 Manage current context's variables.
 
 The options are as follows:
@@ -170,7 +170,7 @@ The options are as follows:
 : Print a variable value.
 
 **\-\-set** *VARIABLE*
-: Sets a variable: key=value.
+: Set a variable: key=value.
 
 **\-\-list**
 : Print all variables.
@@ -191,7 +191,7 @@ Create a new context.
 The options are as follows:
 
 **\-c**, **\-\-copy** *CONTEXT*
-: Copies variables from another existing context.
+: Copy variables from another context.
 
 ## context use <*CONTEXT*>
 : Switch to another context.
@@ -200,7 +200,7 @@ The options are as follows:
 : Print all available contexts.
 
 ## context remove <*CONTEXT*>
-: Delete the specified context.
+: Delete a context.
 
 # FILES
 

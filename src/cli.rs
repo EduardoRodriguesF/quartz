@@ -13,105 +13,97 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    Init {
-        directory: Option<PathBuf>,
-    },
-    /// Sends request from endpoint
-    Send {
-        /// Endpoint handle
-        handle: Vec<String>,
-    },
-    /// Creates a new endpoint
+    /// Initialize quartz
+    Init { directory: Option<PathBuf> },
+    /// Send request using the current handle's endpoint and outputs the response
+    Send { handle: Vec<String> },
+    /// Create a new handle
     Create {
-        /// New endpoint
         handle: Vec<String>,
 
-        /// Set URL value
+        /// Set handle's endpoint URL
         #[arg(long)]
         url: Option<String>,
 
-        /// Set method value
+        /// Set handle's endpoint method value
         #[arg(long)]
         method: Option<String>,
 
-        /// Set header entry in "<key>: <value>" format. This argument can be passed multiple times
+        /// Set a header entry in "<key>: <value>" format. This argument can be passed multiple times
         #[arg(long)]
         header: Vec<String>,
 
-        /// Switches to the new endpoint
+        /// Immediatly switches to this handle after creating it.
         #[arg(name = "use", long)]
         switch: bool,
     },
-    /// Switch to a given endpoint
-    Use {
-        /// Endpoint handle
-        handle: Vec<String>,
-    },
+    /// Switch to a handle
+    Use { handle: Vec<String> },
+    /// Print the current status of quartz
     Status {
         #[command(subcommand)]
         command: StatusCommands,
     },
-    /// Lists available endpoints
+    /// Lists available handles
     #[command(alias = "ls")]
     List {
-        /// Set a limit for printing nested endopoints
+        /// Set a limit for how deep the listing goes in sub-handles
         #[arg(long, value_name = "N")]
         depth: Option<u16>,
     },
-    /// Delete endpoint
+    /// Delete the specified handle recursively
     #[command(alias = "rm")]
     Remove {
         /// Endpoint specification
         handle: Vec<String>,
     },
-    /// Print endpoint configuration
-    Show {
-        /// Endpoint specification
-        handle: Vec<String>,
-    },
-    /// Opens an editor to modify endpoint configuration
+    /// Print endpoint informations at a handle
+    Show { handle: Vec<String> },
+    /// Open an editor to modify endpoint in use
     Edit {
         #[arg(long)]
+        /// Defines the editor to be used for that run, overriding the quartz settings.
         editor: Option<String>,
     },
-    /// Manage endpoint url and its params
+    /// Manage current handle's endpoint URL
     Url {
         #[command(subcommand)]
         command: EndpointUrlCommands,
     },
-    /// Manage endpoint method
+    /// Manage current handle's endpoint method
     Method {
         #[command(subcommand)]
         command: EndpointMethodCommands,
     },
-    /// Manage endpoint headers
+    /// Manage current handle's endpoint headers
     Headers {
-        /// New header entry in "<key>: <value>" format. This argument can be passed multiple times. Overrides duplicates
+        /// Add new header entry in "key: value" format
         #[arg(long, value_name = "HEADER")]
         add: Vec<String>,
 
-        /// Header key to remove from endpoint. This argument can be passed multiple times
+        /// Remove a header
         #[arg(long, value_name = "KEY")]
         remove: Vec<String>,
 
-        /// Print existing headers
+        /// Print headers
         #[arg(long)]
         list: bool,
     },
-    /// Manage endpoint request body
+    /// Manage current handle's endpoint request body
     Body {
         /// Expect a new request body via standard input
         #[arg(long)]
         stdin: bool,
 
-        /// Opens an editor to modify the endpoint's request body
+        /// Open an editor to modify the endpoint's request body
         #[arg(long, short)]
         edit: bool,
 
-        /// Print request body to standard output
+        /// Print request body
         #[arg(long, short)]
         print: bool,
     },
+    /// Print request history
     History {
         /// Maximum number of requests to be listed
         #[arg(short = 'n', long, value_name = "N")]
@@ -124,17 +116,22 @@ pub enum Commands {
         #[command(subcommand)]
         command: ContextCommands,
     },
+    /// Manage current context's variables
     #[command(alias = "var")]
     Variable {
+        /// Print a variable value
         #[arg(long, value_name = "KEY")]
         get: Option<String>,
 
+        /// Set a variable: key=value
         #[arg(long, value_name = "VARIABLE")]
         set: Option<String>,
 
+        /// Print all variables
         #[arg(long)]
         list: bool,
 
+        /// Open an editor to modify the context variables file
         #[arg(short, long)]
         edit: bool,
     },
@@ -147,51 +144,52 @@ pub enum Commands {
 
 #[derive(Debug, Subcommand)]
 pub enum StatusCommands {
+    /// Print the handle for the endpoint in use
     #[command(name = "--endpoint")]
     Endpoint,
 
+    /// Print the context in use
     #[command(name = "--context")]
     Context,
 }
 
 #[derive(Debug, Subcommand)]
 pub enum EndpointUrlCommands {
-    /// Get URL value
+    /// Print URL
     #[command(name = "--get")]
     Get,
 
-    /// Set URL value
+    /// Set a value for URL
     #[command(name = "--set")]
     Set { url: String },
 }
 
 #[derive(Debug, Subcommand)]
 pub enum EndpointMethodCommands {
-    /// Get method value
+    /// Print method
     #[command(name = "--get")]
     Get,
 
-    /// Set method value
+    /// Set a value for method
     #[command(name = "--set")]
-    Set {
-        /// New method
-        method: String,
-    },
+    Set { method: String },
 }
 
 #[derive(Debug, Subcommand)]
 pub enum ConfigCommands {
+    /// Open an editor to modify ~/.quartz.toml
     #[command(name = "--edit")]
     Edit,
 
+    /// Print configuration value
     #[command(name = "--get")]
     Get { key: String },
 
-    /// Sets a configuration.
+    /// Set a configuration
     #[command(name = "--set")]
     Set { key: String, value: String },
 
-    /// Outputs quartz configuration file
+    /// Print ~/.quartz.toml
     #[command(name = "--list")]
     List,
 }
@@ -200,19 +198,17 @@ pub enum ConfigCommands {
 pub enum ContextCommands {
     /// Create a new context
     Create {
-        /// The new context's name
         name: String,
-        /// Specify another context to copy properties from
+        /// Copy variables from another context
         #[arg(short, long, value_name = "CONTEXT")]
         copy: Option<String>,
     },
-    Use {
-        context: String,
-    },
+    /// Switch to another context
+    Use { context: String },
+    /// Print all available contexts
     #[command(alias = "ls")]
     List,
+    /// Delete a context
     #[command(alias = "rm")]
-    Remove {
-        context: String,
-    },
+    Remove { context: String },
 }
