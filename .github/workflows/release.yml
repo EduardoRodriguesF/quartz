@@ -113,7 +113,7 @@ jobs:
           cp {README.md,LICENSE} "$staging/"
           cp CHANGELOG.md "$staging/doc/"
 
-          cp man/man1/quartz.1 "$staging/doc/"
+          cp doc/quartz.1 "$staging/doc/"
           cp "target/${{ matrix.target }}/release/quartz" "$staging/"
           tar czf "$staging.tar.gz" "$staging"
           echo "ASSET=$staging.tar.gz" >> $GITHUB_ENV
