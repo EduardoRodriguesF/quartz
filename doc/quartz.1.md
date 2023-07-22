@@ -172,7 +172,7 @@ Manage current context's variables.
 **\-\-list**
 : Print all variables.
 
-**\-e** **\-\-edit
+**\-e** **\-\-edit**
 : Opens an editor to modify the context variables file.
 
 ## context
@@ -181,6 +181,44 @@ Endpoints can benefit from variables. The collection of variables to be used are
 By default, **quartz** uses the **default** context containing nothing.
 
 To manage context variables, see *variable* command.
+
+# FILES
+
+*~/.quartz.toml* -- Default **quartz** configuration file.
+
+# EXAMPLES
+
+To create a new **quartz** project in the current directory:
+
+    $ quartz init
+
+Create a new endpoint *products* with some configuration:
+
+    $ quartz create products --method GET --url http://localhost:8080/products/
+
+Use this new endpoint by specifying its *handle*:
+
+    $ quartz use products
+
+Create a new endpoint in a sub-handle within *products*, immediatly switching to it.
+
+    $ quartz create products create --method POST --url http://localhost:8080/products/ --use
+
+Set a new header to that endpoint:
+
+    $ quartz headers --add 'Content-type: application/json'
+
+Considering that you have a *data.json* file, it is possible to pipe that file so that it uses the contents as a request body:
+
+    $ cat data.json | quartz body --stdin --edit
+
+Send this request:
+
+    $ quartz send
+
+Every sent request is stored in *.quartz/user/history/* and can be printed chronologically. It can be piped through **less(1)** or other pagers to help navigating through:
+
+    $ quartz history | less -r
 
 # AUTHORS
 
