@@ -150,3 +150,38 @@ Manage current endpoint's request body.
 
 **\-p**, **\-\-print**
 : Print request body.
+
+## history
+Print request history. It uses informations about past requests saved in *.quartz/user/history/*.
+
+**\-n**, **\-\-max-count** *N*
+: Maximum number of requests to be listed.
+
+**\-\-date *FORMAT*
+: Format date time output.
+
+## variable
+Manage current context's variables.
+
+**\-\-get** *KEY*
+: Print a variable value.
+
+**\-\-set** *VARIABLE*
+: Sets a variable: key=value.
+
+**\-\-list**
+: Print all variables.
+
+**\-e** **\-\-edit
+: Opens an editor to modify the context variables file.
+
+## context
+Endpoints can benefit from variables. The collection of variables to be used are defined by the active *context*.
+
+By default, **quartz** uses the **default** context containing nothing.
+
+To manage context variables, see *variable* command.
+
+# AUTHORS
+
+Eduardo Rodrigues <contato@edurodrigues.dev>
