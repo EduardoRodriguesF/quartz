@@ -34,4 +34,5 @@ jobs:
       - name: Quartz path is found
         run: which quartz
       - name: Manpage works
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: man quartz > /dev/null 2>&1
