@@ -133,6 +133,7 @@ jobs:
           formula: quartz
   test_install_script:
     name: Test install script
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
