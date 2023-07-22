@@ -3,17 +3,5 @@
 # Testing folder
 .quartz
 
-# Quartz
-.quartz/user
-# Quartz
-.quartz/user
-# Quartz
-.quartz/user
-# Quartz
-.quartz/user
-# Quartz
-.quartz/user
-# Quartz
-.quartz/user
-# Quartz
-.quartz/user
+# Compiled man page
+doc/quartz.1
