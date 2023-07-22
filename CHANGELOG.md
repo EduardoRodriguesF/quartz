@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - UI configuration section, featuring `colors` flag to enable/disable colored outputs.
+- New config command tree: `--get`, `--set` and `--list`.
 
 ### Fixed
 
