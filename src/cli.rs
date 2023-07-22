@@ -55,7 +55,7 @@ pub enum Commands {
     #[command(alias = "ls")]
     List {
         /// Set a limit for printing nested endopoints
-        #[arg(long)]
+        #[arg(long, value_name = "N")]
         depth: Option<u16>,
     },
     /// Delete endpoint
@@ -87,11 +87,11 @@ pub enum Commands {
     /// Manage endpoint headers
     Headers {
         /// New header entry in "<key>: <value>" format. This argument can be passed multiple times. Overrides duplicates
-        #[arg(long)]
+        #[arg(long, value_name = "HEADER")]
         add: Vec<String>,
 
         /// Header key to remove from endpoint. This argument can be passed multiple times
-        #[arg(long)]
+        #[arg(long, value_name = "KEY")]
         remove: Vec<String>,
 
         /// Print existing headers
@@ -114,10 +114,10 @@ pub enum Commands {
     },
     History {
         /// Maximum number of requests to be listed
-        #[arg(short = 'n', long)]
+        #[arg(short = 'n', long, value_name = "N")]
         max_count: Option<usize>,
         /// Format date time output
-        #[arg(long)]
+        #[arg(long, value_name = "FORMAT")]
         date: Option<String>,
     },
     Context {
@@ -126,10 +126,10 @@ pub enum Commands {
     },
     #[command(alias = "var")]
     Variable {
-        #[arg(long)]
+        #[arg(long, value_name = "KEY")]
         get: Option<String>,
 
-        #[arg(long)]
+        #[arg(long, value_name = "VARIABLE")]
         set: Option<String>,
 
         #[arg(long)]
@@ -203,7 +203,7 @@ pub enum ContextCommands {
         /// The new context's name
         name: String,
         /// Specify another context to copy properties from
-        #[arg(short, long)]
+        #[arg(short, long, value_name = "CONTEXT")]
         copy: Option<String>,
     },
     Use {
