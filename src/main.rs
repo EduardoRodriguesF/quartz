@@ -36,7 +36,7 @@ async fn main() {
     colored::control::set_override(config.ui.colors);
 
     std::panic::set_hook(Box::new(|info| {
-        if let Some(payload) = info.payload().downcast_ref::<String>() {
+        if let Some(payload) = info.payload().downcast_ref::<&str>() {
             eprintln!("{}: {payload}", "error".red().bold());
         } else {
             eprintln!("{}: {info}", "error".red().bold());
