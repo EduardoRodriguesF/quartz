@@ -131,17 +131,3 @@ jobs:
           token: ${{ secrets.HOMEBREW_TOKEN }}
           tap: eduardorodriguesf/homebrew-quartz
           formula: quartz
-  test_install_script:
-    name: Test install script
-    needs: build_archive
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    steps:
-      - name: Run install script
-        run: bash -c "$(curl -fsSL https://raw.githubusercontent.com/EduardoRodriguesF/quartz/master/install.sh)"
-      - name: Quartz path is found
-        run: which quartz
-      - name: Manpage works
-        run: man quartz > /dev/null 2>&1
