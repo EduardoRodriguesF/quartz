@@ -103,6 +103,11 @@ jobs:
         run: |
           cargo install cross
 
+      - name: Install packages (Ubuntu)
+        if: matrix.os == 'macos-latest'
+        run: |
+          ci/ubuntu-install-packages.sh
+
       - name: Setup Homebrew
         if: matrix.os == 'macos-latest'
         uses: Homebrew/actions/setup-homebrew@master
