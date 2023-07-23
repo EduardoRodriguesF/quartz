@@ -102,6 +102,15 @@ jobs:
         shell: bash
         run: |
           cargo install cross
+
+      - name: Setup Homebrew
+        if: matrix.os == 'macos-latest'
+        uses: Homebrew/actions/setup-homebrew@master
+      - name: Install packages (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          ci/macos-install-packages.sh
+
       - name: Build binary
         run: cross build --verbose --release --target ${{ matrix.target }}
       - name: Build archive

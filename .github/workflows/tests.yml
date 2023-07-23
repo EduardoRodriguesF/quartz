@@ -21,6 +21,15 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
     - uses: actions/checkout@v3
+
+    - name: Setup Homebrew
+      if: matrix.os == 'macos-latest'
+      uses: Homebrew/actions/setup-homebrew@master
+    - name: Install packages (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        ci/macos-install-packages.sh
+
     - run: cargo test --verbose --release --test mod -- --test-threads 1
   test_install_script:
     name: Test install script
