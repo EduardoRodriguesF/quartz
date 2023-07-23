@@ -202,6 +202,26 @@ The options are as follows:
 ## context remove <*CONTEXT*>
 : Delete a context.
 
+# CONFIG COMMANDS
+**quartz** default configuration file is *~/.quartz.toml*.
+
+Available configuration keys are:
+
+* preferences.editor -- Command to be run when an editor is needed (default: vim(1)).
+* ui.colors -- Whether outputs should be colored (default: true).
+
+## config \-\-get <*KEY*>
+Print configuration value.
+
+## config \-\-set <*KEY*> <*VALUE*>
+Set a configuration.
+
+## config \-\-list
+Print configuration file.
+
+## config \-\-edit
+Open an editor to modify configuration file.
+
 # FILES
 
 *~/.quartz.toml* -- Default **quartz** configuration file.
