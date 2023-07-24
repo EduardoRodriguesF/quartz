@@ -6,6 +6,30 @@ on:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
+  create_man_page:
+    name: Create man page
+    id: man_page
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout doc directory
+        uses: actions/checkout@v3
+        with:
+          sparse-checkout: |
+            doc
+          sparse-checkout-cone-mode: false
+      - name: Compile with pandoc
+        uses: docker://pandoc/core:2.9
+        with:
+          args: >-
+            --standalone
+            --output=doc/quartz.1
+            doc/quartz.1.md
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: quartz.1
+          path: doc/quartz.1
+          if-no-files-found: error
   publish_dry_run:
     name: Publish (dry-run)
     runs-on: ubuntu-latest
@@ -14,7 +38,7 @@ jobs:
       - run: cargo publish --dry-run --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
   create:
     name: Create release
-    needs: publish_dry_run
+    needs: [publish_dry_run, man_page]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -47,10 +71,11 @@ jobs:
           toolchain: stable
           target: x86_64-unknown-linux-musl
 
-      - name: Install packages (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          ci/ubuntu-install-packages.sh
+      - name: Download man page
+        uses: actions/download-artifact@v3
+        with:
+          name: quartz.1
+          path: doc/quartz.1
 
       - name: Install cargo-deb
         run: cargo install cargo-deb
@@ -99,6 +124,11 @@ jobs:
           target: aarch64-apple-darwin
     steps:
       - uses: actions/checkout@v3
+      - name: Download man page
+        uses: actions/download-artifact@v3
+        with:
+          name: quartz.1
+          path: doc/quartz.1
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
@@ -108,19 +138,6 @@ jobs:
         shell: bash
         run: |
           cargo install cross
-
-      - name: Install packages (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          ci/ubuntu-install-packages.sh
-
-      - name: Setup Homebrew
-        if: matrix.os == 'macos-latest'
-        uses: Homebrew/actions/setup-homebrew@master
-      - name: Install packages (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          ci/macos-install-packages.sh
 
       - name: Build binary
         run: cross build --verbose --release --target ${{ matrix.target }}
@@ -133,7 +150,7 @@ jobs:
           cp {README.md,LICENSE} "$staging/"
           cp CHANGELOG.md "$staging/doc/"
 
-          pandoc doc/quartz.1.md -s -t man -o "$staging/doc/quartz.1"
+          cp doc/quartz.1 "$staging/doc/quartz.1"
 
           cp "target/${{ matrix.target }}/release/quartz" "$staging/"
           tar czf "$staging.tar.gz" "$staging"
