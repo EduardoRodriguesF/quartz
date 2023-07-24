@@ -128,14 +128,13 @@ fn it_creates_nested_endpoints() -> TestResult {
 
     let output = quartz.cmd(&[
         "create",
-        "myendpoint",
-        "childendpoint",
+        "myendpoint/childendpoint",
         "--url",
         "https://this-is-the-nested-one.com",
     ])?;
     assert!(output.status.success(), "{}", output.stderr);
 
-    let output = quartz.cmd(&["use", "myendpoint", "childendpoint"])?;
+    let output = quartz.cmd(&["use", "myendpoint/childendpoint"])?;
     assert!(output.status.success(), "{}", output.stderr);
 
     let output = quartz.cmd(&["url", "--get"])?;

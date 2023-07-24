@@ -41,8 +41,12 @@ impl EndpointHandle {
         endpoint: None,
     };
 
-    pub fn from_handle(handle: Vec<String>) -> Self {
+    pub fn from_handle<S>(handle: S) -> Self
+    where
+        S: AsRef<str>,
+    {
         let mut path = Path::new(".quartz").join("endpoints");
+        let handle: Vec<String> = handle.as_ref().split('/').map(|s| s.to_string()).collect();
 
         for parent in &handle {
             let name = Endpoint::name_to_dir(parent);
@@ -62,17 +66,12 @@ impl EndpointHandle {
     }
 
     pub fn from_state() -> Option<Self> {
-        if let Ok(nesting) = State::Endpoint.get() {
-            if nesting.is_empty() {
+        if let Ok(handle) = State::Endpoint.get() {
+            if handle.is_empty() {
                 return None;
             }
 
-            let nesting = nesting
-                .split(' ')
-                .map(|s| s.to_string())
-                .collect::<Vec<String>>();
-
-            return Some(EndpointHandle::from_handle(nesting));
+            return Some(EndpointHandle::from_handle(handle));
         }
 
         None

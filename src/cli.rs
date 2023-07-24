@@ -16,10 +16,10 @@ pub enum Commands {
     /// Initialize quartz
     Init { directory: Option<PathBuf> },
     /// Send request using the current handle's endpoint and outputs the response
-    Send { handle: Vec<String> },
+    Send { handle: Option<String> },
     /// Create a new handle
     Create {
-        handle: Vec<String>,
+        handle: String,
 
         /// Set handle's endpoint URL
         #[arg(long)]
@@ -38,7 +38,7 @@ pub enum Commands {
         switch: bool,
     },
     /// Switch to a handle
-    Use { handle: Vec<String> },
+    Use { handle: String },
     /// Print the current status of quartz
     Status {
         #[command(subcommand)]
@@ -55,10 +55,10 @@ pub enum Commands {
     #[command(alias = "rm")]
     Remove {
         /// Endpoint specification
-        handle: Vec<String>,
+        handle: String,
     },
     /// Print endpoint informations at a handle
-    Show { handle: Vec<String> },
+    Show { handle: Option<String> },
     /// Open an editor to modify endpoint in use
     Edit {
         #[arg(long)]

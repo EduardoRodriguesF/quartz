@@ -94,9 +94,9 @@ async fn main() {
             config.write().expect("failed to save configuration file");
         }
         Commands::Send { handle } => {
-            let specification = match !handle.is_empty() {
-                true => EndpointHandle::from_handle(handle),
-                false => EndpointHandle::from_state_or_exit(),
+            let specification = match handle {
+                Some(handle) => EndpointHandle::from_handle(handle),
+                None => EndpointHandle::from_state_or_exit(),
             };
             let mut history_entry = RequestHistoryEntry::new();
             let context = Context::parse(&State::Context.get().unwrap_or(String::from("default")));
@@ -193,7 +193,7 @@ async fn main() {
             }
 
             if switch {
-                if let Ok(()) = State::Endpoint.set(&handle.path.join(" ")) {
+                if let Ok(()) = State::Endpoint.set(&handle.path.join("/")) {
                     println!("Switched to {} endpoint", handle.head().green());
                 } else {
                     panic!("failed to switch to {} endpoint", handle.head().red());
@@ -210,7 +210,7 @@ async fn main() {
                 panic!("endpoint does not exist");
             }
 
-            if let Ok(()) = State::Endpoint.set(&specification.path.join(" ")) {
+            if let Ok(()) = State::Endpoint.set(&specification.path.join("/")) {
                 println!("switched to {} endpoint", specification.head().green());
             } else {
                 panic!(
@@ -294,9 +294,9 @@ async fn main() {
             (traverse_handles.f)(&traverse_handles, vec![EndpointHandle::QUARTZ]);
         }
         Commands::Show { handle } => {
-            let specification = match !handle.is_empty() {
-                true => EndpointHandle::from_handle(handle),
-                false => EndpointHandle::from_state_or_exit(),
+            let specification = match handle {
+                Some(handle) => EndpointHandle::from_handle(handle),
+                None => EndpointHandle::from_state_or_exit(),
             };
 
             if let Some(endpoint) = specification.endpoint {
