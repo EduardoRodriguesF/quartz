@@ -17,12 +17,16 @@ The tool is organized across multiple configuration files to make it easy to int
 
 # ENDPOINT HANDLE
 
-In **quartz**, *endpoint* references are specified by a *handle*. A handle is a unique combination of keywords to find an endpoint. If we were to use an endpoint named "users by-id", this is translated as:
+In **quartz**, *endpoint* references are specified by a *handle*. A handle is like a file path, separated by slash (/). So, to access "by-id" endpoint in the following structure:
 
 - users
     - by-id
 
-Handles with one or more keywords are organized across the handle tree. For example: if we created a "users create", both "users create" and "users by-id" use the same parent handle.
+We would use the following handle:
+
+    users/by-id
+
+Handles with one or more keywords are organized across the handle tree. For example: if we created a "users/create", both "users/create" and "users/by-id" use the same parent handle.
 Deleting a handle also deletes its sub-handles as well.
 
 **quartz** allows as much level of nesting as you wish.
@@ -36,7 +40,7 @@ If no path is given, **quartz** initializes in the current directory.
 
 An error will be thrown upon trying to init into an already existing **quartz** project location.
 
-## create <*HANDLE*>...
+## create <*HANDLE*>
 Create a new handle.
 
 The options are as follows:
@@ -72,16 +76,16 @@ The options are as follows:
 **\-\-depth** *N*
 : Set a limit for how deep the listing goes in sub-handles. For reference, a depth of 1 would show top-level handles.
 
-## use <*HANDLE*>...
+## use <*HANDLE*>
 Switch to a handle. Using a handle with endpoint allows for operations like *send*, *edit* and other endpoint commands.
 
 ## send
 Send the request using the current handle's endpoint and outputs the response.
 
-## rm, remove <*HANDLE*>...
+## rm, remove <*HANDLE*>
 Delete the specified handle recursively.
 
-## show [*HANDLE*]...
+## show [*HANDLE*]
 Print endpoint informations at a handle.
 
 If no handle is provided, quartz will display the currently active endpoint.
@@ -242,7 +246,7 @@ Use this new endpoint by specifying its *handle*:
 
 Create a new endpoint in a sub-handle within *products*, immediatly switching to it.
 
-    $ quartz create products create --method POST --url http://localhost:8080/products/ --use
+    $ quartz create products/create --method POST --url http://localhost:8080/products/ --use
 
 Set a new header to that endpoint:
 
