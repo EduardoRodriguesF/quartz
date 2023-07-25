@@ -88,6 +88,30 @@ fn it_creates_endpoint_with_header() -> TestResult {
 }
 
 #[test]
+fn it_creates_endpoint_with_query() -> TestResult {
+    let quartz = Quartz::preset_empty_project()?;
+    let sample_endpoint = "myendpoint";
+
+    let create_output = quartz.cmd(&[
+        "create",
+        sample_endpoint,
+        "--url",
+        sample_endpoint,
+        "--query",
+        "myvariable=true",
+    ])?;
+
+    assert!(create_output.status.success(), "{}", create_output.stderr);
+
+    quartz.cmd(&["use", sample_endpoint])?;
+    let output = quartz.cmd(&["query", "--get", "myvariable"])?;
+
+    assert_eq!(output.stdout.trim(), "true");
+
+    Ok(())
+}
+
+#[test]
 fn it_creates_endpoint_with_multiple_headers() -> TestResult {
     let quartz = Quartz::preset_empty_project()?;
     let sample_endpoint = "myendpoint";
