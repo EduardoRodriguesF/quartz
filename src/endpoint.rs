@@ -6,7 +6,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use crate::context::Context;
-use crate::state::State;
+use crate::state::{State, StateField};
 
 #[derive(Debug)]
 pub struct EndpointHandle {
@@ -65,8 +65,8 @@ impl EndpointHandle {
         }
     }
 
-    pub fn from_state() -> Option<Self> {
-        if let Ok(handle) = State::Endpoint.get() {
+    pub fn from_state(state: &State) -> Option<Self> {
+        if let Ok(handle) = state.get(StateField::Endpoint) {
             if handle.is_empty() {
                 return None;
             }
@@ -77,8 +77,8 @@ impl EndpointHandle {
         None
     }
 
-    pub fn from_state_or_exit() -> Self {
-        match Self::from_state() {
+    pub fn from_state_or_exit(state: &State) -> Self {
+        match Self::from_state(state) {
             Some(endpoint) => endpoint,
             None => {
                 panic!("no endpoint in use. Try {}", "quartz use <ENDPOINT>".cyan());

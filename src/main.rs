@@ -23,7 +23,7 @@ use hyper::{
     body::{Bytes, HttpBody},
     Body, Client,
 };
-use state::State;
+use state::{State, StateField};
 use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
 
@@ -31,6 +31,9 @@ use tokio::time::Instant;
 async fn main() {
     let args = Cli::parse();
     let mut config = Config::parse();
+    let state = State {
+        handle: args.from_handle,
+    };
 
     // When true, ensures pagers and/or grep keeps the output colored
     colored::control::set_override(config.ui.colors);
@@ -96,10 +99,14 @@ async fn main() {
         Commands::Send { handle } => {
             let specification = match handle {
                 Some(handle) => EndpointHandle::from_handle(handle),
-                None => EndpointHandle::from_state_or_exit(),
+                None => EndpointHandle::from_state_or_exit(&state),
             };
             let mut history_entry = RequestHistoryEntry::new();
-            let context = Context::parse(&State::Context.get().unwrap_or(String::from("default")));
+            let context = Context::parse(
+                &state
+                    .get(StateField::Context)
+                    .unwrap_or(String::from("default")),
+            );
 
             let mut endpoint = specification
                 .endpoint
@@ -193,7 +200,7 @@ async fn main() {
             }
 
             if switch {
-                if let Ok(()) = State::Endpoint.set(&handle.path.join("/")) {
+                if let Ok(()) = StateField::Endpoint.set(&handle.path.join("/")) {
                     println!("Switched to {} endpoint", handle.head().green());
                 } else {
                     panic!("failed to switch to {} endpoint", handle.head().red());
@@ -210,7 +217,7 @@ async fn main() {
                 panic!("endpoint does not exist");
             }
 
-            if let Ok(()) = State::Endpoint.set(&specification.path.join("/")) {
+            if let Ok(()) = StateField::Endpoint.set(&specification.path.join("/")) {
                 println!("switched to {} endpoint", specification.head().green());
             } else {
                 panic!(
@@ -221,19 +228,22 @@ async fn main() {
         }
         Commands::Status { command } => match command {
             cli::StatusCommands::Endpoint => {
-                if let Ok(endpoint) = State::Endpoint.get() {
+                if let Ok(endpoint) = state.get(StateField::Endpoint) {
                     println!("{}", endpoint);
                 }
             }
             cli::StatusCommands::Context => {
-                println!("{}", State::Context.get().unwrap_or("default".into()));
+                println!(
+                    "{}",
+                    state.get(StateField::Context).unwrap_or("default".into())
+                );
             }
         },
         Commands::List { depth: max_depth } => {
             let max_depth = max_depth.unwrap_or(999) as i16;
             let mut current = PathBuf::new();
 
-            if let Some(specification) = EndpointHandle::from_state() {
+            if let Some(specification) = EndpointHandle::from_state(&state) {
                 current = specification.dir()
             }
 
@@ -296,7 +306,7 @@ async fn main() {
         Commands::Show { handle } => {
             let specification = match handle {
                 Some(handle) => EndpointHandle::from_handle(handle),
-                None => EndpointHandle::from_state_or_exit(),
+                None => EndpointHandle::from_state_or_exit(&state),
             };
 
             if let Some(endpoint) = specification.endpoint {
@@ -306,7 +316,7 @@ async fn main() {
             }
         }
         Commands::Edit { editor } => {
-            let specification = EndpointHandle::from_state_or_exit();
+            let specification = EndpointHandle::from_state_or_exit(&state);
 
             let editor = match editor {
                 Some(editor) => editor,
@@ -329,7 +339,7 @@ async fn main() {
         }
         Commands::Url { command } => match command {
             cli::EndpointUrlCommands::Get => {
-                let specification = EndpointHandle::from_state_or_exit();
+                let specification = EndpointHandle::from_state_or_exit(&state);
                 let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
                     panic!("no endpoint at {}", specification.head().red());
                 });
@@ -337,7 +347,7 @@ async fn main() {
                 println!("{}", endpoint.url);
             }
             cli::EndpointUrlCommands::Set { url } => {
-                let mut specification = EndpointHandle::from_state_or_exit();
+                let mut specification = EndpointHandle::from_state_or_exit(&state);
                 let mut endpoint = specification
                     .endpoint
                     .as_ref()
@@ -354,7 +364,7 @@ async fn main() {
         },
         Commands::Method { command } => match command {
             cli::EndpointMethodCommands::Get => {
-                let specification = EndpointHandle::from_state_or_exit();
+                let specification = EndpointHandle::from_state_or_exit(&state);
                 let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
                     panic!("no endpoint at {}", specification.head().red());
                 });
@@ -362,7 +372,7 @@ async fn main() {
                 println!("{}", endpoint.method);
             }
             cli::EndpointMethodCommands::Set { method } => {
-                let mut specification = EndpointHandle::from_state_or_exit();
+                let mut specification = EndpointHandle::from_state_or_exit(&state);
                 let mut endpoint = specification
                     .endpoint
                     .as_ref()
@@ -382,7 +392,7 @@ async fn main() {
             remove: remove_list,
             list: should_list,
         } => {
-            let mut specification = EndpointHandle::from_state_or_exit();
+            let mut specification = EndpointHandle::from_state_or_exit(&&state);
             let mut endpoint = specification
                 .endpoint
                 .as_ref()
@@ -422,7 +432,7 @@ async fn main() {
             edit: should_edit,
             print: should_print,
         } => {
-            let mut specification = EndpointHandle::from_state_or_exit();
+            let mut specification = EndpointHandle::from_state_or_exit(&state);
             let endpoint = specification
                 .endpoint
                 .as_ref()
@@ -528,7 +538,7 @@ async fn main() {
             edit: should_edit,
             list: should_list,
         } => {
-            let state = State::Context.get().unwrap_or("default".into());
+            let state = state.get(StateField::Context).unwrap_or("default".into());
 
             let mut context = Context::parse(&state).unwrap_or_else(|_| {
                 panic!("failed to parse {} context", state);
@@ -604,7 +614,7 @@ async fn main() {
                     panic!("context {} does not exist", context.name.red());
                 }
 
-                if let Ok(()) = State::Context.set(&context.name) {
+                if let Ok(()) = StateField::Context.set(&context.name) {
                     println!("Switched to {} context", context.name.green());
                 } else {
                     panic!("failed to switch to {} context", context.name.red());
@@ -616,7 +626,9 @@ async fn main() {
                         let bytes = entry.unwrap().file_name();
                         let context_name = bytes.to_str().unwrap();
 
-                        let state = State::Context.get().unwrap_or(String::from("default"));
+                        let state = state
+                            .get(StateField::Context)
+                            .unwrap_or(String::from("default"));
 
                         if state == context_name {
                             println!("* {}", context_name.green());

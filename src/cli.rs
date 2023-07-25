@@ -7,6 +7,10 @@ use clap::{Parser, Subcommand};
 #[command(author = "Eduardo R. <contato@edurodrigues.dev>")]
 #[command(about = "API Client made into a CLI tool", long_about = None, version)]
 pub struct Cli {
+    /// Run quartz using a specific handle
+    #[arg(short = 'x', value_name = "HANDLE")]
+    pub from_handle: Option<String>,
+
     #[command(subcommand)]
     pub command: Commands,
 }

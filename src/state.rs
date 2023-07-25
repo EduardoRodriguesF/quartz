@@ -3,12 +3,16 @@ use std::{
     path::{Path, PathBuf},
 };
 
-pub enum State {
+pub enum StateField {
     Endpoint,
     Context,
 }
 
-impl State {
+pub struct State {
+    pub handle: Option<String>,
+}
+
+impl StateField {
     pub const STATE_DIR: &str = ".quartz/user/state";
 
     pub fn file_path(&self) -> PathBuf {
@@ -32,5 +36,20 @@ impl State {
             .open(self.file_path());
 
         file?.write_all(value.as_bytes())
+    }
+}
+
+impl State {
+    pub fn get(&self, field: StateField) -> Result<String, Box<dyn std::error::Error>> {
+        let overwrite = match field {
+            StateField::Endpoint => self.handle.clone(),
+            _ => None,
+        };
+
+        if let Some(overwrite) = overwrite {
+            return Ok(overwrite);
+        }
+
+        field.get()
     }
 }

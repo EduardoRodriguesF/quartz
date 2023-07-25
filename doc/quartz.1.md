@@ -9,11 +9,17 @@ date: July 23, 2023
 quartz - the CLI way to build and test Rest API
 
 # SYNOPSIS
-**quartz** [**-h**] [*COMMAND*] [*OPTIONS*]...
+**quartz** [**-h**] [**\-x** *HANDLE*] <*COMMAND*> [*OPTIONS*]...
 
 **quartz** is a command-line tool alternative to build, design and test Rest APIs without relying on graphical interfaces.
 
 The tool is organized across multiple configuration files to make it easy to integrate with Git or other VCS.
+
+# OPTIONS
+
+## \-x <*HANDLE*>
+
+Run quartz using a specific handle.
 
 # ENDPOINT HANDLE
 
