@@ -259,28 +259,22 @@ async fn main() {
                         let depth = (spec.path.len() as i16 - 1).max(0);
                         let children = spec.children();
 
-                        let mut padding = 0;
-                        while padding < depth {
-                            print!("      ");
-                            padding += 1;
-                        }
-
                         if let Some(endpoint) = spec.endpoint.as_ref() {
                             if current == spec.dir() {
                                 print!(
                                     "*  {: >5} {}",
                                     endpoint.colored_method().bold(),
-                                    spec.head().green()
+                                    spec.handle().green()
                                 );
                             } else {
                                 print!(
                                     "   {: >5} {}",
                                     endpoint.colored_method().bold(),
-                                    spec.head()
+                                    spec.handle()
                                 );
                             }
                         } else if !spec.path.is_empty() {
-                            print!("   {: >5} {}", ">".dimmed(), spec.head());
+                            print!("   {: >5} {}", "---".dimmed(), spec.handle());
                         }
 
                         if !children.is_empty() {
