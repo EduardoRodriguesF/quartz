@@ -318,6 +318,7 @@ impl Endpoint {
             result.push(format!("{key}={value}"));
         }
 
+        result.sort();
         result.join("&")
     }
 }
