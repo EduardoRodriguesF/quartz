@@ -266,6 +266,10 @@ Send this request:
 
     $ quartz send
 
+Use **\-x** option to run a **quartz** command from another handle, like sending another request:
+
+    $ quartz -x products send
+
 Every sent request is stored in *.quartz/user/history/* and can be printed chronologically. It can be piped through **less(1)** or other pagers to help navigating through:
 
     $ quartz history | less -r
