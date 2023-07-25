@@ -18,6 +18,23 @@ fn it_can_set_query_param() -> TestResult {
 }
 
 #[test]
+fn it_can_set_query_param_with_intentional_equals_sign() -> TestResult {
+    let quartz = Quartz::preset_using_sample_endpoint()?;
+
+    let set_output = quartz.cmd(&["query", "--set", "where=email=example@email.com"])?;
+    let get_output = quartz.cmd(&["query", "--get", "where"])?;
+
+    assert!(set_output.status.success(), "{}", set_output.stderr);
+    assert_eq!(
+        get_output.stdout.trim(),
+        "email=example@email.com",
+        "did not store query param correctly"
+    );
+
+    Ok(())
+}
+
+#[test]
 fn it_outputs_resolved_string() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 
