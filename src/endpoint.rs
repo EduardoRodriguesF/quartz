@@ -23,6 +23,9 @@ pub struct Endpoint {
     /// HTTP Request method
     pub method: String,
 
+    /// Query params.
+    pub query: HashMap<String, String>,
+
     /// List of (key, value) pairs.
     pub headers: HashMap<String, String>,
 
@@ -292,6 +295,31 @@ impl Endpoint {
             _ => self.method.white(),
         }
     }
+
+    /// Return a query string based off of defined queries.
+    ///
+    /// ## Example
+    ///
+    /// A hash map composed of:
+    ///
+    /// ```toml
+    /// [query]
+    /// v = 9000
+    /// fields = "lorem,ipsum"
+    /// ```
+    ///
+    /// would return:
+    ///
+    ///     "v=9000&fields=lorem,ipsum"
+    pub fn query_string(&self) -> String {
+        let mut result: Vec<String> = Vec::new();
+
+        for (key, value) in &self.query {
+            result.push(format!("{key}={value}"));
+        }
+
+        result.join("&")
+    }
 }
 
 impl Default for Endpoint {
@@ -301,6 +329,7 @@ impl Default for Endpoint {
             url: Default::default(),
             headers: Default::default(),
             variables: Default::default(),
+            query: Default::default(),
         }
     }
 }
