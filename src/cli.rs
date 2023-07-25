@@ -33,6 +33,10 @@ pub enum Commands {
         #[arg(long)]
         method: Option<String>,
 
+        /// Set a query entry in "key=value" format.
+        #[arg(long)]
+        query: Vec<String>,
+
         /// Set a header entry in "<key>: <value>" format. This argument can be passed multiple times
         #[arg(long)]
         header: Vec<String>,

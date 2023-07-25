@@ -163,6 +163,7 @@ async fn main() {
             handle,
             url: maybe_url,
             method: maybe_method,
+            query,
             header,
             switch,
         } => {
@@ -189,6 +190,19 @@ async fn main() {
                 let value = splitted_item[1];
 
                 endpoint.headers.insert(key.to_string(), value.to_string());
+            }
+
+            for item in query {
+                let splitted_item = item.splitn(2, "=").collect::<Vec<&str>>();
+
+                if splitted_item.len() <= 1 {
+                    panic!("malformed query argument: {}", item);
+                }
+
+                let key = splitted_item[0];
+                let value = splitted_item[1];
+
+                endpoint.query.insert(key.to_string(), value.to_string());
             }
 
             if let Some(url) = maybe_url {
