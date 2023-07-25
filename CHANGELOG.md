@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 
 - [**BREAKING CHANGE**] Handles are now separated by slash (/). What used to be "auth users create" is now "auth/users/create".
+- List command outputs a flat list of all handles to improve readability.
 
 ## [0.5.1] - 2023-07-23
 
