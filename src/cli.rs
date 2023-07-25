@@ -79,6 +79,11 @@ pub enum Commands {
         #[command(subcommand)]
         command: EndpointMethodCommands,
     },
+    /// Manage current handle's endpoint query
+    Query {
+        #[command(subcommand)]
+        command: EndpointQueryCommands,
+    },
     /// Manage current handle's endpoint headers
     Headers {
         /// Add new header entry in "key: value" format
@@ -177,6 +182,17 @@ pub enum EndpointMethodCommands {
     /// Set a value for method
     #[command(name = "--set")]
     Set { method: String },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum EndpointQueryCommands {
+    /// Print URL
+    #[command(name = "--get")]
+    Get { key: Option<String> },
+
+    /// Set a value for URL
+    #[command(name = "--set")]
+    Set { query: String },
 }
 
 #[derive(Debug, Subcommand)]

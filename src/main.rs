@@ -356,6 +356,47 @@ async fn main() {
                 specification.update();
             }
         },
+        Commands::Query { command } => match command {
+            cli::EndpointQueryCommands::Get { key: maybe_key } => {
+                let specification = EndpointHandle::from_state_or_exit(&state);
+                let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
+                    panic!("no endpoint at {}", specification.handle().red());
+                });
+
+                if let Some(key) = maybe_key {
+                    let value = endpoint
+                        .query
+                        .get(&key)
+                        .unwrap_or_else(|| panic!("no query param {} found", key.red()));
+
+                    println!("{value}");
+                }
+            }
+            cli::EndpointQueryCommands::Set { query } => {
+                let mut specification = EndpointHandle::from_state_or_exit(&state);
+                let mut endpoint = specification
+                    .endpoint
+                    .as_ref()
+                    .unwrap_or_else(|| {
+                        panic!("no endpoint at {}", specification.handle().red());
+                    })
+                    .clone();
+
+                let splitted_item = query.splitn(2, "=").collect::<Vec<&str>>();
+
+                if splitted_item.len() <= 1 {
+                    panic!("malformed query param: {}", query);
+                }
+
+                let key = splitted_item[0];
+                let value = splitted_item[1];
+
+                endpoint.query.insert(key.to_string(), value.to_string());
+
+                specification.endpoint = Some(endpoint);
+                specification.update();
+            }
+        },
         Commands::Method { command } => match command {
             cli::EndpointMethodCommands::Get => {
                 let specification = EndpointHandle::from_state_or_exit(&state);
