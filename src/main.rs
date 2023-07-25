@@ -370,6 +370,10 @@ async fn main() {
                         .unwrap_or_else(|| panic!("no query param {} found", key.red()));
 
                     println!("{value}");
+                } else {
+                    // Display entire query
+                    let query = endpoint.query_string();
+                    println!("{query}");
                 }
             }
             cli::EndpointQueryCommands::Set { query } => {
