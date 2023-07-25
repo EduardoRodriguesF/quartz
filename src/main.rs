@@ -112,7 +112,7 @@ async fn main() {
                 .endpoint
                 .as_ref()
                 .unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.head().red());
+                    panic!("no endpoint at {}", specification.handle().red());
                 })
                 .clone();
 
@@ -201,9 +201,9 @@ async fn main() {
 
             if switch {
                 if let Ok(()) = StateField::Endpoint.set(&handle.path.join("/")) {
-                    println!("Switched to {} endpoint", handle.head().green());
+                    println!("Switched to {} endpoint", handle.handle().green());
                 } else {
-                    panic!("failed to switch to {} endpoint", handle.head().red());
+                    panic!("failed to switch to {} endpoint", handle.handle().red());
                 }
             }
 
@@ -218,11 +218,11 @@ async fn main() {
             }
 
             if let Ok(()) = StateField::Endpoint.set(&specification.path.join("/")) {
-                println!("switched to {} endpoint", specification.head().green());
+                println!("Switched to {} endpoint", specification.handle().green());
             } else {
                 panic!(
-                    "Failed to switch to {} endpoint",
-                    specification.head().red()
+                    "failed to switch to {} endpoint",
+                    specification.handle().red()
                 );
             }
         }
@@ -326,16 +326,16 @@ async fn main() {
             let specification = EndpointHandle::from_handle(handle);
 
             if std::fs::remove_dir_all(specification.dir()).is_ok() {
-                println!("Deleted endpoint {}", specification.head());
+                println!("Deleted endpoint {}", specification.handle());
             } else {
-                panic!("failed to delete endpoint {}", specification.head());
+                panic!("failed to delete endpoint {}", specification.handle());
             }
         }
         Commands::Url { command } => match command {
             cli::EndpointUrlCommands::Get => {
                 let specification = EndpointHandle::from_state_or_exit(&state);
                 let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.head().red());
+                    panic!("no endpoint at {}", specification.handle().red());
                 });
 
                 println!("{}", endpoint.url);
@@ -346,7 +346,7 @@ async fn main() {
                     .endpoint
                     .as_ref()
                     .unwrap_or_else(|| {
-                        panic!("no endpoint at {}", specification.head().red());
+                        panic!("no endpoint at {}", specification.handle().red());
                     })
                     .clone();
 
@@ -360,7 +360,7 @@ async fn main() {
             cli::EndpointMethodCommands::Get => {
                 let specification = EndpointHandle::from_state_or_exit(&state);
                 let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.head().red());
+                    panic!("no endpoint at {}", specification.handle().red());
                 });
 
                 println!("{}", endpoint.method);
@@ -371,7 +371,7 @@ async fn main() {
                     .endpoint
                     .as_ref()
                     .unwrap_or_else(|| {
-                        panic!("no endpoint at {}", specification.head().red());
+                        panic!("no endpoint at {}", specification.handle().red());
                     })
                     .clone();
 
@@ -391,7 +391,7 @@ async fn main() {
                 .endpoint
                 .as_ref()
                 .unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.head().red());
+                    panic!("no endpoint at {}", specification.handle().red());
                 })
                 .clone();
 
@@ -431,7 +431,7 @@ async fn main() {
                 .endpoint
                 .as_ref()
                 .unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.head().red());
+                    panic!("no endpoint at {}", specification.handle().red());
                 })
                 .clone();
 
