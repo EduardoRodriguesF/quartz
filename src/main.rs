@@ -149,7 +149,7 @@ async fn main() {
             history_entry
                 .body(&bytes)
                 .status(res.status().as_u16())
-                .path(specification.path)
+                .handle(specification.handle())
                 .duration(duration.as_millis() as u64);
 
             println!("Status: {}", res.status());
@@ -386,7 +386,7 @@ async fn main() {
             remove: remove_list,
             list: should_list,
         } => {
-            let mut specification = EndpointHandle::from_state_or_exit(&&state);
+            let mut specification = EndpointHandle::from_state_or_exit(&state);
             let mut endpoint = specification
                 .endpoint
                 .as_ref()
@@ -495,11 +495,7 @@ async fn main() {
                 }
 
                 // Heading line
-                print!(
-                    "{} {}",
-                    endpoint.colored_method(),
-                    entry.path.join(" ").yellow(),
-                );
+                print!("{} {}", endpoint.colored_method(), entry.handle.yellow(),);
 
                 if let Some(status) = &entry.status {
                     if let Ok(status) = hyper::StatusCode::from_u16(*status) {

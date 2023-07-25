@@ -18,7 +18,7 @@ pub struct RequestHistory {
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct RequestHistoryEntry {
-    pub path: Vec<String>,
+    pub handle: String,
     pub endpoint: Option<Endpoint>,
     pub context: Option<Context>,
     pub time: u64,
@@ -100,8 +100,8 @@ impl RequestHistoryEntry {
         None
     }
 
-    pub fn path(&mut self, path: Vec<String>) -> &mut Self {
-        self.path = path;
+    pub fn handle(&mut self, handle: String) -> &mut Self {
+        self.handle = handle;
 
         self
     }
