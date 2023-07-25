@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- Add `-x` option for temporary handle switch.
+
+## Changed
+
+- [**BREAKING CHANGE**] Handles are now separated by slash (/). What used to be "auth users create" is now "auth/users/create".
+
 ## [0.5.1] - 2023-07-23
 
 ### Changed
