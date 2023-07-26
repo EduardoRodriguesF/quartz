@@ -9,8 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Added
 
+- New create `--query` option to use new query params system.
+- New url `--full` option to print with queries.
 - Query params can be defined separate from URL through the `query` command.
-- Add `-x` option for temporary handle switch.
+- New `-x` option for temporary handle switch.
 
 ## Changed
 

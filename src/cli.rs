@@ -83,7 +83,7 @@ pub enum Commands {
         #[command(subcommand)]
         command: EndpointMethodCommands,
     },
-    /// Manage current handle's endpoint query
+    /// Manage current handle's endpoint query params
     Query {
         #[command(subcommand)]
         command: EndpointQueryCommands,

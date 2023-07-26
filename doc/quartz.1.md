@@ -2,7 +2,7 @@
 title: QUARTZ
 section: 1
 header: User Manual
-date: July 23, 2023
+date: July 25, 2023
 ---
 
 # NAME
