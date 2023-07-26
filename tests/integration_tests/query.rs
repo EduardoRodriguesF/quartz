@@ -35,6 +35,24 @@ fn it_can_set_query_param_with_intentional_equals_sign() -> TestResult {
 }
 
 #[test]
+fn it_can_remove_query() -> TestResult {
+    let quartz = Quartz::preset_using_sample_endpoint()?;
+
+    quartz.cmd(&["query", "--set", "fields=example"])?;
+    let remove_output = quartz.cmd(&["query", "--remove", "fields"])?;
+    let get_output = quartz.cmd(&["query", "--get", "fields"])?;
+
+    assert!(remove_output.status.success(), "{}", remove_output.stderr);
+    assert_eq!(
+        get_output.stdout.trim(),
+        "",
+        "did not removed query"
+    );
+
+    Ok(())
+}
+
+#[test]
 fn it_outputs_resolved_string() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 

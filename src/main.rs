@@ -420,6 +420,21 @@ async fn main() {
                 specification.endpoint = Some(endpoint);
                 specification.update();
             }
+            cli::EndpointQueryCommands::Remove { key } => {
+                let mut specification = EndpointHandle::from_state_or_exit(&state);
+                let mut endpoint = specification
+                    .endpoint
+                    .as_ref()
+                    .unwrap_or_else(|| {
+                        panic!("no endpoint at {}", specification.handle().red());
+                    })
+                    .clone();
+
+                endpoint.query.remove(&key);
+
+                specification.endpoint = Some(endpoint);
+                specification.update();
+            }
         },
         Commands::Method { command } => match command {
             cli::EndpointMethodCommands::Get => {

@@ -201,6 +201,9 @@ pub enum EndpointQueryCommands {
     /// Set query param value
     #[command(name = "--set")]
     Set { query: String },
+
+    #[command(name = "--remove")]
+    Remove { key: String },
 }
 
 #[derive(Debug, Subcommand)]
