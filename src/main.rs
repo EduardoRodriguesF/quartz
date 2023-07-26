@@ -355,7 +355,7 @@ async fn main() {
                 let mut url = endpoint.url.clone();
 
                 if full {
-                    url = endpoint.url_full().expect("invalid url").to_string();
+                    url = endpoint.full_url().expect("invalid url").to_string();
                 }
 
                 println!("{}", url);
