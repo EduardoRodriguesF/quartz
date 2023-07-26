@@ -43,11 +43,7 @@ fn it_can_remove_query() -> TestResult {
     let get_output = quartz.cmd(&["query", "--get", "fields"])?;
 
     assert!(remove_output.status.success(), "{}", remove_output.stderr);
-    assert_eq!(
-        get_output.stdout.trim(),
-        "",
-        "did not removed query"
-    );
+    assert_eq!(get_output.stdout.trim(), "", "did not removed query");
 
     Ok(())
 }

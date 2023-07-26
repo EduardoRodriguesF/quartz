@@ -435,6 +435,20 @@ async fn main() {
                 specification.endpoint = Some(endpoint);
                 specification.update();
             }
+            cli::EndpointQueryCommands::List => {
+                let specification = EndpointHandle::from_state_or_exit(&state);
+                let endpoint = specification
+                    .endpoint
+                    .as_ref()
+                    .unwrap_or_else(|| {
+                        panic!("no endpoint at {}", specification.handle().red());
+                    })
+                    .clone();
+
+                for (key, value) in endpoint.query {
+                    println!("{key}={value}");
+                }
+            }
         },
         Commands::Method { command } => match command {
             cli::EndpointMethodCommands::Get => {

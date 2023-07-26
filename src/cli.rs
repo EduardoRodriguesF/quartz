@@ -204,6 +204,9 @@ pub enum EndpointQueryCommands {
 
     #[command(name = "--remove")]
     Remove { key: String },
+
+    #[command(name = "--list")]
+    List,
 }
 
 #[derive(Debug, Subcommand)]
