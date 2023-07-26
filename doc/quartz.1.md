@@ -115,8 +115,8 @@ Manage current handle's endpoint URL.
 
 The options are as follows:
 
-**\-\-get**
-: Display the URL.
+**\-\-get** [**\-\-full**]
+: Display the URL. The **\-\-full** flag is used to include *query* params.
 
 **\-\-set** *URL*
 : Set a new value for URL.
@@ -131,6 +131,19 @@ The options are as follows:
 
 **\-\-set** *URL*
 : Set a value for URL.
+
+## query
+Manage current handle's endpoint query params.
+
+Without options, this command prints the entire query param string.
+
+The options are as follows:
+
+**\-\-get** *KEY*
+: Print query param value.
+
+**\-\-set** *QUERY*
+: Set query param value.
 
 ## headers
 Manage current handle's endpoint headers. All options can be used simultaneously to speed up its usage.
