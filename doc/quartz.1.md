@@ -145,6 +145,12 @@ The options are as follows:
 **\-\-set** *QUERY*
 : Set query param value.
 
+**\-\-remove** *KEY*
+: Remove query param.
+
+**\-\-list**
+: List all query param.
+
 ## headers
 Manage current handle's endpoint headers. All options can be used simultaneously to speed up its usage.
 
