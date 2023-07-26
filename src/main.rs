@@ -182,27 +182,17 @@ async fn main() {
             let mut endpoint = Endpoint::new();
 
             for item in header {
-                let splitted_item = item.splitn(2, ": ").collect::<Vec<&str>>();
-
-                if splitted_item.len() <= 1 {
-                    panic!("Malformed header argument: {}", item);
-                }
-
-                let key = splitted_item[0];
-                let value = splitted_item[1];
+                let (key, value) = item
+                    .split_once(": ")
+                    .unwrap_or_else(|| panic!("malformed header argument: {}", item));
 
                 endpoint.headers.insert(key.to_string(), value.to_string());
             }
 
             for item in query {
-                let splitted_item = item.splitn(2, "=").collect::<Vec<&str>>();
-
-                if splitted_item.len() <= 1 {
-                    panic!("malformed query argument: {}", item);
-                }
-
-                let key = splitted_item[0];
-                let value = splitted_item[1];
+                let (key, value) = item
+                    .split_once('=')
+                    .unwrap_or_else(|| panic!("malformed query argument: {}", item));
 
                 endpoint.query.insert(key.to_string(), value.to_string());
             }
@@ -411,14 +401,9 @@ async fn main() {
                     })
                     .clone();
 
-                let splitted_item = query.splitn(2, "=").collect::<Vec<&str>>();
-
-                if splitted_item.len() <= 1 {
-                    panic!("malformed query param: {}", query);
-                }
-
-                let key = splitted_item[0];
-                let value = splitted_item[1];
+                let (key, value) = query
+                    .split_once('=')
+                    .unwrap_or_else(|| panic!("malformed query param: {}", query));
 
                 endpoint.query.insert(key.to_string(), value.to_string());
 
@@ -499,14 +484,9 @@ async fn main() {
             }
 
             for header in add_list {
-                let splitted_item = header.splitn(2, ": ").collect::<Vec<&str>>();
-
-                if splitted_item.len() <= 1 {
-                    panic!("malformed header argument: {}", header);
-                }
-
-                let key = splitted_item[0];
-                let value = splitted_item[1];
+                let (key, value) = header
+                    .split_once(": ")
+                    .unwrap_or_else(|| panic!("malformed header argument: {}", header));
 
                 endpoint.headers.insert(key.to_string(), value.to_string());
             }
@@ -649,17 +629,14 @@ async fn main() {
             }
 
             if let Some(set) = maybe_set {
-                let split_set = set.splitn(2, '=').collect::<Vec<&str>>();
-
-                if split_set.len() != 2 {
+                let (key, value) = set.split_once('=').unwrap_or_else(|| {
                     panic!(
                         "malformed argument. Try using {}",
                         "quartz variable --set <key>=<value>".green()
-                    );
-                }
+                    )
+                });
 
-                let key = split_set[0];
-                let value = split_set[1].trim_matches('\'').trim_matches('\"');
+                let value = value.trim_matches('\'').trim_matches('\"');
 
                 context.variables.insert(key.to_string(), value.to_string());
             }
