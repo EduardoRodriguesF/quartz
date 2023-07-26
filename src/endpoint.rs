@@ -283,7 +283,7 @@ impl Endpoint {
         Uri::try_from(url)
     }
 
-    /// Returns the a [`Request`] based of this [`EndpointConfig`].
+    /// Returns the a [`Request`] consuming struct.
     pub fn into_request(self, spec: &EndpointHandle) -> Result<Request<Body>, hyper::http::Error> {
         let mut builder = hyper::Request::builder().uri(&self.full_url()?);
 
