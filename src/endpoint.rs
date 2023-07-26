@@ -131,19 +131,21 @@ impl EndpointHandle {
 
             let _ = file.write_all(entry.as_bytes());
         }
-        std::fs::create_dir_all(self.dir()).expect("Failed to create endpoint.");
+        std::fs::create_dir_all(self.dir()).unwrap_or_else(|_| panic!("failed to create endpoint"));
 
         if let Some(endpoint) = &self.endpoint {
-            let toml_content = endpoint.to_toml().expect("Failed to generate settings.");
+            let toml_content = endpoint
+                .to_toml()
+                .unwrap_or_else(|_| panic!("failed to generate settings"));
 
             let mut file = std::fs::OpenOptions::new()
                 .create(true)
                 .write(true)
                 .open(self.dir().join("endpoint.toml"))
-                .expect("Failed to open config file.");
+                .unwrap_or_else(|_| panic!("failed to open config file"));
 
             file.write_all(toml_content.as_bytes())
-                .expect("Failed to write to config file.");
+                .unwrap_or_else(|_| panic!("failed to write to config file"));
         }
     }
 
@@ -151,16 +153,18 @@ impl EndpointHandle {
     // TODO: Only apply changes if a private flag is true.
     pub fn update(&self) {
         if let Some(endpoint) = &self.endpoint {
-            let toml_content = endpoint.to_toml().expect("Failed to generate settings.");
+            let toml_content = endpoint
+                .to_toml()
+                .unwrap_or_else(|_| panic!("failed to generate settings"));
 
             let mut file = std::fs::OpenOptions::new()
                 .write(true)
                 .truncate(true)
                 .open(self.dir().join("endpoint.toml"))
-                .expect("Failed to open config file.");
+                .unwrap_or_else(|_| panic!("failed to open config file"));
 
             file.write_all(toml_content.as_bytes())
-                .expect("Failed to write to config file.");
+                .unwrap_or_else(|_| panic!("failed to write to config file"));
         }
 
         let mut file = std::fs::OpenOptions::new()

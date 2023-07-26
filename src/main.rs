@@ -94,7 +94,9 @@ async fn main() {
                 panic!("failed to create default context");
             }
 
-            config.write().expect("failed to save configuration file");
+            config
+                .write()
+                .unwrap_or_else(|_| panic!("failed to save configuration file"));
         }
         Commands::Send { handle } => {
             let specification = match handle {
@@ -125,7 +127,7 @@ async fn main() {
 
             let req = endpoint
                 .into_request(&specification)
-                .expect("Malformed request.");
+                .unwrap_or_else(|_| panic!("malformed request."));
 
             let client = {
                 let https = hyper_tls::HttpsConnector::new();
@@ -334,7 +336,7 @@ async fn main() {
             let _ = std::process::Command::new(editor)
                 .arg(specification.dir().join("endpoint.toml"))
                 .status()
-                .expect("Failed to open editor");
+                .unwrap_or_else(|_| panic!("failed to open editor"));
         }
         Commands::Remove { handle } => {
             let specification = EndpointHandle::from_handle(handle);
@@ -355,7 +357,10 @@ async fn main() {
                 let mut url = endpoint.url.clone();
 
                 if full {
-                    url = endpoint.full_url().expect("invalid url").to_string();
+                    url = endpoint
+                        .full_url()
+                        .unwrap_or_else(|_| panic!("invalid url"))
+                        .to_string();
                 }
 
                 println!("{}", url);
@@ -558,7 +563,7 @@ async fn main() {
                 let _ = std::process::Command::new(config.preferences.editor)
                     .arg(specification.dir().join("body.json"))
                     .status()
-                    .expect("Failed to open editor");
+                    .unwrap_or_else(|_| panic!("failed to open editor"));
             }
 
             if should_print {
@@ -640,7 +645,7 @@ async fn main() {
                 let _ = std::process::Command::new(config.preferences.editor)
                     .arg(context.dir().join("variables.toml"))
                     .status()
-                    .expect("Failed to open editor");
+                    .unwrap_or_else(|_| panic!("failed to open editor"));
             }
 
             if let Some(set) = maybe_set {
@@ -750,7 +755,7 @@ async fn main() {
                 let _ = std::process::Command::new(config.preferences.editor)
                     .arg(Config::filepath().to_str().unwrap())
                     .status()
-                    .expect("Failed to open editor");
+                    .unwrap_or_else(|_| panic!("failed to open editor"));
             }
             cli::ConfigCommands::Set { key, value } => {
                 match key.as_str() {
@@ -771,7 +776,8 @@ async fn main() {
                 }
             }
             cli::ConfigCommands::List => {
-                let content = toml::to_string(&config).expect("could not parse configuration file");
+                let content = toml::to_string(&config)
+                    .unwrap_or_else(|_| panic!("could not parse configuration file"));
 
                 println!("{content}");
             }
