@@ -1,5 +1,6 @@
 use colored::Colorize;
-use hyper::{Body, Request};
+use hyper::http::uri::InvalidUri;
+use hyper::{Body, Request, Uri};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::Write;
@@ -268,9 +269,23 @@ impl Endpoint {
         self.variables = context.variables.clone();
     }
 
+    pub fn full_url(&self) -> Result<Uri, InvalidUri> {
+        let query_string = self.query_string();
+
+        let mut url = self.url.clone();
+
+        if !query_string.is_empty() {
+            let delimiter = if self.url.contains('?') { '&' } else { '?' };
+            url.push(delimiter);
+            url.push_str(&query_string);
+        }
+
+        Uri::try_from(url)
+    }
+
     /// Returns the a [`Request`] based of this [`EndpointConfig`].
     pub fn into_request(self, spec: &EndpointHandle) -> Result<Request<Body>, hyper::http::Error> {
-        let mut builder = hyper::Request::builder().uri(&self.url);
+        let mut builder = hyper::Request::builder().uri(&self.full_url()?);
 
         if let Ok(method) = hyper::Method::from_bytes(self.method.as_bytes()) {
             builder = builder.method(method);

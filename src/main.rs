@@ -346,13 +346,19 @@ async fn main() {
             }
         }
         Commands::Url { command } => match command {
-            cli::EndpointUrlCommands::Get => {
+            cli::EndpointUrlCommands::Get { full } => {
                 let specification = EndpointHandle::from_state_or_exit(&state);
                 let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
                     panic!("no endpoint at {}", specification.handle().red());
                 });
 
-                println!("{}", endpoint.url);
+                let mut url = endpoint.url.clone();
+
+                if full {
+                    url = endpoint.url_full().expect("invalid url").to_string();
+                }
+
+                println!("{}", url);
             }
             cli::EndpointUrlCommands::Set { url } => {
                 let mut specification = EndpointHandle::from_state_or_exit(&state);

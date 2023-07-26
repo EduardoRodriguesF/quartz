@@ -170,7 +170,11 @@ pub enum StatusCommands {
 pub enum EndpointUrlCommands {
     /// Print URL
     #[command(name = "--get")]
-    Get,
+    Get {
+        /// Combine URL with query params
+        #[arg(long)]
+        full: bool,
+    },
 
     /// Set a value for URL
     #[command(name = "--set")]
