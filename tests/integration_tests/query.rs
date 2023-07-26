@@ -71,3 +71,22 @@ fn it_outputs_full_url() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn it_outputs_full_url_with_messy_queries() -> TestResult {
+    let quartz = Quartz::preset_using_sample_endpoint()?;
+
+    quartz.cmd(&["url", "--set", "https://httpbin.org/get?value=true"])?;
+    quartz.cmd(&["query", "--set", "_v=99890"])?;
+    quartz.cmd(&["query", "--set", "fields=lorem,ipsum"])?;
+
+    let output = quartz.cmd(&["url", "--get", "--full"])?;
+
+    assert!(output.status.success(), "{}", output.stderr);
+    assert_eq!(
+        output.stdout.trim(),
+        "https://httpbin.org/get?value=true&_v=99890&fields=lorem,ipsum"
+    );
+
+    Ok(())
+}
