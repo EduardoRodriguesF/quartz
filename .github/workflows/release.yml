@@ -127,7 +127,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: quartz.1
-          path: doc/quartz.1
+          path: doc
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
