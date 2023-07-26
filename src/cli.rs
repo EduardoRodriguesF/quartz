@@ -194,11 +194,11 @@ pub enum EndpointMethodCommands {
 
 #[derive(Debug, Subcommand)]
 pub enum EndpointQueryCommands {
-    /// Print URL
+    /// Print query param value
     #[command(name = "--get")]
     Get { key: Option<String> },
 
-    /// Set a value for URL
+    /// Set query param value
     #[command(name = "--set")]
     Set { query: String },
 }
