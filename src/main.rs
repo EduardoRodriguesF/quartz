@@ -737,14 +737,7 @@ async fn main() {
             cli::ConfigCommands::Set { key, value } => {
                 match key.as_str() {
                     "preferences.editor" => config.preferences.editor = value,
-                    "ui.colors" => {
-                        let value = match value.as_str() {
-                            "true" => true,
-                            _ => false,
-                        };
-
-                        config.ui.colors = value
-                    }
+                    "ui.colors" => config.ui.colors = matches!(value.as_str(), "true"),
                     _ => panic!("invalid key"),
                 };
 

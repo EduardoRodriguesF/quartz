@@ -107,7 +107,7 @@ impl EndpointHandle {
     }
 
     pub fn handle(&self) -> String {
-        self.path.join("/").to_string()
+        self.path.join("/")
     }
 
     pub fn exists(&self) -> bool {

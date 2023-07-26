@@ -1,6 +1,5 @@
 use chrono::prelude::DateTime;
 use chrono::{Local, LocalResult, TimeZone, Utc};
-use std::collections::HashMap;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -11,9 +10,7 @@ use crate::context::Context;
 use crate::endpoint::Endpoint;
 
 pub struct RequestHistory {
-    timestemps: Vec<u64>,
     unvisited: Vec<u64>,
-    requests: HashMap<u64, RequestHistoryEntry>,
 }
 
 #[derive(Default, Serialize, Deserialize)]
@@ -41,9 +38,7 @@ impl RequestHistory {
         timestemps.sort();
 
         Ok(Self {
-            requests: HashMap::default(),
             unvisited: timestemps.clone(),
-            timestemps,
         })
     }
 
