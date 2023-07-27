@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- More convenient `--get` option for `header` command.
+- It is now possible to use multiple `--set` in a single `variable` command.
+- New `--apply-context` option to apply context variables as soon as possible.
+
+## Fixed
+
+- Some outputs were inconsistent.
+
 ## [0.6.0] - 2023-07-25
 
 ## Added
