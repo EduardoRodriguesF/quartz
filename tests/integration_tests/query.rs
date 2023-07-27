@@ -113,11 +113,11 @@ fn compatible_with_apply_context_option() -> TestResult {
 
     quartz.cmd(&["query", "--set", "version={{someQuery}}"])?;
 
-    let output = quartz.cmd(&["query", "--get", "version"])?;
+    let output = quartz.cmd(&["--apply-context", "query", "--get", "version"])?;
     assert!(output.status.success(), "{}", output.stderr);
     assert_eq!(output.stdout.trim(), "yay");
 
-    let output = quartz.cmd(&["query", "--get"])?;
+    let output = quartz.cmd(&["--apply-context", "query", "--get"])?;
     assert!(output.status.success(), "{}", output.stderr);
     assert_eq!(output.stdout.trim(), "version=yay");
 
