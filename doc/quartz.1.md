@@ -21,6 +21,17 @@ The tool is organized across multiple configuration files to make it easy to int
 
 Run quartz using a specific handle.
 
+## \-c, \-\-apply-context
+
+Apply context on endpoint as soon as possible.
+
+For example, if the active endpoint's URL is "https://{{baseUrl}}/get" and the variable "baseUrl" is correctly set to "httpbin.org".
+
+    $ quartz --apply-context url --get
+    https://httpbin.org/get
+
+It is redundant to use this command alongside *send* command, because it already applies the context before sending the request.
+
 # ENDPOINT HANDLE
 
 In **quartz**, *endpoint* references are specified by a *handle*. A handle is like a file path, separated by slash (/). So, to access "by-id" endpoint in the following structure:
@@ -155,6 +166,9 @@ The options are as follows:
 Manage current handle's endpoint headers. All options can be used simultaneously to speed up its usage.
 
 The options are as follows:
+
+**\-\-get** *KEY*
+: Print a header value.
 
 **\-\-add** *HEADER*
 : Add new header entry in "key: value" format. 
