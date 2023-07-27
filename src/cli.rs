@@ -20,7 +20,7 @@ pub enum Commands {
     /// Initialize quartz
     Init { directory: Option<PathBuf> },
     /// Send request using the current handle's endpoint and outputs the response
-    Send { handle: Option<String> },
+    Send,
     /// Create a new handle
     Create {
         handle: String,

@@ -327,9 +327,7 @@ impl Endpoint {
     /// fields = "lorem,ipsum"
     /// ```
     ///
-    /// would return:
-    ///
-    ///     "v=9000&fields=lorem,ipsum"
+    /// would return: v=9000&fields=lorem,ipsum
     pub fn query_string(&self) -> String {
         let mut result: Vec<String> = Vec::new();
 

@@ -1,11 +1,3 @@
-mod cli;
-mod config;
-mod context;
-mod endpoint;
-mod history;
-mod state;
-
-use core::panic;
 use std::{
     io::Write,
     path::{Path, PathBuf},
@@ -13,30 +5,34 @@ use std::{
 };
 
 use clap::Parser;
-use cli::{Cli, Commands};
 use colored::Colorize;
-use config::Config;
-use context::Context;
-use endpoint::{Endpoint, EndpointHandle};
-use history::{RequestHistory, RequestHistoryEntry};
 use hyper::{
     body::{Bytes, HttpBody},
     Body, Client,
 };
-use state::{State, StateField};
 use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
+
+use quartz_cli::config::Config;
+use quartz_cli::context::Context;
+use quartz_cli::endpoint::{Endpoint, EndpointHandle};
+use quartz_cli::history::{RequestHistory, RequestHistoryEntry};
+use quartz_cli::state::StateField;
+use quartz_cli::Ctx;
+use quartz_cli::{
+    cli::{self, Cli, Commands},
+    CtxArgs,
+};
 
 #[tokio::main]
 async fn main() {
     let args = Cli::parse();
-    let mut config = Config::parse();
-    let state = State {
-        handle: args.from_handle,
-    };
+    let mut ctx = Ctx::new(CtxArgs {
+        from_handle: args.from_handle,
+    });
 
     // When true, ensures pagers and/or grep keeps the output colored
-    colored::control::set_override(config.ui.colors);
+    colored::control::set_override(ctx.config.ui.colors);
 
     std::panic::set_hook(Box::new(|info| {
         if let Some(payload) = info.payload().downcast_ref::<&str>() {
@@ -94,36 +90,18 @@ async fn main() {
                 panic!("failed to create default context");
             }
 
-            config
+            ctx.config
                 .write()
                 .unwrap_or_else(|_| panic!("failed to save configuration file"));
         }
-        Commands::Send { handle } => {
-            let specification = match handle {
-                Some(handle) => EndpointHandle::from_handle(handle),
-                None => EndpointHandle::from_state_or_exit(&state),
-            };
+        Commands::Send => {
             let mut history_entry = RequestHistoryEntry::new();
-            let context = Context::parse(
-                &state
-                    .get(StateField::Context)
-                    .unwrap_or(String::from("default")),
-            );
-
-            let mut endpoint = specification
-                .endpoint
-                .as_ref()
-                .unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.handle().red());
-                })
-                .clone();
-
+            let (specification, mut endpoint) = ctx.require_endpoint();
+            let context = ctx.require_context();
             history_entry.endpoint(&endpoint);
 
-            if let Ok(context) = context {
-                endpoint.apply_context(&context);
-                history_entry.context(&context);
-            }
+            endpoint.apply_context(&context);
+            history_entry.context(&context);
 
             let req = endpoint
                 .into_request(&specification)
@@ -234,14 +212,16 @@ async fn main() {
         }
         Commands::Status { command } => match command {
             cli::StatusCommands::Endpoint => {
-                if let Ok(endpoint) = state.get(StateField::Endpoint) {
+                if let Ok(endpoint) = ctx.state.get(StateField::Endpoint) {
                     println!("{}", endpoint);
                 }
             }
             cli::StatusCommands::Context => {
                 println!(
                     "{}",
-                    state.get(StateField::Context).unwrap_or("default".into())
+                    ctx.state
+                        .get(StateField::Context)
+                        .unwrap_or("default".into())
                 );
             }
         },
@@ -249,7 +229,7 @@ async fn main() {
             let max_depth = max_depth.unwrap_or(999) as i16;
             let mut current = PathBuf::new();
 
-            if let Some(specification) = EndpointHandle::from_state(&state) {
+            if let Some(specification) = EndpointHandle::from_state(&ctx.state) {
                 current = specification.dir()
             }
 
@@ -304,10 +284,8 @@ async fn main() {
             (traverse_handles.f)(&traverse_handles, vec![EndpointHandle::QUARTZ]);
         }
         Commands::Show { handle } => {
-            let specification = match handle {
-                Some(handle) => EndpointHandle::from_handle(handle),
-                None => EndpointHandle::from_state_or_exit(&state),
-            };
+            ctx.args.from_handle = Some(handle).unwrap_or(ctx.args.from_handle);
+            let specification = ctx.require_handle();
 
             if let Some(endpoint) = specification.endpoint {
                 println!("{}", endpoint.to_toml().unwrap());
@@ -316,11 +294,11 @@ async fn main() {
             }
         }
         Commands::Edit { editor } => {
-            let specification = EndpointHandle::from_state_or_exit(&state);
+            let specification = ctx.require_handle();
 
             let editor = match editor {
                 Some(editor) => editor,
-                None => config.preferences.editor,
+                None => ctx.config.preferences.editor,
             };
 
             let _ = std::process::Command::new(editor)
@@ -329,7 +307,7 @@ async fn main() {
                 .unwrap_or_else(|_| panic!("failed to open editor"));
         }
         Commands::Remove { handle } => {
-            let specification = EndpointHandle::from_handle(handle);
+            let specification = ctx.require_input_handle(&handle);
 
             if std::fs::remove_dir_all(specification.dir()).is_ok() {
                 println!("Deleted endpoint {}", specification.handle());
@@ -339,10 +317,7 @@ async fn main() {
         }
         Commands::Url { command } => match command {
             cli::EndpointUrlCommands::Get { full } => {
-                let specification = EndpointHandle::from_state_or_exit(&state);
-                let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.handle().red());
-                });
+                let (_, endpoint) = ctx.require_endpoint();
 
                 let mut url = endpoint.url.clone();
 
@@ -356,14 +331,7 @@ async fn main() {
                 println!("{}", url);
             }
             cli::EndpointUrlCommands::Set { url } => {
-                let mut specification = EndpointHandle::from_state_or_exit(&state);
-                let mut endpoint = specification
-                    .endpoint
-                    .as_ref()
-                    .unwrap_or_else(|| {
-                        panic!("no endpoint at {}", specification.handle().red());
-                    })
-                    .clone();
+                let (mut specification, mut endpoint) = ctx.require_endpoint();
 
                 endpoint.url = url;
 
@@ -373,10 +341,7 @@ async fn main() {
         },
         Commands::Query { command } => match command {
             cli::EndpointQueryCommands::Get { key: maybe_key } => {
-                let specification = EndpointHandle::from_state_or_exit(&state);
-                let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.handle().red());
-                });
+                let (_, endpoint) = ctx.require_endpoint();
 
                 if let Some(key) = maybe_key {
                     let value = endpoint
@@ -392,14 +357,7 @@ async fn main() {
                 }
             }
             cli::EndpointQueryCommands::Set { query } => {
-                let mut specification = EndpointHandle::from_state_or_exit(&state);
-                let mut endpoint = specification
-                    .endpoint
-                    .as_ref()
-                    .unwrap_or_else(|| {
-                        panic!("no endpoint at {}", specification.handle().red());
-                    })
-                    .clone();
+                let (mut specification, mut endpoint) = ctx.require_endpoint();
 
                 let (key, value) = query
                     .split_once('=')
@@ -411,14 +369,7 @@ async fn main() {
                 specification.update();
             }
             cli::EndpointQueryCommands::Remove { key } => {
-                let mut specification = EndpointHandle::from_state_or_exit(&state);
-                let mut endpoint = specification
-                    .endpoint
-                    .as_ref()
-                    .unwrap_or_else(|| {
-                        panic!("no endpoint at {}", specification.handle().red());
-                    })
-                    .clone();
+                let (mut specification, mut endpoint) = ctx.require_endpoint();
 
                 endpoint.query.remove(&key);
 
@@ -426,14 +377,7 @@ async fn main() {
                 specification.update();
             }
             cli::EndpointQueryCommands::List => {
-                let specification = EndpointHandle::from_state_or_exit(&state);
-                let endpoint = specification
-                    .endpoint
-                    .as_ref()
-                    .unwrap_or_else(|| {
-                        panic!("no endpoint at {}", specification.handle().red());
-                    })
-                    .clone();
+                let (_, endpoint) = ctx.require_endpoint();
 
                 for (key, value) in endpoint.query {
                     println!("{key}={value}");
@@ -442,22 +386,12 @@ async fn main() {
         },
         Commands::Method { command } => match command {
             cli::EndpointMethodCommands::Get => {
-                let specification = EndpointHandle::from_state_or_exit(&state);
-                let endpoint = specification.endpoint.as_ref().unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.handle().red());
-                });
+                let (_, endpoint) = ctx.require_endpoint();
 
                 println!("{}", endpoint.method);
             }
             cli::EndpointMethodCommands::Set { method } => {
-                let mut specification = EndpointHandle::from_state_or_exit(&state);
-                let mut endpoint = specification
-                    .endpoint
-                    .as_ref()
-                    .unwrap_or_else(|| {
-                        panic!("no endpoint at {}", specification.handle().red());
-                    })
-                    .clone();
+                let (mut specification, mut endpoint) = ctx.require_endpoint();
 
                 endpoint.method = method.to_uppercase();
 
@@ -470,14 +404,7 @@ async fn main() {
             remove: remove_list,
             list: should_list,
         } => {
-            let mut specification = EndpointHandle::from_state_or_exit(&state);
-            let mut endpoint = specification
-                .endpoint
-                .as_ref()
-                .unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.handle().red());
-                })
-                .clone();
+            let (mut specification, mut endpoint) = ctx.require_endpoint();
 
             for key in remove_list {
                 endpoint.headers.remove(&key);
@@ -505,14 +432,7 @@ async fn main() {
             edit: should_edit,
             print: should_print,
         } => {
-            let mut specification = EndpointHandle::from_state_or_exit(&state);
-            let endpoint = specification
-                .endpoint
-                .as_ref()
-                .unwrap_or_else(|| {
-                    panic!("no endpoint at {}", specification.handle().red());
-                })
-                .clone();
+            let (mut specification, endpoint) = ctx.require_endpoint();
 
             let mut body = endpoint.body(&specification);
 
@@ -540,7 +460,7 @@ async fn main() {
             }
 
             if should_edit {
-                let _ = std::process::Command::new(config.preferences.editor)
+                let _ = std::process::Command::new(ctx.config.preferences.editor)
                     .arg(specification.dir().join("body.json"))
                     .status()
                     .unwrap_or_else(|_| panic!("failed to open editor"));
@@ -607,7 +527,10 @@ async fn main() {
             edit: should_edit,
             list: should_list,
         } => {
-            let state = state.get(StateField::Context).unwrap_or("default".into());
+            let state = ctx
+                .state
+                .get(StateField::Context)
+                .unwrap_or("default".into());
 
             let mut context = Context::parse(&state).unwrap_or_else(|_| {
                 panic!("failed to parse {} context", state);
@@ -622,7 +545,7 @@ async fn main() {
             }
 
             if should_edit {
-                let _ = std::process::Command::new(config.preferences.editor)
+                let _ = std::process::Command::new(ctx.config.preferences.editor)
                     .arg(context.dir().join("variables.toml"))
                     .status()
                     .unwrap_or_else(|_| panic!("failed to open editor"));
@@ -692,7 +615,8 @@ async fn main() {
                         let bytes = entry.unwrap().file_name();
                         let context_name = bytes.to_str().unwrap();
 
-                        let state = state
+                        let state = ctx
+                            .state
                             .get(StateField::Context)
                             .unwrap_or(String::from("default"));
 
@@ -721,32 +645,32 @@ async fn main() {
         Commands::Config { command } => match command {
             cli::ConfigCommands::Get { key } => {
                 let value: String = match key.as_str() {
-                    "preferences.editor" => config.preferences.editor,
-                    "ui.colors" => config.ui.colors.to_string(),
+                    "preferences.editor" => ctx.config.preferences.editor,
+                    "ui.colors" => ctx.config.ui.colors.to_string(),
                     _ => panic!("invalid key"),
                 };
 
                 println!("{value}");
             }
             cli::ConfigCommands::Edit => {
-                let _ = std::process::Command::new(config.preferences.editor)
+                let _ = std::process::Command::new(ctx.config.preferences.editor)
                     .arg(Config::filepath().to_str().unwrap())
                     .status()
                     .unwrap_or_else(|_| panic!("failed to open editor"));
             }
             cli::ConfigCommands::Set { key, value } => {
                 match key.as_str() {
-                    "preferences.editor" => config.preferences.editor = value,
-                    "ui.colors" => config.ui.colors = matches!(value.as_str(), "true"),
+                    "preferences.editor" => ctx.config.preferences.editor = value,
+                    "ui.colors" => ctx.config.ui.colors = matches!(value.as_str(), "true"),
                     _ => panic!("invalid key"),
                 };
 
-                if config.write().is_err() {
+                if ctx.config.write().is_err() {
                     panic!("failed to save config change");
                 }
             }
             cli::ConfigCommands::List => {
-                let content = toml::to_string(&config)
+                let content = toml::to_string(&ctx.config)
                     .unwrap_or_else(|_| panic!("could not parse configuration file"));
 
                 println!("{content}");
