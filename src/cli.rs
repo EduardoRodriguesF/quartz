@@ -138,7 +138,7 @@ pub enum Commands {
 
         /// Set a variable: key=value
         #[arg(long, value_name = "VARIABLE")]
-        set: Option<String>,
+        set: Vec<String>,
 
         /// Print all variables
         #[arg(long)]

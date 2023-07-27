@@ -523,7 +523,7 @@ async fn main() {
         }
         Commands::Variable {
             get: maybe_get,
-            set: maybe_set,
+            set: set_list,
             edit: should_edit,
             list: should_list,
         } => {
@@ -551,7 +551,7 @@ async fn main() {
                     .unwrap_or_else(|_| panic!("failed to open editor"));
             }
 
-            if let Some(set) = maybe_set {
+            for set in set_list {
                 let (key, value) = set.split_once('=').unwrap_or_else(|| {
                     panic!(
                         "malformed argument. Try using {}",
