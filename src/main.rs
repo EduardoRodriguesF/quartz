@@ -403,6 +403,7 @@ async fn main() {
             add: add_list,
             remove: remove_list,
             list: should_list,
+            get: maybe_get,
         } => {
             let (mut specification, mut endpoint) = ctx.require_endpoint();
 
@@ -416,6 +417,12 @@ async fn main() {
                     .unwrap_or_else(|| panic!("malformed header argument: {}", header));
 
                 endpoint.headers.insert(key.to_string(), value.to_string());
+            }
+
+            if let Some(key) = maybe_get {
+                if let Some(value) = endpoint.headers.get(&key) {
+                    println!("{value}");
+                }
             }
 
             if should_list {

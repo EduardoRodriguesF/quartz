@@ -5,16 +5,14 @@ fn it_adds_new_header() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 
     let headers_add_output = quartz.cmd(&["headers", "--add", "Content-type: application/json"])?;
-    let headers_output = quartz.cmd(&["headers", "--list"])?;
+    let headers_output = quartz.cmd(&["headers", "--get", "Content-type"])?;
 
     assert!(
         headers_add_output.status.success(),
         "{}",
-        headers_add_output.stdout
+        headers_add_output.stderr
     );
-    assert!(headers_output
-        .stdout
-        .contains("Content-type: application/json"));
+    assert_eq!(headers_output.stdout.trim(), "application/json");
 
     Ok(())
 }

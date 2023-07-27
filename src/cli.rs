@@ -94,6 +94,10 @@ pub enum Commands {
         #[arg(long, value_name = "HEADER")]
         add: Vec<String>,
 
+        /// Print a header value
+        #[arg(long, value_name = "KEY")]
+        get: Option<String>,
+
         /// Remove a header
         #[arg(long, value_name = "KEY")]
         remove: Vec<String>,
