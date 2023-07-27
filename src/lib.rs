@@ -80,12 +80,12 @@ impl Ctx {
     }
 
     pub fn require_context(&self) -> Context {
-        let state = self.state.get(StateField::Context);
+        let state = self
+            .state
+            .get(StateField::Context)
+            .unwrap_or("default".into());
 
-        match state {
-            Ok(state) => Context::parse(&state)
-                .unwrap_or_else(|_| panic!("could not resolve {} context", state.red())),
-            Err(..) => Context::default(),
-        }
+        Context::parse(&state)
+            .unwrap_or_else(|_| panic!("could not resolve {} context", state.red()))
     }
 }
