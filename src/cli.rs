@@ -11,6 +11,11 @@ pub struct Cli {
     #[arg(short = 'x', value_name = "HANDLE")]
     pub from_handle: Option<String>,
 
+    /// Apply context on endpoint as soon as possible. Allows to get resolved information on
+    /// output
+    #[arg(short = 'c', long)]
+    pub apply_context: bool,
+
     #[command(subcommand)]
     pub command: Commands,
 }

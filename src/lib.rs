@@ -14,6 +14,7 @@ use state::{State, StateField};
 
 pub struct CtxArgs {
     pub from_handle: Option<String>,
+    pub early_apply_context: bool,
 }
 
 pub struct Ctx {
@@ -68,13 +69,18 @@ impl Ctx {
     pub fn require_endpoint(&self) -> (EndpointHandle, Endpoint) {
         let specification = self.require_handle();
 
-        let endpoint = specification
+        let mut endpoint = specification
             .endpoint
             .as_ref()
             .unwrap_or_else(|| {
                 panic!("no endpoint at {}", specification.handle().red());
             })
             .clone();
+
+        if self.args.early_apply_context {
+            let context = self.require_context();
+            endpoint.apply_context(&context);
+        }
 
         (specification, endpoint)
     }

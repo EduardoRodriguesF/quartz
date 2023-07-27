@@ -29,6 +29,7 @@ async fn main() {
     let args = Cli::parse();
     let mut ctx = Ctx::new(CtxArgs {
         from_handle: args.from_handle,
+        early_apply_context: args.apply_context,
     });
 
     // When true, ensures pagers and/or grep keeps the output colored
