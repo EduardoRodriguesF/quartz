@@ -15,6 +15,15 @@ const SAMPLE_BODY_2: &'static str = r#"
 }
 "#;
 
+const SAMPLE_BODY_2_VARS: &'static str = r#"
+{
+    "prop": {
+        "hello": {{requestHello}}
+    },
+    "sample": "{{requestSample}}"
+}
+"#;
+
 #[test]
 fn it_accepts_json_from_stdin() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
@@ -57,6 +66,27 @@ fn it_changes_existent_body() -> TestResult {
         SAMPLE_BODY_2.trim(),
         "did not update body with correct value"
     );
+
+    Ok(())
+}
+
+#[test]
+fn compatible_with_apply_context_option() -> TestResult {
+    let quartz = Quartz::preset_using_sample_endpoint()?;
+
+    quartz.cmd(&[
+        "var",
+        "--set",
+        "requestHello=123",
+        "--set",
+        "requestSample=\"lorem ipsum\"",
+    ])?;
+    quartz.cmd_stdin(&["body", "--stdin"], SAMPLE_BODY_2_VARS)?;
+
+    let output = quartz.cmd(&["--apply-context", "body", "--print"])?;
+
+    assert!(output.status.success(), "{}", output.stderr);
+    assert_eq!(output.stdout.trim(), SAMPLE_BODY_2.trim());
 
     Ok(())
 }

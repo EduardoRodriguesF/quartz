@@ -33,3 +33,17 @@ fn it_sets_new_endpoint_url() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn compatible_with_apply_context_option() -> TestResult {
+    let quartz = Quartz::preset_using_sample_endpoint()?;
+
+    quartz.cmd(&["var", "--set", "baseUrl=httpbin.org"])?;
+
+    let output = quartz.cmd(&["--apply-context", "url", "--get"])?;
+
+    assert!(output.status.success(), "{}", output.stderr);
+    assert_eq!(output.stdout.trim(), "https://httpbin.org/get");
+
+    Ok(())
+}

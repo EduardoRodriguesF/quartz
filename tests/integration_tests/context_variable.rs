@@ -21,7 +21,13 @@ fn it_can_create_variables() -> TestResult {
 fn it_can_set_multiple_variables() -> TestResult {
     let quartz = Quartz::preset_using_default_context()?;
 
-    let output = quartz.cmd(&["variable", "--set", "baseUrl=localhost", "--set", "scheme=https"])?;
+    let output = quartz.cmd(&[
+        "variable",
+        "--set",
+        "baseUrl=localhost",
+        "--set",
+        "scheme=https",
+    ])?;
     assert!(output.status.success(), "{}", output.stderr);
 
     let output = quartz.cmd(&["variable", "--get", "baseUrl"])?;

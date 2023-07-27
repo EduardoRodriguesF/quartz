@@ -104,3 +104,22 @@ fn it_outputs_full_url_with_messy_queries() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn compatible_with_apply_context_option() -> TestResult {
+    let quartz = Quartz::preset_using_sample_endpoint()?;
+
+    quartz.cmd(&["var", "--set", "someQuery=yay"])?;
+
+    quartz.cmd(&["query", "--set", "version={{someQuery}}"])?;
+
+    let output = quartz.cmd(&["query", "--get", "version"])?;
+    assert!(output.status.success(), "{}", output.stderr);
+    assert_eq!(output.stdout.trim(), "yay");
+
+    let output = quartz.cmd(&["query", "--get"])?;
+    assert!(output.status.success(), "{}", output.stderr);
+    assert_eq!(output.stdout.trim(), "version=yay");
+
+    Ok(())
+}
