@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Fixed
 
+- Query params could not use context variables.
 - Some outputs were inconsistent.
 
 ## [0.6.0] - 2023-07-25

@@ -268,6 +268,17 @@ impl Endpoint {
                     (h_key.clone(), h_value.clone())
                 })
                 .collect();
+
+            self.query = self
+                .query
+                .iter()
+                .map(|(h_key, h_value)| {
+                    let h_key = &h_key.replace(&key_match, value);
+                    let h_value = &h_value.replace(&key_match, value);
+
+                    (h_key.clone(), h_value.clone())
+                })
+                .collect();
         }
 
         self.variables = context.variables.clone();
