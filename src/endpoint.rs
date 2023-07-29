@@ -81,15 +81,6 @@ impl EndpointHandle {
         None
     }
 
-    pub fn from_state_or_exit(state: &State) -> Self {
-        match Self::from_state(state) {
-            Some(endpoint) => endpoint,
-            None => {
-                panic!("no endpoint in use. Try {}", "quartz use <ENDPOINT>".cyan());
-            }
-        }
-    }
-
     pub fn head(&self) -> String {
         self.path.last().unwrap_or(&String::new()).clone()
     }
