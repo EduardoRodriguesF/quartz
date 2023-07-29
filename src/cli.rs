@@ -94,10 +94,10 @@ pub enum Commands {
         command: EndpointQueryCommands,
     },
     /// Manage current handle's endpoint headers
-    Headers {
+    Header {
         /// Add new header entry in "key: value" format
         #[arg(long, value_name = "HEADER")]
-        add: Vec<String>,
+        set: Vec<String>,
 
         /// Print a header value
         #[arg(long, value_name = "KEY")]

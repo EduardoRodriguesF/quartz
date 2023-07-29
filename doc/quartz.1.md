@@ -162,7 +162,7 @@ The options are as follows:
 **\-\-list**
 : List all query param.
 
-## headers
+## header
 Manage current handle's endpoint headers. All options can be used simultaneously to speed up its usage.
 
 The options are as follows:
@@ -170,8 +170,8 @@ The options are as follows:
 **\-\-get** *KEY*
 : Print a header value.
 
-**\-\-add** *HEADER*
-: Add new header entry in "key: value" format. 
+**\-\-set** *HEADER*
+: Set new header entry or overwrites an existing one in "key: value" format. 
 
 **\-\-remove** *KEY*
 : Removes a header. 
@@ -289,7 +289,7 @@ Create a new endpoint in a sub-handle within *products*, immediatly switching to
 
 Set a new header to that endpoint:
 
-    $ quartz headers --add 'Content-type: application/json'
+    $ quartz header --set 'Content-type: application/json'
 
 Considering that you have a *data.json* file, it is possible to pipe that file so that it uses the contents as a request body:
 

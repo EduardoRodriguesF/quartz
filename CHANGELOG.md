@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - It is now possible to use multiple `--set` in a single `variable` command.
 - New `--apply-context` option to apply context variables as soon as possible.
 
+## Changed
+
+- `headers` command was renamed to `header`.
+- Headers option `--add` was renamed to `--set`.
+
 ## Fixed
 
 - Query params could not use context variables.

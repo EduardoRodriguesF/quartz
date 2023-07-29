@@ -78,7 +78,7 @@ fn it_creates_endpoint_with_header() -> TestResult {
     assert!(create_output.status.success(), "{}", create_output.stderr);
 
     quartz.cmd(&["use", sample_endpoint])?;
-    let method_output = quartz.cmd(&["headers", "--list"])?;
+    let method_output = quartz.cmd(&["header", "--list"])?;
 
     assert!(method_output
         .stdout
@@ -130,7 +130,7 @@ fn it_creates_endpoint_with_multiple_headers() -> TestResult {
     assert!(create_output.status.success(), "{}", create_output.stderr);
 
     quartz.cmd(&["use", sample_endpoint])?;
-    let method_output = quartz.cmd(&["headers", "--list"])?;
+    let method_output = quartz.cmd(&["header", "--list"])?;
 
     assert!(
         method_output

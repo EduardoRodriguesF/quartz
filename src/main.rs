@@ -400,8 +400,8 @@ async fn main() {
                 specification.update();
             }
         },
-        Commands::Headers {
-            add: add_list,
+        Commands::Header {
+            set: set_list,
             remove: remove_list,
             list: should_list,
             get: maybe_get,
@@ -412,7 +412,7 @@ async fn main() {
                 endpoint.headers.remove(&key);
             }
 
-            for header in add_list {
+            for header in set_list {
                 let (key, value) = header
                     .split_once(": ")
                     .unwrap_or_else(|| panic!("malformed header argument: {}", header));
