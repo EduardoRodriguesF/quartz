@@ -106,7 +106,7 @@ async fn main() {
 
             let req = endpoint
                 .into_request(&specification)
-                .unwrap_or_else(|_| panic!("malformed request."));
+                .unwrap_or_else(|_| panic!("malformed request"));
 
             let client = {
                 let https = hyper_tls::HttpsConnector::new();
@@ -587,7 +587,7 @@ async fn main() {
                 let context = match copy {
                     Some(copy_from) => {
                         let mut context = Context::parse(&copy_from).unwrap_or_else(|_| {
-                            panic!("no context named {} to copy from.", copy_from.red());
+                            panic!("no context named {} to copy from", copy_from.red());
                         });
 
                         context.name = name.clone();
