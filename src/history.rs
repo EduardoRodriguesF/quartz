@@ -42,15 +42,19 @@ impl RequestHistory {
         })
     }
 
-    pub fn next(&mut self) -> Option<RequestHistoryEntry> {
+    pub fn dir() -> PathBuf {
+        Path::new(".quartz").join("user").join("history")
+    }
+}
+
+impl Iterator for RequestHistory {
+    type Item = RequestHistoryEntry;
+
+    fn next(&mut self) -> Option<RequestHistoryEntry> {
         match self.unvisited.pop() {
             Some(timestemp) => RequestHistoryEntry::from_timestemp(timestemp),
             _ => None,
         }
-    }
-
-    pub fn dir() -> PathBuf {
-        Path::new(".quartz").join("user").join("history")
     }
 }
 

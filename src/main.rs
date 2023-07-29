@@ -484,12 +484,12 @@ async fn main() {
             specification.update();
         }
         Commands::History { max_count, date } => {
-            let mut history = RequestHistory::new().unwrap();
+            let history = RequestHistory::new().unwrap();
             let mut count = 0;
             let max_count = max_count.unwrap_or(usize::MAX);
             let date = &date.unwrap_or("%a %b %d %H:%M:%S %Y".into());
 
-            while let Some(entry) = history.next() {
+            for entry in history {
                 if count >= max_count {
                     break;
                 }
