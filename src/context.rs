@@ -71,7 +71,7 @@ impl Context {
         if let Ok(variables) = toml::de::from_str(&var_contents) {
             context.variables = variables;
         } else {
-            eprintln!("Malformed variables file");
+            panic!("malformed variables file");
         }
 
         Ok(context)
