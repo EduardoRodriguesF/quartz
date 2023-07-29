@@ -597,11 +597,11 @@ async fn main() {
                 };
 
                 if context.exists() {
-                    panic!("A context named {} already exists", name.red());
+                    panic!("a context named {} already exists", name.red());
                 }
 
                 if context.write().is_err() {
-                    panic!("Failed to create {} context", name);
+                    panic!("failed to create {} context", name);
                 }
             }
             cli::ContextCommands::Use { context } => {
