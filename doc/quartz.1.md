@@ -2,7 +2,7 @@
 title: QUARTZ
 section: 1
 header: User Manual
-date: July 25, 2023
+date: August 5, 2023
 ---
 
 # NAME
@@ -111,8 +111,6 @@ The *endpoint.toml* file only includes **URL**, **method**, and **headers**. To 
 
 ## edit
 Open an editor to modify endpoint in use. 
-
-The original file is used, so malformed TOML files might break the endpoint alltogether.
 
 The editor it uses is configured through *config* command, which is **vim(1)** by default.
 
