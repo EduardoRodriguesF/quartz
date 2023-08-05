@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 - It was possible to save malformed files through `edit` and `var --edit` commands. From now on, a parsing error is thrown. [#30](https://github.com/EduardoRodriguesF/quartz/issues/30)
+- Linux with aarch64 architecture were incompatible with quartz.
 
 ## [0.7.0] - 2023-07-29
 
