@@ -23,13 +23,22 @@ arch=$(uname -m)
 # Check if the platform and architecture are supported
 if [ "$platform" == "linux" ]; then
     if [ "$arch" == "x86_64" ]; then
-        target="x86_64-unknown-linux-musl"
-    elif [ "$arch" == "armv7l" ]; then
-        target="arm-unknown-linux-gnueabihf"
+        target_musl="x86_64-unknown-linux-musl"
+        target_gnu="x86_64-unknown-linux-gnu"
+    elif [ "$arch" == "aarch64" ]; then
+        target_musl="aarch64-unknown-linux-musl"
+        target_gnu="aarch64-unknown-linux-gnu"
     else
         echo "Unsupported architecture for Linux"
         exit 1
     fi
+
+	# Check if GNU libc is available on the system
+	if ldd --version >/dev/null 2>&1; then
+		target=$target_gnu
+	else
+		target=$target_musl
+	fi
 elif [ "$platform" == "macos" ]; then
     if [ "$arch" == "x86_64" ]; then
         target="x86_64-apple-darwin"
