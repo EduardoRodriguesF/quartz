@@ -5,6 +5,8 @@ pub mod endpoint;
 pub mod history;
 pub mod state;
 
+use std::path::{Path, PathBuf};
+
 use colored::Colorize;
 
 use config::Config;
@@ -93,5 +95,29 @@ impl Ctx {
 
         Context::parse(&state)
             .unwrap_or_else(|_| panic!("could not resolve {} context", state.red()))
+    }
+
+    pub fn edit<T, F>(&self, path: PathBuf, validate: F) -> Result<(), Box<dyn std::error::Error>>
+    where
+        F: FnOnce(String) -> Result<T, Box<dyn std::error::Error>>,
+    {
+        let temp_path = Path::new(".quartz").join("user").join("EDIT.toml");
+        std::fs::copy(&path, &temp_path).unwrap();
+
+        let _ = std::process::Command::new(&self.config.preferences.editor)
+            .arg(&temp_path)
+            .status()
+            .unwrap_or_else(|_| {
+                panic!("failed to open editor: {}", &self.config.preferences.editor)
+            });
+
+        let content = std::fs::read_to_string(&temp_path)?;
+
+        validate(content)?;
+
+        std::fs::copy(&temp_path, path)?;
+        std::fs::remove_file(temp_path)?;
+
+        Ok(())
     }
 }

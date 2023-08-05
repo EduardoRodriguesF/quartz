@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     io::Write,
     path::{Path, PathBuf},
     str::FromStr,
@@ -297,15 +298,14 @@ async fn main() {
         Commands::Edit { editor } => {
             let specification = ctx.require_handle();
 
-            let editor = match editor {
-                Some(editor) => editor,
-                None => ctx.config.preferences.editor,
-            };
+            if let Some(editor) = editor {
+                ctx.config.preferences.editor = editor;
+            }
 
-            let _ = std::process::Command::new(editor)
-                .arg(specification.dir().join("endpoint.toml"))
-                .status()
-                .unwrap_or_else(|_| panic!("failed to open editor"));
+            ctx.edit(specification.dir().join("endpoint.toml"), |c| {
+                Ok(toml::de::from_str::<Endpoint>(&c)?)
+            })
+            .unwrap_or_else(|e| panic!("{}", e.to_string()));
         }
         Commands::Remove { handle } => {
             let specification = ctx.require_input_handle(&handle);
@@ -578,10 +578,10 @@ async fn main() {
             }
 
             if should_edit {
-                let _ = std::process::Command::new(ctx.config.preferences.editor)
-                    .arg(context.dir().join("variables.toml"))
-                    .status()
-                    .unwrap_or_else(|_| panic!("failed to open editor"));
+                ctx.edit(context.dir().join("variables.toml"), |c| {
+                    Ok(toml::de::from_str::<HashMap<String, String>>(&c)?)
+                })
+                .unwrap_or_else(|e| panic!("{}", e.to_string()));
             }
         }
         Commands::Context { command } => match command {
