@@ -552,24 +552,21 @@ async fn main() {
                 }
             }
 
-            if should_edit {
-                let _ = std::process::Command::new(ctx.config.preferences.editor)
-                    .arg(context.dir().join("variables.toml"))
-                    .status()
-                    .unwrap_or_else(|_| panic!("failed to open editor"));
-            }
+            if !set_list.is_empty() {
+                for set in set_list {
+                    let (key, value) = set.split_once('=').unwrap_or_else(|| {
+                        panic!(
+                            "malformed argument. Try using {}",
+                            "quartz variable --set <key>=<value>".green()
+                        )
+                    });
 
-            for set in set_list {
-                let (key, value) = set.split_once('=').unwrap_or_else(|| {
-                    panic!(
-                        "malformed argument. Try using {}",
-                        "quartz variable --set <key>=<value>".green()
-                    )
-                });
+                    let value = value.trim_matches('\'').trim_matches('\"');
 
-                let value = value.trim_matches('\'').trim_matches('\"');
+                    context.variables.insert(key.to_string(), value.to_string());
+                }
 
-                context.variables.insert(key.to_string(), value.to_string());
+                context.update().expect("failed to update variables");
             }
 
             if should_list {
@@ -580,7 +577,12 @@ async fn main() {
                 }
             }
 
-            let _ = context.update();
+            if should_edit {
+                let _ = std::process::Command::new(ctx.config.preferences.editor)
+                    .arg(context.dir().join("variables.toml"))
+                    .status()
+                    .unwrap_or_else(|_| panic!("failed to open editor"));
+            }
         }
         Commands::Context { command } => match command {
             cli::ContextCommands::Create { name, copy } => {
