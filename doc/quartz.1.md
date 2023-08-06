@@ -222,11 +222,16 @@ The options are as follows:
 # LAST COMMAND
 Print informations about the last sent request or its response.
 
+The options are as follows:
+
+**\-\-date** *FORMAT*
+: Format date time output
+
 ## last handle
 Print most recent used handle.
 
 ## last date
-Print most recent used handle.
+Print most recent request date.
 
 ## last request
 Print most recent request information.

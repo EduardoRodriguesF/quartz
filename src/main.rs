@@ -491,8 +491,10 @@ async fn main() {
         }
         Commands::Last {
             command: maybe_command,
+            date: date_format,
         } => {
             let entry = History::last().expect("no history found");
+            let date = entry.format_time(&date_format.unwrap_or("%a %b %d %H:%M:%S %Y".into()));
 
             if let Some(command) = maybe_command {
                 match command {
@@ -500,12 +502,7 @@ async fn main() {
                         println!("{}", entry.handle)
                     }
                     cli::LastCommands::Date => {
-                        println!(
-                            "{}",
-                            entry
-                                .format_time("%a %b %d %H:%M:%S %Y".into())
-                                .unwrap_or("Unknown".into())
-                        );
+                        println!("{}", date.unwrap_or("Unknown".into()));
                     }
                     cli::LastCommands::Request { command } => match command {
                         cli::LastRequestCommands::Url => println!("{}", entry.request.endpoint.url),
