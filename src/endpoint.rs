@@ -3,11 +3,67 @@ use hyper::http::uri::InvalidUri;
 use hyper::{Body, Request, Uri};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt::Display;
 use std::io::Write;
+use std::ops::{Deref, DerefMut};
 use std::path::{Path, PathBuf};
 
-use crate::context::Context;
+use crate::context::{Context, Variables};
 use crate::state::{State, StateField};
+
+#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+pub struct Query(pub HashMap<String, String>);
+
+impl Deref for Query {
+    type Target = HashMap<String, String>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Query {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl Display for Query {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for (key, value) in self.iter() {
+            write!(f, "{key}={value}")?;
+        }
+
+        Ok(())
+    }
+}
+
+#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+pub struct Headers(pub HashMap<String, String>);
+
+impl Deref for Headers {
+    type Target = HashMap<String, String>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Headers {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl Display for Headers {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for (key, value) in self.iter() {
+            write!(f, "{key}: {value}")?;
+        }
+
+        Ok(())
+    }
+}
 
 #[derive(Debug)]
 pub struct EndpointHandle {
@@ -23,14 +79,14 @@ pub struct Endpoint {
     pub method: String,
 
     /// Query params.
-    pub query: HashMap<String, String>,
+    pub query: Query,
 
     /// List of (key, value) pairs.
-    pub headers: HashMap<String, String>,
+    pub headers: Headers,
 
     /// Variable values applied from a [`Context`]
     #[serde(skip_serializing, skip_deserializing)]
-    pub variables: HashMap<String, String>,
+    pub variables: Variables,
 }
 
 impl EndpointHandle {
@@ -169,7 +225,7 @@ impl Endpoint {
             Ok(bytes) => {
                 let mut content = String::from_utf8(bytes).unwrap();
 
-                for (key, value) in &self.variables {
+                for (key, value) in self.variables.iter() {
                     let key_match = format!("{{{{{}}}}}", key);
 
                     content = content.replace(&key_match, value);
@@ -182,13 +238,13 @@ impl Endpoint {
     }
 
     pub fn apply_context(&mut self, context: &Context) {
-        for (key, value) in &context.variables {
+        for (key, value) in context.variables.iter() {
             let key_match = format!("{{{{{}}}}}", key);
 
             self.url = self.url.replace(&key_match, value);
             self.method = self.method.replace(&key_match, value);
 
-            self.headers = self
+            *self.headers = self
                 .headers
                 .iter()
                 .map(|(h_key, h_value)| {
@@ -199,7 +255,7 @@ impl Endpoint {
                 })
                 .collect();
 
-            self.query = self
+            *self.query = self
                 .query
                 .iter()
                 .map(|(h_key, h_value)| {
@@ -236,7 +292,7 @@ impl Endpoint {
             builder = builder.method(method);
         }
 
-        for (key, value) in &self.headers {
+        for (key, value) in self.headers.iter() {
             builder = builder.header(key, value);
         }
 
@@ -272,7 +328,7 @@ impl Endpoint {
     pub fn query_string(&self) -> String {
         let mut result: Vec<String> = Vec::new();
 
-        for (key, value) in &self.query {
+        for (key, value) in self.query.iter() {
             result.push(format!("{key}={value}"));
         }
 

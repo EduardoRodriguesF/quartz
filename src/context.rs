@@ -1,22 +1,51 @@
 use std::{
     collections::HashMap,
+    fmt::Display,
     io::Write,
+    ops::{Deref, DerefMut},
     path::{Path, PathBuf},
 };
 
 use serde::{Deserialize, Serialize};
 
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct Variables(pub HashMap<String, String>);
+
+impl Deref for Variables {
+    type Target = HashMap<String, String>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Variables {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl Display for Variables {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for (key, value) in self.iter() {
+            write!(f, "{key}={value}")?;
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Context {
     pub name: String,
-    pub variables: HashMap<String, String>,
+    pub variables: Variables,
 }
 
 impl Default for Context {
     fn default() -> Self {
         Self {
             name: String::from("default"),
-            variables: HashMap::default(),
+            variables: Variables::default(),
         }
     }
 }

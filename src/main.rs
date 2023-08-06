@@ -393,9 +393,7 @@ async fn main() {
             cli::EndpointQueryCommands::List => {
                 let (_, endpoint) = ctx.require_endpoint();
 
-                for (key, value) in endpoint.query {
-                    println!("{key}={value}");
-                }
+                println!("{}", endpoint.query);
             }
         },
         Commands::Method { command } => match command {
@@ -439,9 +437,7 @@ async fn main() {
             }
 
             if should_list {
-                for (key, value) in endpoint.headers.iter() {
-                    println!("{}: {}", key, value);
-                }
+                println!("{}", endpoint.headers);
             }
 
             endpoint.write(handle);
@@ -576,11 +572,7 @@ async fn main() {
             }
 
             if should_list {
-                if let Ok(list) = toml::ser::to_string(&context.variables) {
-                    println!("{}", list);
-                } else {
-                    panic!("failed to list variables");
-                }
+                println!("{}", context.variables);
             }
 
             if should_edit {
