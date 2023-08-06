@@ -21,7 +21,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
     - uses: actions/checkout@v3
-    - run: cargo test --verbose --release --test mod -- --test-threads 1
+    - run: cargo test --verbose --release --test integration_tests -- --test-threads 1
   test_install_script:
     name: Test install script
     runs-on: ${{ matrix.os }}
