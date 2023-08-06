@@ -493,8 +493,15 @@ async fn main() {
             command: maybe_command,
             date: date_format,
         } => {
-            let entry = History::last().expect("no history found");
-            let date = entry.format_time(&date_format.unwrap_or("%a %b %d %H:%M:%S %Y".into()));
+            let mut entry = History::last().expect("no history found");
+
+            if let Some(format) = date_format {
+                entry.date_format(format);
+            }
+
+            if maybe_command.is_none() {
+                return println!("{entry}");
+            }
 
             if let Some(command) = maybe_command {
                 match command {
@@ -502,7 +509,7 @@ async fn main() {
                         println!("{}", entry.handle)
                     }
                     cli::LastCommands::Date => {
-                        println!("{}", date.unwrap_or("Unknown".into()));
+                        println!("{}", entry.date().unwrap_or("Unknown".into()));
                     }
                     cli::LastCommands::Request { command } => match command {
                         cli::LastRequestCommands::Url => println!("{}", entry.request.endpoint.url),
@@ -535,9 +542,11 @@ async fn main() {
             let history = History::new().unwrap();
             let mut count = 0;
             let max_count = max_count.unwrap_or(usize::MAX);
-            let date = &date.unwrap_or("%a %b %d %H:%M:%S %Y".into());
+            let format = date.unwrap_or(history::DEFAULT_DATE_FORMAT.into());
 
-            for entry in history {
+            for mut entry in history {
+                entry.date_format(format.clone());
+
                 if count >= max_count {
                     break;
                 }
@@ -547,30 +556,7 @@ async fn main() {
                     println!();
                 }
 
-                // Heading line
-                print!(
-                    "{} {} -> ",
-                    entry.request.endpoint.colored_method(),
-                    entry.handle.yellow()
-                );
-
-                match hyper::StatusCode::from_u16(entry.response.status) {
-                    Ok(status) => print!("{status}"),
-                    Err(..) => print!("{}", entry.response.status),
-                };
-
-                // End of heading line
-                println!();
-
-                println!("Url: {}", entry.request.endpoint.url);
-                println!("Context: {}", entry.request.context.name);
-                println!(
-                    "Date: {}",
-                    entry.format_time(date).unwrap_or("Unknown".into())
-                );
-
-                println!();
-                println!("{}", entry.response.body);
+                println!("{entry}");
             }
         }
         Commands::Variable {

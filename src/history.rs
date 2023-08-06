@@ -1,7 +1,10 @@
 use chrono::prelude::DateTime;
 use chrono::{Local, LocalResult, TimeZone, Utc};
+use colored::Colorize;
+use std::fmt::Display;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
@@ -13,12 +16,17 @@ pub struct History {
     unvisited: Vec<u64>,
 }
 
-#[derive(Default, Serialize, Deserialize)]
+pub const DEFAULT_DATE_FORMAT: &str = "%a %b %d %H:%M:%S %Y";
+
+#[derive(Serialize, Deserialize)]
 pub struct HistoryEntry {
     pub handle: String,
     pub time: u64,
     pub request: Request,
     pub response: Response,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    date_format: Option<Arc<str>>,
 }
 
 #[derive(Default, Serialize, Deserialize)]
@@ -89,13 +97,14 @@ impl HistoryEntry {
             handle,
             request,
             response,
+            ..Self::default()
         }
     }
 
     pub fn from_timestemp(timestemp: u64) -> Option<Self> {
         let entry = Self {
             time: timestemp,
-            ..Default::default()
+            ..Self::default()
         };
 
         if let Ok(bytes) = std::fs::read(entry.file_path()) {
@@ -109,15 +118,27 @@ impl HistoryEntry {
         None
     }
 
-    pub fn format_time(&self, format: &str) -> Option<String> {
+    pub fn date(&self) -> Option<String> {
         if let LocalResult::Single(utc) = Utc.timestamp_millis_opt(self.time as i64) {
+            let format = self
+                .date_format
+                .clone()
+                .unwrap_or(DEFAULT_DATE_FORMAT.into());
+
             let datetime: DateTime<Local> = utc.with_timezone(&Local);
-            let result = datetime.format(format).to_string();
+            let result = datetime.format(&format).to_string();
 
             return Some(result);
         }
 
         None
+    }
+
+    pub fn date_format<T>(&mut self, format: T)
+    where
+        T: Display + Into<Arc<str>>,
+    {
+        self.date_format = Some(format.into());
     }
 
     pub fn file_path(&self) -> PathBuf {
@@ -135,5 +156,48 @@ impl HistoryEntry {
             .write_all(content.as_bytes())?;
 
         Ok(())
+    }
+}
+
+impl Display for HistoryEntry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Heading line
+        write!(
+            f,
+            "{} {} -> ",
+            self.request.endpoint.colored_method(),
+            self.handle.yellow()
+        )?;
+
+        match hyper::StatusCode::from_u16(self.response.status) {
+            Ok(status) => write!(f, "{status}")?,
+            Err(..) => write!(f, "{}", self.response.status)?,
+        };
+
+        // End of heading line
+        writeln!(f)?;
+
+        // General informations
+        writeln!(f, "Url: {}", self.request.endpoint.url)?;
+        writeln!(f, "Context: {}", self.request.context.name)?;
+        writeln!(f, "Date: {}", self.date().unwrap_or("Unknown".into()))?;
+
+        // Body
+        writeln!(f)?;
+        writeln!(f, "{}", self.response.body)?;
+
+        Ok(())
+    }
+}
+
+impl Default for HistoryEntry {
+    fn default() -> Self {
+        Self {
+            handle: Default::default(),
+            time: Default::default(),
+            request: Default::default(),
+            response: Default::default(),
+            date_format: Default::default(),
+        }
     }
 }
