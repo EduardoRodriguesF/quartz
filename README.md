@@ -1,10 +1,12 @@
 # Quartz
 
-A collaborative API Client for CLI lovers.
+The CLI way to build and test REST APIs.
 
 ## About
 
-This project is in its early development stages. Features are very likely to change. Suggestions are welcome. :)
+Quartz allows developers to create an API organization project that can be use to share, document and send requests through the terminal.
+
+This project is still on its early stages. Essential features are under development and existing ones might have breaking changes. Suggestions are welcome. :)
 
 What Quartz is:
 
