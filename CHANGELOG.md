@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New `last` command tree.
 
+## Changed
+
+- History saving format changed, which probably breaks previously saved entries.
+
 ## [0.7.1] - 2023-08-05
 
 ## Changed
