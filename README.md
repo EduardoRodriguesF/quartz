@@ -40,7 +40,9 @@ What Quartz is **not**:
 
 ## Documentation
 
-To get started with quartz, head to the [wiki page](https://github.com/EduardoRodriguesF/quartz/wiki) and dive in!
+To get started with quartz, head to the [install](#installation) and access the manual page at `man quartz`!
+
+If you have any trouble, you can also read it in markdown [here](doc/quartz.1.md).
 
 ## License
 
