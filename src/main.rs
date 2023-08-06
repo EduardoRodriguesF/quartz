@@ -17,7 +17,7 @@ use tokio::time::Instant;
 use quartz_cli::config::Config;
 use quartz_cli::context::Context;
 use quartz_cli::endpoint::{Endpoint, EndpointHandle};
-use quartz_cli::history::{RequestHistory, RequestHistoryEntry};
+use quartz_cli::history::{self, History, HistoryEntry};
 use quartz_cli::state::StateField;
 use quartz_cli::Ctx;
 use quartz_cli::{
@@ -97,15 +97,15 @@ async fn main() {
                 .unwrap_or_else(|_| panic!("failed to save configuration file"));
         }
         Commands::Send => {
-            let mut history_entry = RequestHistoryEntry::new();
             let (specification, mut endpoint) = ctx.require_endpoint();
             let context = ctx.require_context();
-            history_entry.endpoint(&endpoint);
 
             endpoint.apply_context(&context);
-            history_entry.context(&context);
 
+            let raw_body = endpoint.body(&specification);
             let req = endpoint
+                // TODO: Find a way around this clone
+                .clone()
                 .into_request(&specification)
                 .unwrap_or_else(|_| panic!("malformed request"));
 
@@ -116,7 +116,8 @@ async fn main() {
 
             let start = Instant::now();
             let mut res = client.request(req).await.unwrap();
-            let duration = start.elapsed();
+            let duration = start.elapsed().as_millis() as u64;
+            let status = res.status().as_u16();
 
             let mut bytes = Bytes::new();
             let mut size = 0;
@@ -128,18 +129,37 @@ async fn main() {
                 }
             }
 
-            history_entry
-                .body(&bytes)
-                .status(res.status().as_u16())
-                .handle(specification.handle())
-                .duration(duration.as_millis() as u64);
-
             println!("Status: {}", res.status());
-            println!("Duration: {}ms", duration.as_millis());
+            println!("Duration: {}ms", duration);
             println!("Size: {} bytes", size);
 
             let _ = stdout().write_all(&bytes).await;
-            let _ = history_entry.write();
+
+            let entry: HistoryEntry = {
+                let mut headers = HashMap::<String, String>::new();
+                for (key, value) in res.headers() {
+                    headers.insert(key.to_string(), String::from(value.to_str().unwrap_or("")));
+                }
+
+                let req_body_bytes = hyper::body::to_bytes(raw_body).await.unwrap();
+
+                let request = history::Request {
+                    endpoint,
+                    context,
+                    duration,
+                    body: String::from_utf8_lossy(&req_body_bytes).to_string(),
+                };
+                let response = history::Response {
+                    status,
+                    size,
+                    body: String::from_utf8_lossy(&bytes).to_string(),
+                    headers,
+                };
+
+                HistoryEntry::new(specification.handle(), request, response)
+            };
+
+            let _ = entry.write();
         }
         Commands::Create {
             handle,
@@ -474,7 +494,7 @@ async fn main() {
             endpoint.write(handle);
         }
         Commands::History { max_count, date } => {
-            let history = RequestHistory::new().unwrap();
+            let history = History::new().unwrap();
             let mut count = 0;
             let max_count = max_count.unwrap_or(usize::MAX);
             let date = &date.unwrap_or("%a %b %d %H:%M:%S %Y".into());
@@ -485,38 +505,34 @@ async fn main() {
                 }
 
                 count += 1;
-                let endpoint = entry.endpoint.as_ref().unwrap();
-
                 if count != 1 {
                     println!();
                 }
 
                 // Heading line
-                print!("{} {}", endpoint.colored_method(), entry.handle.yellow(),);
+                print!(
+                    "{} {} -> ",
+                    entry.request.endpoint.colored_method(),
+                    entry.handle.yellow()
+                );
 
-                if let Some(status) = &entry.status {
-                    if let Ok(status) = hyper::StatusCode::from_u16(*status) {
-                        print!(" -> {}", status);
-                    }
-                }
+                match hyper::StatusCode::from_u16(entry.response.status) {
+                    Ok(status) => print!("{status}"),
+                    Err(..) => print!("{}", entry.response.status),
+                };
 
                 // End of heading line
                 println!();
 
-                let context_name: String = match &entry.context {
-                    Some(context) => context.name.clone(),
-                    None => "none".into(),
-                };
-
-                println!("Url: {}", endpoint.url);
-                println!("Context: {}", context_name);
+                println!("Url: {}", entry.request.endpoint.url);
+                println!("Context: {}", entry.request.context.name);
                 println!(
                     "Date: {}",
                     entry.format_time(date).unwrap_or("Unknown".into())
                 );
 
                 println!();
-                println!("{}", entry.body);
+                println!("{}", entry.response.body);
             }
         }
         Commands::Variable {
