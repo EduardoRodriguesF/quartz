@@ -26,16 +26,16 @@ What Quartz is **not**:
 </details>
 
 <details>
-    <summary>Cargo</summary>
-
-    cargo install quartz-cli
-</details>
-
-<details>
     <summary>Homebrew</summary>
 
     brew tap eduardorodriguesf/quartz
     brew install quartz
+</details>
+
+<details>
+    <summary>Cargo</summary>
+
+    cargo install quartz-cli
 </details>
 
 ## Documentation
