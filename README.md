@@ -20,13 +20,13 @@ What Quartz is **not**:
 ## Installation
 
 <details>
-    <summary>Install script (cURL)</summary>
+    <summary>Bash (Linux)</summary>
 
     bash -c "$(curl -fsSL https://raw.githubusercontent.com/EduardoRodriguesF/quartz/master/install.sh)"
 </details>
 
 <details>
-    <summary>Homebrew</summary>
+    <summary>Homebrew (MacOS)</summary>
 
     brew tap eduardorodriguesf/quartz
     brew install quartz
@@ -34,6 +34,8 @@ What Quartz is **not**:
 
 <details>
     <summary>Cargo</summary>
+
+Warning: this method is not recommended because it lacks the **man** page. Prefer the other installation optiosn.
 
     cargo install quartz-cli
 </details>
