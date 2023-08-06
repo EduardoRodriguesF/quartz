@@ -69,22 +69,18 @@ impl Ctx {
     }
 
     pub fn require_endpoint(&self) -> (EndpointHandle, Endpoint) {
-        let specification = self.require_handle();
+        let handle = self.require_handle();
 
-        let mut endpoint = specification
-            .endpoint
-            .as_ref()
-            .unwrap_or_else(|| {
-                panic!("no endpoint at {}", specification.handle().red());
-            })
-            .clone();
+        let mut endpoint = handle.endpoint().unwrap_or_else(|| {
+            panic!("no endpoint at {}", handle.handle().red());
+        });
 
         if self.args.early_apply_context {
             let context = self.require_context();
             endpoint.apply_context(&context);
         }
 
-        (specification, endpoint)
+        (handle, endpoint)
     }
 
     pub fn require_context(&self) -> Context {

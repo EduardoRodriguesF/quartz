@@ -11,8 +11,6 @@ use crate::state::{State, StateField};
 
 #[derive(Debug)]
 pub struct EndpointHandle {
-    pub endpoint: Option<Endpoint>,
-
     /// List of ordered parent names
     pub path: Vec<String>,
 }
@@ -40,33 +38,15 @@ impl EndpointHandle {
     ///
     /// This constant can be used to traverse through all specifications starting
     /// from the top one.
-    pub const QUARTZ: Self = Self {
-        path: vec![],
-        endpoint: None,
-    };
+    pub const QUARTZ: Self = Self { path: vec![] };
 
     pub fn from_handle<S>(handle: S) -> Self
     where
         S: AsRef<str>,
     {
-        let mut path = Path::new(".quartz").join("endpoints");
-        let handle: Vec<String> = handle.as_ref().split('/').map(|s| s.to_string()).collect();
+        let path: Vec<String> = handle.as_ref().split('/').map(|s| s.to_string()).collect();
 
-        for parent in &handle {
-            let name = Endpoint::name_to_dir(parent);
-
-            path.push(name);
-        }
-
-        let endpoint = match Endpoint::from_dir(path) {
-            Ok(endpoint) => Some(endpoint),
-            Err(_) => None,
-        };
-
-        Self {
-            path: handle,
-            endpoint,
-        }
+        Self { path }
     }
 
     pub fn from_state(state: &State) -> Option<Self> {
@@ -122,49 +102,8 @@ impl EndpointHandle {
 
             let _ = file.write_all(entry.as_bytes());
         }
+
         std::fs::create_dir_all(self.dir()).unwrap_or_else(|_| panic!("failed to create endpoint"));
-
-        if let Some(endpoint) = &self.endpoint {
-            let toml_content = endpoint
-                .to_toml()
-                .unwrap_or_else(|_| panic!("failed to generate settings"));
-
-            let mut file = std::fs::OpenOptions::new()
-                .create(true)
-                .write(true)
-                .open(self.dir().join("endpoint.toml"))
-                .unwrap_or_else(|_| panic!("failed to open config file"));
-
-            file.write_all(toml_content.as_bytes())
-                .unwrap_or_else(|_| panic!("failed to write to config file"));
-        }
-    }
-
-    /// Updates existing endpoint configuration file.
-    // TODO: Only apply changes if a private flag is true.
-    pub fn update(&self) {
-        if let Some(endpoint) = &self.endpoint {
-            let toml_content = endpoint
-                .to_toml()
-                .unwrap_or_else(|_| panic!("failed to generate settings"));
-
-            let mut file = std::fs::OpenOptions::new()
-                .write(true)
-                .truncate(true)
-                .open(self.dir().join("endpoint.toml"))
-                .unwrap_or_else(|_| panic!("failed to open config file"));
-
-            file.write_all(toml_content.as_bytes())
-                .unwrap_or_else(|_| panic!("failed to write to config file"));
-        }
-
-        let mut file = std::fs::OpenOptions::new()
-            .write(true)
-            .truncate(true)
-            .open(self.dir().join("spec"))
-            .unwrap();
-
-        let _ = file.write_all(self.head().as_bytes());
     }
 
     pub fn children(&self) -> Vec<EndpointHandle> {
@@ -178,11 +117,6 @@ impl EndpointHandle {
                     continue;
                 }
 
-                let endpoint = match Endpoint::from_dir(path.clone()) {
-                    Ok(endpoint) => Some(endpoint),
-                    Err(_) => None,
-                };
-
                 if let Ok(vec) = std::fs::read(path.join("spec")) {
                     let spec = String::from_utf8(vec).unwrap_or_else(|_| {
                         panic!("failed to get endpoint specification");
@@ -191,12 +125,17 @@ impl EndpointHandle {
                     let mut path = self.path.clone();
                     path.push(spec);
 
-                    list.push(EndpointHandle { path, endpoint })
+                    list.push(EndpointHandle { path })
                 }
             }
         }
 
         list
+    }
+
+    #[must_use]
+    pub fn endpoint(&self) -> Option<Endpoint> {
+        Endpoint::from_dir(self.dir()).ok()
     }
 }
 
@@ -339,6 +278,22 @@ impl Endpoint {
 
         result.sort();
         result.join("&")
+    }
+
+    pub fn write(&mut self, handle: EndpointHandle) {
+        let toml_content = self
+            .to_toml()
+            .unwrap_or_else(|_| panic!("failed to generate settings"));
+
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(handle.dir().join("endpoint.toml"))
+            .unwrap_or_else(|_| panic!("failed to open config file"));
+
+        file.write_all(toml_content.as_bytes())
+            .unwrap_or_else(|_| panic!("failed to write to config file"));
     }
 }
 

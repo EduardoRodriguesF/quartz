@@ -153,7 +153,7 @@ async fn main() {
                 panic!("missing endpoint handle");
             }
 
-            let mut handle = EndpointHandle::from_handle(handle);
+            let handle = EndpointHandle::from_handle(handle);
 
             if handle.exists() {
                 panic!("endpoint already exists");
@@ -193,8 +193,8 @@ async fn main() {
                 }
             }
 
-            handle.endpoint = Some(endpoint);
             handle.write();
+            endpoint.write(handle);
         }
         Commands::Use { handle } => {
             let specification = EndpointHandle::from_handle(handle);
@@ -247,7 +247,7 @@ async fn main() {
                         let depth = (spec.path.len() as i16 - 1).max(0);
                         let children = spec.children();
 
-                        if let Some(endpoint) = spec.endpoint.as_ref() {
+                        if let Some(endpoint) = spec.endpoint() {
                             if current == spec.dir() {
                                 print!(
                                     "*  {: >5} {}",
@@ -287,13 +287,9 @@ async fn main() {
         }
         Commands::Show { handle } => {
             ctx.args.from_handle = Some(handle).unwrap_or(ctx.args.from_handle);
-            let specification = ctx.require_handle();
+            let (_, endpoint) = ctx.require_endpoint();
 
-            if let Some(endpoint) = specification.endpoint {
-                println!("{}", endpoint.to_toml().unwrap());
-            } else {
-                panic!("no endpoint configured");
-            }
+            println!("{}", endpoint.to_toml().unwrap());
         }
         Commands::Edit { editor } => {
             let specification = ctx.require_handle();
@@ -332,12 +328,11 @@ async fn main() {
                 println!("{}", url);
             }
             cli::EndpointUrlCommands::Set { url } => {
-                let (mut specification, mut endpoint) = ctx.require_endpoint();
+                let (handle, mut endpoint) = ctx.require_endpoint();
 
                 endpoint.url = url;
 
-                specification.endpoint = Some(endpoint);
-                specification.update();
+                endpoint.write(handle);
             }
         },
         Commands::Query { command } => match command {
@@ -358,7 +353,7 @@ async fn main() {
                 }
             }
             cli::EndpointQueryCommands::Set { query } => {
-                let (mut specification, mut endpoint) = ctx.require_endpoint();
+                let (handle, mut endpoint) = ctx.require_endpoint();
 
                 let (key, value) = query
                     .split_once('=')
@@ -366,16 +361,14 @@ async fn main() {
 
                 endpoint.query.insert(key.to_string(), value.to_string());
 
-                specification.endpoint = Some(endpoint);
-                specification.update();
+                endpoint.write(handle);
             }
             cli::EndpointQueryCommands::Remove { key } => {
-                let (mut specification, mut endpoint) = ctx.require_endpoint();
+                let (handle, mut endpoint) = ctx.require_endpoint();
 
                 endpoint.query.remove(&key);
 
-                specification.endpoint = Some(endpoint);
-                specification.update();
+                endpoint.write(handle);
             }
             cli::EndpointQueryCommands::List => {
                 let (_, endpoint) = ctx.require_endpoint();
@@ -392,12 +385,11 @@ async fn main() {
                 println!("{}", endpoint.method);
             }
             cli::EndpointMethodCommands::Set { method } => {
-                let (mut specification, mut endpoint) = ctx.require_endpoint();
+                let (handle, mut endpoint) = ctx.require_endpoint();
 
                 endpoint.method = method.to_uppercase();
 
-                specification.endpoint = Some(endpoint);
-                specification.update();
+                endpoint.write(handle);
             }
         },
         Commands::Header {
@@ -406,7 +398,7 @@ async fn main() {
             list: should_list,
             get: maybe_get,
         } => {
-            let (mut specification, mut endpoint) = ctx.require_endpoint();
+            let (handle, mut endpoint) = ctx.require_endpoint();
 
             for key in remove_list {
                 endpoint.headers.remove(&key);
@@ -432,17 +424,16 @@ async fn main() {
                 }
             }
 
-            specification.endpoint = Some(endpoint);
-            specification.update();
+            endpoint.write(handle);
         }
         Commands::Body {
             stdin: expects_stdin,
             edit: should_edit,
             print: should_print,
         } => {
-            let (mut specification, endpoint) = ctx.require_endpoint();
+            let (handle, mut endpoint) = ctx.require_endpoint();
 
-            let mut body = endpoint.body(&specification);
+            let mut body = endpoint.body(&handle);
 
             if expects_stdin {
                 let mut input = String::new();
@@ -460,7 +451,7 @@ async fn main() {
                 .create(true)
                 .write(true)
                 .truncate(true)
-                .open(specification.dir().join("body.json"))
+                .open(handle.dir().join("body.json"))
             {
                 while let Some(chunk) = body.data().await {
                     let _ = file.write_all(&chunk.unwrap());
@@ -469,19 +460,18 @@ async fn main() {
 
             if should_edit {
                 let _ = std::process::Command::new(ctx.config.preferences.editor)
-                    .arg(specification.dir().join("body.json"))
+                    .arg(handle.dir().join("body.json"))
                     .status()
                     .unwrap_or_else(|_| panic!("failed to open editor"));
             }
 
             if should_print {
-                if let Some(chunk) = endpoint.body(&specification).data().await {
+                if let Some(chunk) = endpoint.body(&handle).data().await {
                     stdout().write_all(&chunk.unwrap()).await.unwrap();
                 }
             }
 
-            specification.endpoint = Some(endpoint);
-            specification.update();
+            endpoint.write(handle);
         }
         Commands::History { max_count, date } => {
             let history = RequestHistory::new().unwrap();
