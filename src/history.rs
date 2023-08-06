@@ -1,6 +1,5 @@
 use chrono::prelude::DateTime;
 use chrono::{Local, LocalResult, TimeZone, Utc};
-use std::collections::HashMap;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -8,7 +7,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use serde::{Deserialize, Serialize};
 
 use crate::context::Context;
-use crate::endpoint::Endpoint;
+use crate::endpoint::{Endpoint, Headers};
 
 pub struct History {
     unvisited: Vec<u64>,
@@ -34,7 +33,7 @@ pub struct Request {
 pub struct Response {
     pub status: u16,
     pub body: String,
-    pub headers: HashMap<String, String>,
+    pub headers: Headers,
     pub size: usize,
 }
 
@@ -58,6 +57,12 @@ impl History {
 
     pub fn dir() -> PathBuf {
         Path::new(".quartz").join("user").join("history")
+    }
+
+    pub fn last() -> Option<HistoryEntry> {
+        let mut history = History::new().ok()?;
+
+        Some(history.next()?)
     }
 }
 

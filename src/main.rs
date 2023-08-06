@@ -14,7 +14,6 @@ use hyper::{
 use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
 
-use quartz_cli::config::Config;
 use quartz_cli::context::Context;
 use quartz_cli::endpoint::{Endpoint, EndpointHandle};
 use quartz_cli::history::{self, History, HistoryEntry};
@@ -24,6 +23,7 @@ use quartz_cli::{
     cli::{self, Cli, Commands},
     CtxArgs,
 };
+use quartz_cli::{config::Config, endpoint::Headers};
 
 #[tokio::main]
 async fn main() {
@@ -136,7 +136,7 @@ async fn main() {
             let _ = stdout().write_all(&bytes).await;
 
             let entry: HistoryEntry = {
-                let mut headers = HashMap::<String, String>::new();
+                let mut headers = Headers::default();
                 for (key, value) in res.headers() {
                     headers.insert(key.to_string(), String::from(value.to_str().unwrap_or("")));
                 }
@@ -488,6 +488,55 @@ async fn main() {
             }
 
             endpoint.write(handle);
+        }
+        Commands::Last {
+            handle: show_handle,
+            date: show_date,
+            command: maybe_command,
+        } => {
+            let entry = History::last().expect("no history found");
+
+            if show_handle {
+                println!("{}", entry.handle);
+            }
+
+            if show_date {
+                println!(
+                    "{}",
+                    entry
+                        .format_time("%a %b %d %H:%M:%S %Y".into())
+                        .unwrap_or("Unknown".into())
+                );
+            }
+
+            if let Some(command) = maybe_command {
+                match command {
+                    cli::LastCommands::Request { command } => match command {
+                        cli::LastRequestCommands::Url => println!("{}", entry.request.endpoint.url),
+                        cli::LastRequestCommands::Query => {
+                            println!("{}", entry.request.endpoint.query)
+                        }
+                        cli::LastRequestCommands::Headers => {
+                            println!("{}", entry.request.endpoint.headers)
+                        }
+                        cli::LastRequestCommands::Method => {
+                            println!("{}", entry.request.endpoint.method)
+                        }
+                        cli::LastRequestCommands::Body => println!("{}", entry.request.body),
+                        cli::LastRequestCommands::Context => {
+                            println!("{}", entry.request.context.name)
+                        }
+                    },
+                    cli::LastCommands::Response { command } => match command {
+                        cli::LastResponseCommands::Status => println!("{}", entry.response.status),
+                        cli::LastResponseCommands::Headers => {
+                            println!("{}", entry.response.headers)
+                        }
+                        cli::LastResponseCommands::Body => println!("{}", entry.response.body),
+                        cli::LastResponseCommands::Size => println!("{}", entry.response.size),
+                    },
+                }
+            }
         }
         Commands::History { max_count, date } => {
             let history = History::new().unwrap();

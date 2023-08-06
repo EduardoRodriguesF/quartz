@@ -125,6 +125,17 @@ pub enum Commands {
         #[arg(long, short)]
         print: bool,
     },
+    /// Print information about last request and/or response
+    Last {
+        #[arg(long)]
+        handle: bool,
+
+        #[arg(long)]
+        date: bool,
+
+        #[command(subcommand)]
+        command: Option<LastCommands>,
+    },
     /// Print request history
     History {
         /// Maximum number of requests to be listed
@@ -173,6 +184,36 @@ pub enum StatusCommands {
     /// Print the context in use
     #[command(name = "--context")]
     Context,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum LastCommands {
+    Request {
+        #[command(subcommand)]
+        command: LastRequestCommands,
+    },
+    Response {
+        #[command(subcommand)]
+        command: LastResponseCommands,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum LastRequestCommands {
+    Url,
+    Query,
+    Method,
+    Headers,
+    Body,
+    Context,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum LastResponseCommands {
+    Status,
+    Headers,
+    Body,
+    Size,
 }
 
 #[derive(Debug, Subcommand)]
