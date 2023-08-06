@@ -219,7 +219,46 @@ The options are as follows:
 **\-e**, **\-\-edit**
 : Open an editor to modify the context variables file.
 
-# CONTEXT COMMANDS
+# LAST COMMAND
+Print informations about the last sent request or its response.
+
+## last request
+Print most recent request information.
+
+**\-\-url**
+: Print last used URL.
+
+**\-\-query**
+: Print last used query params.
+
+**\-\-method**
+: Print last used method.
+
+**\-\-headers**
+: Print last used headers.
+
+**\-\-body**
+: Print last used body.
+
+**\-\-context**
+: Print last used context.
+
+## last response
+Print most recent response information.
+
+**\-\-status**
+: Print last response status.
+
+**\-\-headers**
+: Print last response headers.
+
+**\-\-body**
+: Print last response body.
+
+**\-\-size**
+: Print last response content size.
+
+# CONTEXT COMMAND
 Endpoints can benefit from variables. The collection of variables to be used are defined by the active *context*.
 
 By default, **quartz** uses the **default** context containing nothing.
@@ -243,7 +282,7 @@ The options are as follows:
 ## context remove <*CONTEXT*>
 : Delete a context.
 
-# CONFIG COMMANDS
+# CONFIG COMMAND
 **quartz** default configuration file is *~/.quartz.toml*.
 
 Available configuration keys are:

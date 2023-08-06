@@ -125,11 +125,13 @@ pub enum Commands {
         #[arg(long, short)]
         print: bool,
     },
-    /// Print information about last request and/or response
+    /// Print information about last request or response
     Last {
+        /// Print last used handle
         #[arg(long)]
         handle: bool,
 
+        /// Print last request date
         #[arg(long)]
         date: bool,
 
@@ -188,10 +190,12 @@ pub enum StatusCommands {
 
 #[derive(Debug, Subcommand)]
 pub enum LastCommands {
+    /// Print last request information
     Request {
         #[command(subcommand)]
         command: LastRequestCommands,
     },
+    /// Print last response information
     Response {
         #[command(subcommand)]
         command: LastResponseCommands,
