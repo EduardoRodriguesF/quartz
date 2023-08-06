@@ -35,7 +35,7 @@ What Quartz is **not**:
 <details>
     <summary>Cargo</summary>
 
-Warning: this method is not recommended because it lacks the **man** page. Prefer the other installation optiosn.
+Warning: this method is not recommended because it lacks the **man** page. Prefer the other installation options above.
 
     cargo install quartz-cli
 </details>
