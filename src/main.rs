@@ -490,27 +490,23 @@ async fn main() {
             endpoint.write(handle);
         }
         Commands::Last {
-            handle: show_handle,
-            date: show_date,
             command: maybe_command,
         } => {
             let entry = History::last().expect("no history found");
 
-            if show_handle {
-                println!("{}", entry.handle);
-            }
-
-            if show_date {
-                println!(
-                    "{}",
-                    entry
-                        .format_time("%a %b %d %H:%M:%S %Y".into())
-                        .unwrap_or("Unknown".into())
-                );
-            }
-
             if let Some(command) = maybe_command {
                 match command {
+                    cli::LastCommands::Handle => {
+                        println!("{}", entry.handle)
+                    }
+                    cli::LastCommands::Date => {
+                        println!(
+                            "{}",
+                            entry
+                                .format_time("%a %b %d %H:%M:%S %Y".into())
+                                .unwrap_or("Unknown".into())
+                        );
+                    }
                     cli::LastCommands::Request { command } => match command {
                         cli::LastRequestCommands::Url => println!("{}", entry.request.endpoint.url),
                         cli::LastRequestCommands::Query => {

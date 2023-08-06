@@ -127,14 +127,6 @@ pub enum Commands {
     },
     /// Print information about last request or response
     Last {
-        /// Print last used handle
-        #[arg(long)]
-        handle: bool,
-
-        /// Print last request date
-        #[arg(long)]
-        date: bool,
-
         #[command(subcommand)]
         command: Option<LastCommands>,
     },
@@ -190,6 +182,12 @@ pub enum StatusCommands {
 
 #[derive(Debug, Subcommand)]
 pub enum LastCommands {
+    /// Print most recent handle used
+    Handle,
+
+    /// Print most recent request date
+    Date,
+
     /// Print last request information
     Request {
         #[command(subcommand)]

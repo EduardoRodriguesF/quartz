@@ -222,6 +222,12 @@ The options are as follows:
 # LAST COMMAND
 Print informations about the last sent request or its response.
 
+## last handle
+Print most recent used handle.
+
+## last date
+Print most recent used handle.
+
 ## last request
 Print most recent request information.
 
