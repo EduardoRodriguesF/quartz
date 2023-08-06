@@ -28,7 +28,7 @@ impl DerefMut for Variables {
 impl Display for Variables {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (key, value) in self.iter() {
-            write!(f, "{key}={value}")?;
+            writeln!(f, "{key}={value}")?;
         }
 
         Ok(())

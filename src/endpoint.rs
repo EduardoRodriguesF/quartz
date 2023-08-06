@@ -31,7 +31,7 @@ impl DerefMut for Query {
 impl Display for Query {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (key, value) in self.iter() {
-            write!(f, "{key}={value}")?;
+            writeln!(f, "{key}={value}")?;
         }
 
         Ok(())
@@ -58,7 +58,7 @@ impl DerefMut for Headers {
 impl Display for Headers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (key, value) in self.iter() {
-            write!(f, "{key}: {value}")?;
+            writeln!(f, "{key}: {value}")?;
         }
 
         Ok(())
