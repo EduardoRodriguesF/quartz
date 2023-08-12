@@ -99,6 +99,23 @@ Switch to a handle. Using a handle with endpoint allows for operations like *sen
 ## send
 Send the request using the current handle's endpoint and outputs the response.
 
+The options are as follows:
+
+**\-s**, **\-\-show** *FIELDS*
+: Which fields to show, separated by comma (,). Valid fields are:
+
+    ```
+    url
+    query
+    method
+    status
+    request.body
+    request.headers
+    response.body
+    response.headers
+    response.size
+    ```
+
 ## rm, remove <*HANDLE*>
 Delete the specified handle recursively.
 

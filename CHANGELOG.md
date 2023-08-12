@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Added
 
 - New `last` command tree.
-- `history` option `--show <FIELDS>` to specify fields to be shown on listing.
+- `--show <FIELDS>` to `history` and `send` commands to specify fields to be shown on listing.
 
 ## Changed
 

@@ -25,7 +25,11 @@ pub enum Commands {
     /// Initialize quartz
     Init { directory: Option<PathBuf> },
     /// Send request using the current handle's endpoint and outputs the response
-    Send,
+    Send {
+        /// Which fields to show after the request is complete, separated by comma (,). See manual page for a list of valid fields
+        #[arg(long, short, value_delimiter = ',', value_name = "FIELDS")]
+        show: Vec<String>,
+    },
     /// Create a new handle
     Create {
         handle: String,

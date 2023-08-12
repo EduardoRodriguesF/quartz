@@ -96,7 +96,7 @@ async fn main() {
                 .write()
                 .unwrap_or_else(|_| panic!("failed to save configuration file"));
         }
-        Commands::Send => {
+        Commands::Send { show: show_fields } => {
             let (specification, mut endpoint) = ctx.require_endpoint();
             let context = ctx.require_context();
 
@@ -129,12 +129,6 @@ async fn main() {
                 }
             }
 
-            println!("Status: {}", res.status());
-            println!("Duration: {}ms", duration);
-            println!("Size: {} bytes", size);
-
-            let _ = stdout().write_all(&bytes).await;
-
             let entry: HistoryEntry = {
                 let mut headers = Headers::default();
                 for (key, value) in res.headers() {
@@ -158,6 +152,30 @@ async fn main() {
 
                 HistoryEntry::new(specification.handle(), request, response)
             };
+
+            if show_fields.is_empty() {
+                // Regular output
+                println!("Status: {}", res.status());
+                println!("Duration: {}ms", duration);
+                println!("Size: {} bytes", size);
+
+                let _ = stdout().write_all(&bytes).await;
+            } else {
+                let mut outputs: Vec<String> = Vec::new();
+                for key in &show_fields {
+                    let value = entry
+                        .field_as_string(key)
+                        .unwrap_or_else(|_| panic!("invalid field: {}", key.red()));
+
+                    outputs.push(value);
+                }
+
+                for value in outputs {
+                    println!("{}", value);
+                }
+
+                return;
+            }
 
             let _ = entry.write();
         }
