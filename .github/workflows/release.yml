@@ -170,6 +170,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+      - uses: actions/checkout@v3
       - run: gh release edit --draft=false ${{ github.ref_name }}
 
   publish_crate:
