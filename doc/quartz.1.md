@@ -202,6 +202,21 @@ The options are as follows:
 **\-\-date** *FORMAT*
 : Format date time output.
 
+**\-s**, **\-\-show** *FIELDS*
+: Which fields to show, separated by comma (,). Valid fields are:
+
+    ```
+    url
+    query
+    method
+    status
+    request.body
+    request.headers
+    response.body
+    response.headers
+    response.size
+    ```
+
 ## var, variable
 Manage current context's variables.
 
