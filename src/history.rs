@@ -1,5 +1,6 @@
 use chrono::prelude::DateTime;
 use chrono::{Local, LocalResult, TimeZone, Utc};
+use clap::error::ErrorKind;
 use colored::Colorize;
 use std::fmt::Display;
 use std::io::Write;
@@ -145,21 +146,19 @@ impl HistoryEntry {
         History::dir().join(self.time.to_string())
     }
 
-    pub fn field_as_string(&self, key: &str) -> Result<String, Box<dyn std::error::Error>> {
-        let value = match key {
-            "url" => self.request.endpoint.url.to_string(),
-            "query" => self.request.endpoint.query_string(),
-            "method" => self.request.endpoint.method.to_string(),
-            "request.body" => self.request.body.to_string(),
-            "request.headers" => self.request.endpoint.headers.to_string(),
-            "status" => self.response.status.to_string(),
-            "response.headers" => self.response.headers.to_string(),
-            "response.size" => self.response.size.to_string(),
-            "response.body" => self.response.body.to_string(),
-            _ => String::from(""),
-        };
-
-        Ok(value)
+    pub fn field_as_string(&self, key: &str) -> Result<String, clap::Error> {
+        match key {
+            "url" => Ok(self.request.endpoint.url.to_string()),
+            "query" => Ok(self.request.endpoint.query_string()),
+            "method" => Ok(self.request.endpoint.method.to_string()),
+            "request.body" => Ok(self.request.body.to_string()),
+            "request.headers" => Ok(self.request.endpoint.headers.to_string()),
+            "status" => Ok(self.response.status.to_string()),
+            "response.headers" => Ok(self.response.headers.to_string()),
+            "response.size" => Ok(self.response.size.to_string()),
+            "response.body" => Ok(self.response.body.to_string()),
+            _ => Err(clap::Error::new(ErrorKind::InvalidValue)),
+        }
     }
 
     /// Consumes `self` and creates a file to record it.

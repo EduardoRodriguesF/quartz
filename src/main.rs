@@ -167,11 +167,10 @@ async fn main() {
             } else {
                 let mut outputs: Vec<String> = Vec::new();
                 for key in &show_fields {
-                    let value = entry
-                        .field_as_string(key)
-                        .unwrap_or_else(|_| panic!("invalid field: {}", key.red()));
-
-                    outputs.push(value);
+                    match entry.field_as_string(key) {
+                        Ok(value) => outputs.push(value),
+                        Err(..) => eprintln!("invalid field: {}", key),
+                    }
                 }
 
                 for value in outputs {
