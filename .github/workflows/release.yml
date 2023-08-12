@@ -169,7 +169,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-    run: gh release edit --draft=false ${{ github.ref_name }}
+    steps:
+      - run: gh release edit --draft=false ${{ github.ref_name }}
 
   publish_crate:
     name: Publish on crates.io
