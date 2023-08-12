@@ -538,7 +538,11 @@ async fn main() {
                 }
             }
         }
-        Commands::History { max_count, date } => {
+        Commands::History {
+            max_count,
+            date,
+            show: show_fields,
+        } => {
             let history = History::new().unwrap();
             let mut count = 0;
             let max_count = max_count.unwrap_or(usize::MAX);
@@ -556,7 +560,23 @@ async fn main() {
                     println!();
                 }
 
-                println!("{entry}");
+                if show_fields.is_empty() {
+                    println!("{entry}");
+                    continue;
+                }
+
+                let mut outputs: Vec<String> = Vec::new();
+                for key in &show_fields {
+                    let value = entry
+                        .field_as_string(key)
+                        .unwrap_or_else(|_| panic!("invalid field: {}", key.red()));
+
+                    outputs.push(value);
+                }
+
+                for value in outputs {
+                    println!("{}", value);
+                }
             }
         }
         Commands::Variable {

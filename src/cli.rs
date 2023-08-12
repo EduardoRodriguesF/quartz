@@ -142,6 +142,10 @@ pub enum Commands {
         /// Format date time output
         #[arg(long, value_name = "FORMAT")]
         date: Option<String>,
+
+        /// Which fields to show. See manual page for a list of valid fields
+        #[arg(long, short, value_delimiter = ',', value_name = "FIELDS")]
+        show: Vec<String>,
     },
     Context {
         #[command(subcommand)]

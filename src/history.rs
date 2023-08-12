@@ -145,6 +145,23 @@ impl HistoryEntry {
         History::dir().join(self.time.to_string())
     }
 
+    pub fn field_as_string(&self, key: &str) -> Result<String, Box<dyn std::error::Error>> {
+        let value = match key {
+            "url" => self.request.endpoint.url.to_string(),
+            "query" => self.request.endpoint.query_string(),
+            "method" => self.request.endpoint.method.to_string(),
+            "request.body" => self.request.body.to_string(),
+            "request.headers" => self.request.endpoint.headers.to_string(),
+            "status" => self.response.status.to_string(),
+            "response.headers" => self.response.headers.to_string(),
+            "response.size" => self.response.size.to_string(),
+            "response.body" => self.response.body.to_string(),
+            _ => String::from(""),
+        };
+
+        Ok(value)
+    }
+
     /// Consumes `self` and creates a file to record it.
     pub fn write(self) -> Result<(), Box<dyn std::error::Error>> {
         let content = toml::to_string(&self)?;
