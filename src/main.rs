@@ -37,11 +37,15 @@ async fn main() {
     colored::control::set_override(ctx.config.ui.colors);
 
     std::panic::set_hook(Box::new(|info| {
-        if let Some(payload) = info.payload().downcast_ref::<&str>() {
-            eprintln!("{}: {payload}", "error".red().bold());
+        let payload = if let Some(s) = info.payload().downcast_ref::<String>() {
+            s.clone()
+        } else if let Some(s) = info.payload().downcast_ref::<&str>() {
+            s.to_string()
         } else {
-            eprintln!("{}: {info}", "error".red().bold());
-        }
+            info.to_string()
+        };
+
+        eprintln!("{}: {payload}", "error".red().bold());
     }));
 
     match args.command {
