@@ -102,7 +102,7 @@ Send the request using the current handle's endpoint and outputs the response.
 The options are as follows:
 
 **\-s**, **\-\-show** *FIELDS*
-: Which fields to show, separated by comma (,). Valid fields are:
+: Which fields to show after the request is complete, separated by comma (,). Valid fields are:
 
     ```
     url
