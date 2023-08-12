@@ -199,7 +199,7 @@ The options are as follows:
 **\-n**, **\-\-max-count** *N*
 : Maximum number of requests to be listed.
 
-**\-\-date *FORMAT*
+**\-\-date** *FORMAT*
 : Format date time output.
 
 ## var, variable
@@ -285,13 +285,13 @@ The options are as follows:
 : Copy variables from another context.
 
 ## context use <*CONTEXT*>
-: Switch to another context.
+Switch to another context.
 
 ## context list
-: Print all available contexts.
+Print all available contexts.
 
 ## context remove <*CONTEXT*>
-: Delete a context.
+Delete a context.
 
 # CONFIG COMMAND
 **quartz** default configuration file is *~/.quartz.toml*.
