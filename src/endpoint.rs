@@ -38,6 +38,42 @@ impl Display for Query {
     }
 }
 
+impl Query {
+    /// Sets a query param.
+    ///
+    /// Expects "<key>=<value>" format.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use quartz_cli::endpoint::Query;
+    /// let mut query = Query::default();
+    /// query.set("someparam=value");
+    ///
+    /// assert_eq!(query.get("someparam").unwrap(), "value");
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// Passing an invalid header string.
+    ///
+    /// ```should_panic
+    /// use quartz_cli::endpoint::Query;
+    /// let mut query = Query::default();
+    ///
+    /// query.set("invalid: value");
+    /// ```
+    pub fn set(&mut self, param: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let (key, value) = param
+            .split_once('=')
+            .expect("malformed query param. Expected <key>=<value>");
+
+        self.insert(key.to_string(), value.to_string());
+
+        Ok(())
+    }
+}
+
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct Headers(pub HashMap<String, String>);
 
@@ -60,6 +96,42 @@ impl Display for Headers {
         for (key, value) in self.iter() {
             writeln!(f, "{key}: {value}")?;
         }
+
+        Ok(())
+    }
+}
+
+impl Headers {
+    /// Sets a header.
+    ///
+    /// Expects "<key>: <value>" format.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use quartz_cli::endpoint::Headers;
+    /// let mut headers = Headers::default();
+    /// headers.set("content-type: application/json");
+    ///
+    /// assert_eq!(headers.get("content-type").unwrap(), "application/json");
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// Passing an invalid header string.
+    ///
+    /// ```should_panic
+    /// use quartz_cli::endpoint::Headers;
+    /// let mut headers = Headers::default();
+    ///
+    /// headers.set("invalid=value");
+    /// ```
+    pub fn set(&mut self, header: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let (key, value) = header
+            .split_once(": ")
+            .expect("malformed variable: {}\nexpected <key>=<value>");
+
+        self.insert(key.to_string(), value.to_string());
 
         Ok(())
     }

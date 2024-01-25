@@ -203,19 +203,11 @@ async fn main() {
             let mut endpoint = Endpoint::new();
 
             for item in header {
-                let (key, value) = item
-                    .split_once(": ")
-                    .unwrap_or_else(|| panic!("malformed header argument: {}", item));
-
-                endpoint.headers.insert(key.to_string(), value.to_string());
+                endpoint.headers.set(&item).unwrap();
             }
 
-            for item in query {
-                let (key, value) = item
-                    .split_once('=')
-                    .unwrap_or_else(|| panic!("malformed query argument: {}", item));
-
-                endpoint.query.insert(key.to_string(), value.to_string());
+            for param in query {
+                endpoint.query.set(&param).unwrap();
             }
 
             if let Some(url) = maybe_url {
@@ -396,12 +388,7 @@ async fn main() {
             cli::EndpointQueryCommands::Set { query } => {
                 let (handle, mut endpoint) = ctx.require_endpoint();
 
-                let (key, value) = query
-                    .split_once('=')
-                    .unwrap_or_else(|| panic!("malformed query param: {}", query));
-
-                endpoint.query.insert(key.to_string(), value.to_string());
-
+                endpoint.query.set(&query).unwrap();
                 endpoint.write(handle);
             }
             cli::EndpointQueryCommands::Remove { key } => {
@@ -444,11 +431,7 @@ async fn main() {
             }
 
             for header in set_list {
-                let (key, value) = header
-                    .split_once(": ")
-                    .unwrap_or_else(|| panic!("malformed header argument: {}", header));
-
-                endpoint.headers.insert(key.to_string(), value.to_string());
+                endpoint.headers.set(&header).unwrap();
             }
 
             if let Some(key) = maybe_get {
@@ -625,16 +608,12 @@ async fn main() {
 
             if !set_list.is_empty() {
                 for set in set_list {
-                    let (key, value) = set.split_once('=').unwrap_or_else(|| {
+                    context.variables.set(&set).unwrap_or_else(|_| {
                         panic!(
                             "malformed argument. Try using {}",
                             "quartz variable --set <key>=<value>".green()
                         )
                     });
-
-                    let value = value.trim_matches('\'').trim_matches('\"');
-
-                    context.variables.insert(key.to_string(), value.to_string());
                 }
 
                 context.update().expect("failed to update variables");
