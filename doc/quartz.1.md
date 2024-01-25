@@ -101,6 +101,21 @@ Send the request using the current handle's endpoint and outputs the response.
 
 The options are as follows:
 
+**\-X**, **\-\-request** <*METHOD*>
+: Change request method. See also `method` for editing endpoint handle.
+
+**\-H**, **\-\-header** <*HEADER*>
+: Change or include an extra header. See also `header` for editing endpoint handle.
+
+**\-\-query** <*QUERY*>
+: Change or include an extra query param. See also `query` for editing endpoint handle.
+
+ **\-\-var** <*VARIABLE*>
+: Change or set an extra variable. See also `variable` for editing endpoint handle.
+
+**\-d**, **\-\-data** <*DATA*>
+: Change or set an extra header. See also `body` for editing endpoint handle.
+
 **\-s**, **\-\-show** *FIELDS*
 : Which fields to show after the request is complete, separated by comma (,). Valid fields are:
 
@@ -378,6 +393,10 @@ Considering that you have a *data.json* file, it is possible to pipe that file s
 Send this request:
 
     $ quartz send
+
+Set extra query params and change request method on the fly:
+
+    $ quartz send -X PUT --query somevalue=true
 
 Use **\-x** option to run a **quartz** command from another handle, like sending another request:
 
