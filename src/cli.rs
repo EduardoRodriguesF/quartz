@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 #[derive(Debug, Parser)]
 #[command(name = "quartz")]
 #[command(author = "Eduardo R. <contato@edurodrigues.dev>")]
-#[command(about = "API Client made into a CLI tool", long_about = None, version)]
+#[command(about = "Text-based API Client", long_about = None, version)]
 pub struct Cli {
     /// Run quartz using a specific handle
     #[arg(short = 'x', value_name = "HANDLE")]

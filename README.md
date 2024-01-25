@@ -1,6 +1,6 @@
 # Quartz
 
-The CLI way to build and test REST APIs.
+The command-line way to build and test REST APIs.
 
 ## About
 

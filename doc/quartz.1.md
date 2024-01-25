@@ -6,7 +6,7 @@ date: August 12, 2023
 ---
 
 # NAME
-quartz - the CLI way to build and test Rest API
+quartz - the command-line way to build and test Rest API
 
 # SYNOPSIS
 **quartz** [**-h**] [**\-x** *HANDLE*] <*COMMAND*> [*OPTIONS*]...
