@@ -100,13 +100,40 @@ async fn main() {
                 .write()
                 .unwrap_or_else(|_| panic!("failed to save configuration file"));
         }
-        Commands::Send { show: show_fields } => {
+        Commands::Send {
+            show: show_fields,
+            header: header_list,
+            query: query_params,
+            var: var_list,
+            request,
+            data,
+        } => {
             let (specification, mut endpoint) = ctx.require_endpoint();
-            let context = ctx.require_context();
+            let mut context = ctx.require_context();
+
+            for var in var_list {
+                context.variables.set(&var).unwrap();
+            }
+
+            for header in header_list {
+                endpoint.headers.set(&header).unwrap();
+            }
+
+            for param in query_params {
+                endpoint.query.set(&param).unwrap();
+            }
+
+            if let Some(method) = request {
+                endpoint.method = method;
+            }
 
             endpoint.apply_context(&context);
 
-            let raw_body = endpoint.body(&specification);
+            let raw_body = match data {
+                Some(data) => Body::from(data),
+                None => endpoint.body(&specification),
+            };
+
             let req = endpoint
                 // TODO: Find a way around this clone
                 .clone()

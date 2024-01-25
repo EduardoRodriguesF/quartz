@@ -29,6 +29,26 @@ pub enum Commands {
         /// Which fields to show after the request is complete, separated by comma (,). See manual page for a list of valid fields
         #[arg(long, short, value_delimiter = ',', value_name = "FIELDS")]
         show: Vec<String>,
+
+        /// Change a variable when sending the request.
+        #[arg(long, value_name = "VARIABLE")]
+        var: Vec<String>,
+
+        /// Change or include an extra header
+        #[arg(long, short = 'H')]
+        header: Vec<String>,
+
+        /// Change or include an extra query param
+        #[arg(long)]
+        query: Vec<String>,
+
+        /// Change request method
+        #[arg(long, short = 'X', value_name = "METHOD")]
+        request: Option<String>,
+
+        /// Sends data in request body
+        #[arg(long, short = 'd')]
+        data: Option<String>,
     },
     /// Create a new handle
     Create {
