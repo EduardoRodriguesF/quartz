@@ -15,15 +15,14 @@ use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
 
 use quartz_cli::context::Context;
-use quartz_cli::endpoint::{Endpoint, EndpointHandle};
 use quartz_cli::history::{self, History, HistoryEntry};
 use quartz_cli::state::StateField;
-use quartz_cli::Ctx;
 use quartz_cli::{
     cli::{self, Cli, Commands},
-    CtxArgs,
+    config::Config,
+    endpoint::{Endpoint, EndpointHandle, Headers},
+    Ctx, CtxArgs, PairMap,
 };
-use quartz_cli::{config::Config, endpoint::Headers};
 
 #[tokio::main]
 async fn main() {
@@ -112,15 +111,15 @@ async fn main() {
             let mut context = ctx.require_context();
 
             for var in var_list {
-                context.variables.set(&var).unwrap();
+                context.variables.set(&var);
             }
 
             for header in header_list {
-                endpoint.headers.set(&header).unwrap();
+                endpoint.headers.set(&header);
             }
 
             for param in query_params {
-                endpoint.query.set(&param).unwrap();
+                endpoint.query.set(&param);
             }
 
             if let Some(method) = request {
@@ -230,11 +229,11 @@ async fn main() {
             let mut endpoint = Endpoint::new();
 
             for item in header {
-                endpoint.headers.set(&item).unwrap();
+                endpoint.headers.set(&item);
             }
 
             for param in query {
-                endpoint.query.set(&param).unwrap();
+                endpoint.query.set(&param);
             }
 
             if let Some(url) = maybe_url {
@@ -415,7 +414,7 @@ async fn main() {
             cli::EndpointQueryCommands::Set { query } => {
                 let (handle, mut endpoint) = ctx.require_endpoint();
 
-                endpoint.query.set(&query).unwrap();
+                endpoint.query.set(&query);
                 endpoint.write(handle);
             }
             cli::EndpointQueryCommands::Remove { key } => {
@@ -458,7 +457,7 @@ async fn main() {
             }
 
             for header in set_list {
-                endpoint.headers.set(&header).unwrap();
+                endpoint.headers.set(&header);
             }
 
             if let Some(key) = maybe_get {
@@ -635,12 +634,7 @@ async fn main() {
 
             if !set_list.is_empty() {
                 for set in set_list {
-                    context.variables.set(&set).unwrap_or_else(|_| {
-                        panic!(
-                            "malformed argument. Try using {}",
-                            "quartz variable --set <key>=<value>".green()
-                        )
-                    });
+                    context.variables.set(&set);
                 }
 
                 context.update().expect("failed to update variables");

@@ -10,6 +10,7 @@ use std::path::{Path, PathBuf};
 
 use crate::context::{Context, Variables};
 use crate::state::{State, StateField};
+use crate::PairMap;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct Query(pub HashMap<String, String>);
@@ -38,39 +39,11 @@ impl Display for Query {
     }
 }
 
-impl Query {
-    /// Sets a query param.
-    ///
-    /// Expects "<key>=<value>" format.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use quartz_cli::endpoint::Query;
-    /// let mut query = Query::default();
-    /// query.set("someparam=value");
-    ///
-    /// assert_eq!(query.get("someparam").unwrap(), "value");
-    /// ```
-    ///
-    /// # Panics
-    ///
-    /// Passing an invalid header string.
-    ///
-    /// ```should_panic
-    /// use quartz_cli::endpoint::Query;
-    /// let mut query = Query::default();
-    ///
-    /// query.set("invalid: value");
-    /// ```
-    pub fn set(&mut self, param: &str) -> Result<(), Box<dyn std::error::Error>> {
-        let (key, value) = param
-            .split_once('=')
-            .expect("malformed query param. Expected <key>=<value>");
+impl PairMap<'_> for Query {
+    const NAME: &'static str = "query param";
 
-        self.insert(key.to_string(), value.to_string());
-
-        Ok(())
+    fn map(&mut self) -> &mut HashMap<String, String> {
+        &mut self.0
     }
 }
 
@@ -101,39 +74,18 @@ impl Display for Headers {
     }
 }
 
-impl Headers {
-    /// Sets a header.
-    ///
-    /// Expects "<key>: <value>" format.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use quartz_cli::endpoint::Headers;
-    /// let mut headers = Headers::default();
-    /// headers.set("content-type: application/json");
-    ///
-    /// assert_eq!(headers.get("content-type").unwrap(), "application/json");
-    /// ```
-    ///
-    /// # Panics
-    ///
-    /// Passing an invalid header string.
-    ///
-    /// ```should_panic
-    /// use quartz_cli::endpoint::Headers;
-    /// let mut headers = Headers::default();
-    ///
-    /// headers.set("invalid=value");
-    /// ```
-    pub fn set(&mut self, header: &str) -> Result<(), Box<dyn std::error::Error>> {
-        let (key, value) = header
-            .split_once(": ")
-            .expect("malformed variable: {}\nexpected <key>=<value>");
+impl PairMap<'_> for Headers {
+    const NAME: &'static str = "header";
+    const EXPECTED: &'static str = "<key>: [value]";
 
-        self.insert(key.to_string(), value.to_string());
+    fn map(&mut self) -> &mut HashMap<String, String> {
+        &mut self.0
+    }
 
-        Ok(())
+    fn pair(input: &str) -> Option<(String, String)> {
+        let (key, value) = input.split_once(": ")?;
+
+        Some((key.to_string(), value.to_string()))
     }
 }
 

@@ -5,6 +5,8 @@ pub mod endpoint;
 pub mod history;
 pub mod state;
 
+use std::collections::HashMap;
+use std::hash::Hash;
 use std::path::{Path, PathBuf};
 
 use colored::Colorize;
@@ -13,6 +15,34 @@ use config::Config;
 use context::Context;
 use endpoint::{Endpoint, EndpointHandle};
 use state::{State, StateField};
+
+pub trait PairMap<'a, K = String, V = String>
+where
+    K: Eq + PartialEq + Hash + From<&'a str>,
+    V: From<&'a str>,
+{
+    const NAME: &'static str = "key-value pair";
+    const EXPECTED: &'static str = "<key>=<value>";
+
+    /// Returns HashMap in the implementation struct.
+    fn map(&mut self) -> &mut HashMap<K, V>;
+
+    /// Breaks string into (key, value) tuple.
+    fn pair(input: &'a str) -> Option<(K, V)> {
+        let (key, value) = input.split_once('=')?;
+        let value = value.trim_matches('\'').trim_matches('\"');
+
+        Some((key.into(), value.into()))
+    }
+
+    /// Inserts key-value pair into map.
+    fn set(&mut self, input: &'a str) {
+        let (key, value) = Self::pair(input)
+            .unwrap_or_else(|| panic!("malformed {}. Expected {}", Self::NAME, Self::EXPECTED));
+
+        self.map().insert(key.into(), value.into());
+    }
+}
 
 pub struct CtxArgs {
     pub from_handle: Option<String>,

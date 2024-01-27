@@ -8,6 +8,8 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
+use crate::PairMap;
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Variables(pub HashMap<String, String>);
 
@@ -35,41 +37,11 @@ impl Display for Variables {
     }
 }
 
-impl Variables {
-    /// Sets a variable key-value pair based on a var string.
-    ///
-    /// Expects <key>=<value> string.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use quartz_cli::context::Variables;
-    /// let mut variables = Variables::default();
-    /// variables.set("myvar=\"some_value\"");
-    ///
-    /// assert_eq!(variables.get("myvar").unwrap(), "some_value");
-    /// ```
-    ///
-    /// # Panics
-    ///
-    /// Passing an invalid variable string.
-    ///
-    /// ```should_panic
-    /// use quartz_cli::context::Variables;
-    /// let mut variables = Variables::default();
-    ///
-    /// variables.set("invalid_variable");
-    /// ```
-    pub fn set(&mut self, variable: &str) -> Result<(), Box<dyn std::error::Error>> {
-        let (key, value) = variable
-            .split_once('=')
-            .expect("malformed variable. Expected <key>=<value>");
+impl PairMap<'_> for Variables {
+    const NAME: &'static str = "variable";
 
-        let value = value.trim_matches('\'').trim_matches('\"');
-
-        self.insert(key.to_string(), value.to_string());
-
-        Ok(())
+    fn map(&mut self) -> &mut HashMap<String, String> {
+        &mut self.0
     }
 }
 
