@@ -10,10 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Added
 
 - `send` command new edit flags: `-d,--data <DATA>`, `-H, --header <HEADER>`, `--query <QUERY>`, `--var <VARIABLE>`, `-X, --request <METHOD>`.
+- `use` command can now edit the current or to-be-used endpoint.
 
 ## Changed
 
-- `create` options were revisited for better semantics with **curl** and other `send` options.
+- `create` options were revisited for better semantics with **curl** and other `send` and `use` options.
 
 ## [0.8.0] - 2023-08-12
 
