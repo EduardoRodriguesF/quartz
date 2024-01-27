@@ -240,6 +240,23 @@ async fn main() {
             handle.write();
             endpoint.write(handle);
         }
+        Commands::Set {
+            url,
+            method,
+            query,
+            header: headers,
+        } => {
+            let (handle, mut endpoint) = ctx.require_endpoint();
+
+            endpoint.update(&mut EndpointInput {
+                url,
+                method,
+                query,
+                headers,
+                ..Default::default()
+            });
+            endpoint.write(handle);
+        }
         Commands::Use { handle } => {
             let specification = EndpointHandle::from_handle(handle);
 

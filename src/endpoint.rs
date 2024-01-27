@@ -303,7 +303,7 @@ impl Endpoint {
 
     pub fn apply_context(&mut self, context: &Context) {
         for (key, value) in context.variables.iter() {
-            let key_match = format!("{{{{{}}}}}", key);
+            let key_match = format!("{{{{{}}}}}", key); // {{key}}
 
             self.url = self.url.replace(&key_match, value);
             self.method = self.method.replace(&key_match, value);

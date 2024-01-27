@@ -74,6 +74,23 @@ pub enum Commands {
         #[arg(name = "use", long)]
         switch: bool,
     },
+    /// Change endpoint data
+    Set {
+        #[arg(long)]
+        url: Option<String>,
+
+        /// HTTP request method
+        #[arg(short = 'X', long = "request")]
+        method: Option<String>,
+
+        /// Add a parameter the URL query.
+        #[arg(short, long, value_name = "PARAM")]
+        query: Vec<String>,
+
+        /// Add a header entry in "<key>: <value>" format. This argument can be passed multiple times
+        #[arg(short = 'H', long)]
+        header: Vec<String>,
+    },
     /// Switch to a handle
     Use { handle: String },
     /// Print the current status of quartz
