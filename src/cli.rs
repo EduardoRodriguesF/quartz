@@ -99,14 +99,14 @@ pub enum Commands {
         command: StatusCommands,
     },
     /// Lists available handles
-    #[command(alias = "ls")]
+    #[command(name = "ls", alias = "list")]
     List {
         /// Set a limit for how deep the listing goes in sub-handles
         #[arg(long, value_name = "N")]
         depth: Option<u16>,
     },
     /// Delete the specified handle recursively
-    #[command(alias = "rm")]
+    #[command(name = "rm", alias = "remove")]
     Remove {
         /// Endpoint specification
         handle: String,
