@@ -14,7 +14,6 @@ use hyper::{
 use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
 
-use quartz_cli::context::Context;
 use quartz_cli::history::{self, History, HistoryEntry};
 use quartz_cli::state::StateField;
 use quartz_cli::{
@@ -23,6 +22,7 @@ use quartz_cli::{
     endpoint::{Endpoint, EndpointHandle, Headers},
     Ctx, CtxArgs, PairMap,
 };
+use quartz_cli::{context::Context, endpoint::EndpointInput};
 
 #[tokio::main]
 async fn main() {
@@ -101,30 +101,25 @@ async fn main() {
         }
         Commands::Send {
             show: show_fields,
-            header: header_list,
-            query: query_params,
-            var: var_list,
+            header: headers,
+            query,
+            var: variables,
             request,
             data,
         } => {
             let (specification, mut endpoint) = ctx.require_endpoint();
             let mut context = ctx.require_context();
 
-            for var in var_list {
+            for var in variables {
                 context.variables.set(&var);
             }
 
-            for header in header_list {
-                endpoint.headers.set(&header);
-            }
-
-            for param in query_params {
-                endpoint.query.set(&param);
-            }
-
-            if let Some(method) = request {
-                endpoint.method = method;
-            }
+            endpoint.update(&mut EndpointInput {
+                headers,
+                query,
+                method: request,
+                ..Default::default()
+            });
 
             endpoint.apply_context(&context);
 
@@ -210,10 +205,10 @@ async fn main() {
         }
         Commands::Create {
             handle,
-            url: maybe_url,
-            method: maybe_method,
+            url,
+            method,
             query,
-            header,
+            header: headers,
             switch,
         } => {
             if handle.is_empty() {
@@ -226,23 +221,13 @@ async fn main() {
                 panic!("endpoint already exists");
             }
 
-            let mut endpoint = Endpoint::new();
-
-            for item in header {
-                endpoint.headers.set(&item);
-            }
-
-            for param in query {
-                endpoint.query.set(&param);
-            }
-
-            if let Some(url) = maybe_url {
-                endpoint.url = url;
-            }
-
-            if let Some(method) = maybe_method {
-                endpoint.method = method;
-            }
+            let mut endpoint = Endpoint::from(&mut EndpointInput {
+                url,
+                method,
+                query,
+                headers,
+                ..Default::default()
+            });
 
             if switch {
                 if let Ok(()) = StateField::Endpoint.set(&handle.path.join("/")) {

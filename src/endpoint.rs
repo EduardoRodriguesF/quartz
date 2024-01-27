@@ -113,6 +113,15 @@ pub struct Endpoint {
     pub variables: Variables,
 }
 
+#[derive(Default)]
+pub struct EndpointInput {
+    pub url: Option<String>,
+    pub method: Option<String>,
+    pub query: Vec<String>,
+    pub headers: Vec<String>,
+    pub variables: Vec<String>,
+}
+
 impl EndpointHandle {
     /// Points to top-level quartz folder.
     ///
@@ -219,6 +228,15 @@ impl EndpointHandle {
     }
 }
 
+impl From<&mut EndpointInput> for Endpoint {
+    fn from(value: &mut EndpointInput) -> Self {
+        let mut endpoint = Self::new();
+        endpoint.update(value);
+
+        endpoint
+    }
+}
+
 impl Endpoint {
     pub fn new() -> Self {
         Self {
@@ -238,6 +256,28 @@ impl Endpoint {
         let endpoint: Endpoint = toml::from_str(&content)?;
 
         Ok(endpoint)
+    }
+
+    pub fn update(&mut self, src: &mut EndpointInput) {
+        if let Some(method) = &mut src.method {
+            std::mem::swap(&mut self.method, method);
+        }
+
+        if let Some(url) = &mut src.url {
+            std::mem::swap(&mut self.url, url);
+        }
+
+        for input in &src.query {
+            self.query.set(input);
+        }
+
+        for input in &src.headers {
+            self.headers.set(input);
+        }
+
+        for input in &src.query {
+            self.query.set(input);
+        }
     }
 
     pub fn to_toml(&self) -> Result<String, toml::ser::Error> {
