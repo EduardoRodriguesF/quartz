@@ -238,7 +238,7 @@ async fn main() {
             }
 
             handle.write();
-            endpoint.write(handle);
+            endpoint.write(&handle);
         }
         Commands::Use {
             handle,
@@ -273,7 +273,7 @@ async fn main() {
                 headers,
                 ..Default::default()
             });
-            endpoint.write(handle);
+            endpoint.write(&handle);
         }
         Commands::Status { command } => match command {
             cli::StatusCommands::Endpoint => {
@@ -395,7 +395,7 @@ async fn main() {
 
                 endpoint.url = url;
 
-                endpoint.write(handle);
+                endpoint.write(&handle);
             }
         },
         Commands::Query { command } => match command {
@@ -419,14 +419,14 @@ async fn main() {
                 let (handle, mut endpoint) = ctx.require_endpoint();
 
                 endpoint.query.set(&query);
-                endpoint.write(handle);
+                endpoint.write(&handle);
             }
             cli::EndpointQueryCommands::Remove { key } => {
                 let (handle, mut endpoint) = ctx.require_endpoint();
 
                 endpoint.query.remove(&key);
 
-                endpoint.write(handle);
+                endpoint.write(&handle);
             }
             cli::EndpointQueryCommands::List => {
                 let (_, endpoint) = ctx.require_endpoint();
@@ -445,7 +445,7 @@ async fn main() {
 
                 endpoint.method = method.to_uppercase();
 
-                endpoint.write(handle);
+                endpoint.write(&handle);
             }
         },
         Commands::Header {
@@ -474,7 +474,7 @@ async fn main() {
                 println!("{}", endpoint.headers);
             }
 
-            endpoint.write(handle);
+            endpoint.write(&handle);
         }
         Commands::Body {
             stdin: expects_stdin,
@@ -521,7 +521,7 @@ async fn main() {
                 }
             }
 
-            endpoint.write(handle);
+            endpoint.write(&handle);
         }
         Commands::Last {
             command: maybe_command,

@@ -224,7 +224,7 @@ impl EndpointHandle {
 
     #[must_use]
     pub fn endpoint(&self) -> Option<Endpoint> {
-        Endpoint::from_dir(self.dir()).ok()
+        Endpoint::from_dir(&self.dir()).ok()
     }
 }
 
@@ -249,7 +249,7 @@ impl Endpoint {
         trim_newline(name.replace(['/', '\\'], "-"))
     }
 
-    pub fn from_dir(dir: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn from_dir(dir: &Path) -> Result<Self, Box<dyn std::error::Error>> {
         let bytes = std::fs::read(dir.join("endpoint.toml"))?;
         let content = String::from_utf8(bytes)?;
 
@@ -400,7 +400,7 @@ impl Endpoint {
         result.join("&")
     }
 
-    pub fn write(&mut self, handle: EndpointHandle) {
+    pub fn write(&mut self, handle: &EndpointHandle) {
         let toml_content = self
             .to_toml()
             .unwrap_or_else(|_| panic!("failed to generate settings"));
