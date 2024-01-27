@@ -42,14 +42,8 @@ fn it_creates_endpoint_with_method() -> TestResult {
     let sample_url = "https://httpbin.org/get";
     let method = "POST";
 
-    let create_output = quartz.cmd(&[
-        "create",
-        sample_endpoint,
-        "--url",
-        sample_url,
-        "--method",
-        method,
-    ])?;
+    let create_output =
+        quartz.cmd(&["create", sample_endpoint, "--url", sample_url, "-X", method])?;
 
     assert!(create_output.status.success(), "{}", create_output.stderr);
 

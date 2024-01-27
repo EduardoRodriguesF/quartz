@@ -59,15 +59,15 @@ pub enum Commands {
         url: Option<String>,
 
         /// Set handle's endpoint method value
-        #[arg(long)]
+        #[arg(short = 'X', long = "request")]
         method: Option<String>,
 
-        /// Set a query entry in "key=value" format.
-        #[arg(long)]
+        /// Add a key-value pair to the URL query.
+        #[arg(short, long, value_name = "PARAM")]
         query: Vec<String>,
 
         /// Set a header entry in "<key>: <value>" format. This argument can be passed multiple times
-        #[arg(long)]
+        #[arg(short = 'H', long)]
         header: Vec<String>,
 
         /// Immediatly switches to this handle after creating it.
