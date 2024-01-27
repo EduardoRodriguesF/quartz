@@ -240,13 +240,31 @@ async fn main() {
             handle.write();
             endpoint.write(handle);
         }
-        Commands::Set {
+        Commands::Use {
+            handle,
             url,
             method,
             query,
             header: headers,
         } => {
-            let (handle, mut endpoint) = ctx.require_endpoint();
+            let (handle, mut endpoint) = if let Some(handle) = handle {
+                let handle = ctx.require_input_handle(&handle);
+
+                if !handle.dir().exists() {
+                    panic!("endpoint does not exist");
+                }
+
+                if let Ok(()) = StateField::Endpoint.set(&handle.path.join("/")) {
+                    println!("Switched to {} endpoint", handle.handle().green());
+                } else {
+                    panic!("failed to switch to {} endpoint", handle.handle().red());
+                }
+
+                let endpoint = ctx.require_endpoint_from_handle(&handle);
+                (handle, endpoint)
+            } else {
+                ctx.require_endpoint()
+            };
 
             endpoint.update(&mut EndpointInput {
                 url,
@@ -256,22 +274,6 @@ async fn main() {
                 ..Default::default()
             });
             endpoint.write(handle);
-        }
-        Commands::Use { handle } => {
-            let specification = EndpointHandle::from_handle(handle);
-
-            if !specification.dir().exists() {
-                panic!("endpoint does not exist");
-            }
-
-            if let Ok(()) = StateField::Endpoint.set(&specification.path.join("/")) {
-                println!("Switched to {} endpoint", specification.handle().green());
-            } else {
-                panic!(
-                    "failed to switch to {} endpoint",
-                    specification.handle().red()
-                );
-            }
         }
         Commands::Status { command } => match command {
             cli::StatusCommands::Endpoint => {

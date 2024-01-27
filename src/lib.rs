@@ -100,7 +100,12 @@ impl Ctx {
 
     pub fn require_endpoint(&self) -> (EndpointHandle, Endpoint) {
         let handle = self.require_handle();
+        let endpoint = self.require_endpoint_from_handle(&handle);
 
+        (handle, endpoint)
+    }
+
+    pub fn require_endpoint_from_handle(&self, handle: &EndpointHandle) -> Endpoint {
         let mut endpoint = handle.endpoint().unwrap_or_else(|| {
             panic!("no endpoint at {}", handle.handle().red());
         });
@@ -110,7 +115,7 @@ impl Ctx {
             endpoint.apply_context(&context);
         }
 
-        (handle, endpoint)
+        endpoint
     }
 
     pub fn require_context(&self) -> Context {

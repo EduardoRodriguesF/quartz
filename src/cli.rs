@@ -74,8 +74,10 @@ pub enum Commands {
         #[arg(name = "use", long)]
         switch: bool,
     },
-    /// Change endpoint data
-    Set {
+    /// Switch handle or edit its endpoint
+    Use {
+        handle: Option<String>,
+
         #[arg(long)]
         url: Option<String>,
 
@@ -91,8 +93,6 @@ pub enum Commands {
         #[arg(short = 'H', long)]
         header: Vec<String>,
     },
-    /// Switch to a handle
-    Use { handle: String },
     /// Print the current status of quartz
     Status {
         #[command(subcommand)]
