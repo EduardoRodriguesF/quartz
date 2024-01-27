@@ -111,23 +111,16 @@ pub enum Commands {
         /// Endpoint specification
         handle: String,
     },
-    /// Print endpoint informations at a handle
-    Show { handle: Option<String> },
+    /// Print out endpoint informations
+    Show {
+        #[command(subcommand)]
+        command: Option<EndpointShowCommands>,
+    },
     /// Open an editor to modify endpoint in use
     Edit {
         #[arg(long)]
         /// Defines the editor to be used for that run, overriding the quartz settings.
         editor: Option<String>,
-    },
-    /// Manage current handle's endpoint URL
-    Url {
-        #[command(subcommand)]
-        command: EndpointUrlCommands,
-    },
-    /// Manage current handle's endpoint method
-    Method {
-        #[command(subcommand)]
-        command: EndpointMethodCommands,
     },
     /// Manage current handle's endpoint query params
     Query {
@@ -268,32 +261,6 @@ pub enum LastResponseCommands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum EndpointUrlCommands {
-    /// Print URL
-    #[command(name = "--get")]
-    Get {
-        /// Combine URL with query params
-        #[arg(long)]
-        full: bool,
-    },
-
-    /// Set a value for URL
-    #[command(name = "--set")]
-    Set { url: String },
-}
-
-#[derive(Debug, Subcommand)]
-pub enum EndpointMethodCommands {
-    /// Print method
-    #[command(name = "--get")]
-    Get,
-
-    /// Set a value for method
-    #[command(name = "--set")]
-    Set { method: String },
-}
-
-#[derive(Debug, Subcommand)]
 pub enum EndpointQueryCommands {
     /// Print query param value
     #[command(name = "--get")]
@@ -310,6 +277,15 @@ pub enum EndpointQueryCommands {
     /// List all query params
     #[command(name = "--list")]
     List,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum EndpointShowCommands {
+    Url,
+    Method,
+    Headers { key: Option<String> },
+    Query { key: Option<String> },
+    Body,
 }
 
 #[derive(Debug, Subcommand)]

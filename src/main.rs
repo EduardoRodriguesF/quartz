@@ -14,8 +14,11 @@ use hyper::{
 use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
 
-use quartz_cli::history::{self, History, HistoryEntry};
 use quartz_cli::state::StateField;
+use quartz_cli::{
+    cli::EndpointShowCommands,
+    history::{self, History, HistoryEntry},
+};
 use quartz_cli::{
     cli::{self, Cli, Commands},
     config::Config,
@@ -348,11 +351,48 @@ async fn main() {
 
             (traverse_handles.f)(&traverse_handles, vec![EndpointHandle::QUARTZ]);
         }
-        Commands::Show { handle } => {
-            ctx.args.from_handle = Some(handle).unwrap_or(ctx.args.from_handle);
-            let (_, endpoint) = ctx.require_endpoint();
+        Commands::Show { command } => {
+            let (handle, endpoint) = ctx.require_endpoint();
 
-            println!("{}", endpoint.to_toml().unwrap());
+            if let Some(command) = command {
+                match command {
+                    EndpointShowCommands::Url => println!("{}", endpoint.url),
+                    EndpointShowCommands::Method => println!("{}", endpoint.method),
+                    EndpointShowCommands::Query { key } => {
+                        if let Some(key) = key {
+                            let value = endpoint
+                                .query
+                                .get(&key)
+                                .unwrap_or_else(|| panic!("No {} query param found", key.red()));
+
+                            println!("{}", value);
+                        } else {
+                            println!("{}", endpoint.query);
+                        }
+                    }
+                    EndpointShowCommands::Headers { key } => {
+                        if let Some(key) = key {
+                            let value = endpoint
+                                .headers
+                                .get(&key)
+                                .unwrap_or_else(|| panic!("No {} header found", key.red()));
+
+                            println!("{}", value);
+                        } else {
+                            println!("{}", endpoint.headers);
+                        }
+                    }
+                    EndpointShowCommands::Body => {
+                        if let Some(chunk) = endpoint.body(&handle).data().await {
+                            stdout().write_all(&chunk.unwrap()).await.unwrap();
+                        }
+                    }
+                }
+            } else {
+                let (_, endpoint) = ctx.require_endpoint();
+
+                println!("{}", endpoint.to_toml().unwrap());
+            }
         }
         Commands::Edit { editor } => {
             let specification = ctx.require_handle();
@@ -375,29 +415,6 @@ async fn main() {
                 panic!("failed to delete endpoint {}", specification.handle());
             }
         }
-        Commands::Url { command } => match command {
-            cli::EndpointUrlCommands::Get { full } => {
-                let (_, endpoint) = ctx.require_endpoint();
-
-                let mut url = endpoint.url.clone();
-
-                if full {
-                    url = endpoint
-                        .full_url()
-                        .unwrap_or_else(|_| panic!("invalid url"))
-                        .to_string();
-                }
-
-                println!("{}", url);
-            }
-            cli::EndpointUrlCommands::Set { url } => {
-                let (handle, mut endpoint) = ctx.require_endpoint();
-
-                endpoint.url = url;
-
-                endpoint.write(&handle);
-            }
-        },
         Commands::Query { command } => match command {
             cli::EndpointQueryCommands::Get { key: maybe_key } => {
                 let (_, endpoint) = ctx.require_endpoint();
@@ -432,20 +449,6 @@ async fn main() {
                 let (_, endpoint) = ctx.require_endpoint();
 
                 println!("{}", endpoint.query);
-            }
-        },
-        Commands::Method { command } => match command {
-            cli::EndpointMethodCommands::Get => {
-                let (_, endpoint) = ctx.require_endpoint();
-
-                println!("{}", endpoint.method);
-            }
-            cli::EndpointMethodCommands::Set { method } => {
-                let (handle, mut endpoint) = ctx.require_endpoint();
-
-                endpoint.method = method.to_uppercase();
-
-                endpoint.write(&handle);
             }
         },
         Commands::Header {
