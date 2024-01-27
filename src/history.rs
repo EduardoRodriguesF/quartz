@@ -19,7 +19,7 @@ pub struct History {
 
 pub const DEFAULT_DATE_FORMAT: &str = "%a %b %d %H:%M:%S %Y";
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct HistoryEntry {
     pub handle: String,
     pub time: u64,
@@ -203,17 +203,5 @@ impl Display for HistoryEntry {
         writeln!(f, "{}", self.response.body)?;
 
         Ok(())
-    }
-}
-
-impl Default for HistoryEntry {
-    fn default() -> Self {
-        Self {
-            handle: Default::default(),
-            time: Default::default(),
-            request: Default::default(),
-            response: Default::default(),
-            date_format: Default::default(),
-        }
     }
 }
