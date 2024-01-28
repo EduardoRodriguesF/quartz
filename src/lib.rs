@@ -8,7 +8,7 @@ pub mod validator;
 
 use std::collections::HashMap;
 use std::hash::Hash;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use colored::Colorize;
 
@@ -119,6 +119,11 @@ impl Ctx {
         endpoint
     }
 
+    /// Returns current context.
+    ///
+    /// # Panics
+    ///
+    /// Program is terminated if it is unable to require it.
     pub fn require_context(&self) -> Context {
         let state = self
             .state
@@ -129,7 +134,18 @@ impl Ctx {
             .unwrap_or_else(|_| panic!("could not resolve {} context", state.red()))
     }
 
-    pub fn edit<F>(&self, path: PathBuf, validate: F) -> Result<(), Box<dyn std::error::Error>>
+    /// Opens an editor to modified the specified file at `path` with a temporary file.
+    ///
+    /// After the program exits, `validate` function is ran on temporary file before moving it to
+    /// the original file, effectively commiting the edits.
+    ///
+    /// If `validate` returns [`Err`], the temporary file is deleted while original file is preserved as is.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - A path slice to a file
+    /// * `validate` - Validator method to ensure the edit can be saved without errors
+    pub fn edit<F>(&self, path: &Path, validate: F) -> Result<(), Box<dyn std::error::Error>>
     where
         F: FnOnce(&str) -> Result<(), Box<dyn std::error::Error>>,
     {
@@ -138,7 +154,7 @@ impl Ctx {
             temp_path.set_extension(extension);
         }
 
-        std::fs::copy(&path, &temp_path)?;
+        std::fs::copy(path, &temp_path)?;
 
         let _ = std::process::Command::new(&self.config.preferences.editor)
             .arg(&temp_path)
@@ -152,12 +168,9 @@ impl Ctx {
 
         let content = std::fs::read_to_string(&temp_path)?;
 
-        match validate(&content) {
-            Err(err) => {
-                std::fs::remove_file(&temp_path)?;
-                panic!("{}", err);
-            }
-            _ => (),
+        if let Err(err) = validate(&content) {
+            std::fs::remove_file(&temp_path)?;
+            panic!("{}", err);
         }
 
         std::fs::rename(&temp_path, path)?;

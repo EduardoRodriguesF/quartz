@@ -401,7 +401,7 @@ async fn main() {
             }
 
             ctx.edit(
-                specification.dir().join("endpoint.toml"),
+                &specification.dir().join("endpoint.toml"),
                 validator::toml_as::<Endpoint>,
             )
             .unwrap();
@@ -512,7 +512,7 @@ async fn main() {
             }
 
             if should_edit {
-                ctx.edit(handle.dir(), validator::json).unwrap();
+                ctx.edit(&handle.dir(), validator::json).unwrap();
             }
 
             if should_print {
@@ -649,7 +649,7 @@ async fn main() {
             }
 
             if should_edit {
-                ctx.edit(context.dir().join("variables.toml"), validator::toml)
+                ctx.edit(&context.dir().join("variables.toml"), validator::toml)
                     .unwrap();
             }
         }
@@ -732,7 +732,7 @@ async fn main() {
                 println!("{value}");
             }
             cli::ConfigCommands::Edit => {
-                ctx.edit(Config::filepath(), validator::toml_as::<Config>)
+                ctx.edit(&Config::filepath(), validator::toml_as::<Config>)
                     .unwrap();
             }
             cli::ConfigCommands::Set { key, value } => {
