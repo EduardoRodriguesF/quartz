@@ -28,7 +28,7 @@ fn it_creates_endpoint_with_url() -> TestResult {
     assert!(create_output.status.success(), "{}", create_output.stderr);
 
     quartz.cmd(&["use", sample_endpoint])?;
-    let url_output = quartz.cmd(&["url", "--get"])?;
+    let url_output = quartz.cmd(&["show", "url"])?;
 
     assert_eq!(url_output.stdout.trim(), sample_url.trim());
 
@@ -48,7 +48,7 @@ fn it_creates_endpoint_with_method() -> TestResult {
     assert!(create_output.status.success(), "{}", create_output.stderr);
 
     quartz.cmd(&["use", sample_endpoint])?;
-    let method_output = quartz.cmd(&["method", "--get"])?;
+    let method_output = quartz.cmd(&["show", "method"])?;
 
     assert_eq!(method_output.stdout.trim(), method);
 
@@ -72,7 +72,7 @@ fn it_creates_endpoint_with_header() -> TestResult {
     assert!(create_output.status.success(), "{}", create_output.stderr);
 
     quartz.cmd(&["use", sample_endpoint])?;
-    let method_output = quartz.cmd(&["header", "--list"])?;
+    let method_output = quartz.cmd(&["header", "ls"])?;
 
     assert!(method_output
         .stdout
@@ -98,7 +98,7 @@ fn it_creates_endpoint_with_query() -> TestResult {
     assert!(create_output.status.success(), "{}", create_output.stderr);
 
     quartz.cmd(&["use", sample_endpoint])?;
-    let output = quartz.cmd(&["query", "--get", "myvariable"])?;
+    let output = quartz.cmd(&["query", "get", "myvariable"])?;
 
     assert_eq!(output.stdout.trim(), "true");
 
@@ -124,7 +124,7 @@ fn it_creates_endpoint_with_multiple_headers() -> TestResult {
     assert!(create_output.status.success(), "{}", create_output.stderr);
 
     quartz.cmd(&["use", sample_endpoint])?;
-    let method_output = quartz.cmd(&["header", "--list"])?;
+    let method_output = quartz.cmd(&["header", "ls"])?;
 
     assert!(
         method_output
@@ -155,7 +155,7 @@ fn it_creates_nested_endpoints() -> TestResult {
     let output = quartz.cmd(&["use", "myendpoint/childendpoint"])?;
     assert!(output.status.success(), "{}", output.stderr);
 
-    let output = quartz.cmd(&["url", "--get"])?;
+    let output = quartz.cmd(&["show", "url"])?;
     assert_eq!(
         output.stdout.trim(),
         "https://this-is-the-nested-one.com",
@@ -188,7 +188,7 @@ fn it_does_not_allow_create_duplicate() -> TestResult {
         quartz.cmd(&["create", "myendpoint", "--url", "https://overwritten/"])?;
 
     quartz.cmd(&["use", "myendpoint"])?;
-    let url_output = quartz.cmd(&["url", "--get"])?;
+    let url_output = quartz.cmd(&["show", "url"])?;
 
     assert_ne!(
         url_output.stdout.trim(),
