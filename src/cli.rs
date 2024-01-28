@@ -125,7 +125,7 @@ pub enum Commands {
     /// Manage current handle's endpoint query params
     Query {
         #[command(subcommand)]
-        command: EndpointQueryCommands,
+        command: Option<EndpointQueryCommands>,
     },
     /// Manage current handle's endpoint headers
     Header {
@@ -264,7 +264,7 @@ pub enum LastResponseCommands {
 #[derive(Debug, Subcommand)]
 pub enum EndpointQueryCommands {
     /// Print query param value
-    Get { key: Option<String> },
+    Get { key: String },
 
     /// Set query param value
     Set { query: Vec<String> },

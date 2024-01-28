@@ -415,45 +415,46 @@ async fn main() {
                 panic!("failed to delete endpoint {}", specification.handle());
             }
         }
-        Commands::Query { command } => match command {
-            cli::EndpointQueryCommands::Get { key: maybe_key } => {
-                let (_, endpoint) = ctx.require_endpoint();
+        Commands::Query { command } => {
+            if let Some(command) = command {
+                match command {
+                    cli::EndpointQueryCommands::Get { key } => {
+                        let (_, endpoint) = ctx.require_endpoint();
 
-                if let Some(key) = maybe_key {
-                    let value = endpoint
-                        .query
-                        .get(&key)
-                        .unwrap_or_else(|| panic!("no query param {} found", key.red()));
+                        let value = endpoint
+                            .query
+                            .get(&key)
+                            .unwrap_or_else(|| panic!("no query param {} found", key.red()));
 
-                    println!("{value}");
-                } else {
-                    // Display entire query
-                    let query = endpoint.query_string();
-                    println!("{query}");
+                        println!("{value}");
+                    }
+                    cli::EndpointQueryCommands::Set { query: queries } => {
+                        let (handle, mut endpoint) = ctx.require_endpoint();
+
+                        for input in queries {
+                            endpoint.query.set(&input);
+                        }
+
+                        endpoint.write(&handle);
+                    }
+                    cli::EndpointQueryCommands::Remove { key } => {
+                        let (handle, mut endpoint) = ctx.require_endpoint();
+
+                        endpoint.query.remove(&key);
+
+                        endpoint.write(&handle);
+                    }
+                    cli::EndpointQueryCommands::List => {
+                        let (_, endpoint) = ctx.require_endpoint();
+
+                        println!("{}", endpoint.query);
+                    }
                 }
-            }
-            cli::EndpointQueryCommands::Set { query: queries } => {
-                let (handle, mut endpoint) = ctx.require_endpoint();
-
-                for input in queries {
-                    endpoint.query.set(&input);
-                }
-
-                endpoint.write(&handle);
-            }
-            cli::EndpointQueryCommands::Remove { key } => {
-                let (handle, mut endpoint) = ctx.require_endpoint();
-
-                endpoint.query.remove(&key);
-
-                endpoint.write(&handle);
-            }
-            cli::EndpointQueryCommands::List => {
+            } else {
                 let (_, endpoint) = ctx.require_endpoint();
-
-                println!("{}", endpoint.query);
+                println!("{}", endpoint.query_string());
             }
-        },
+        }
         Commands::Header {
             set: set_list,
             remove: remove_list,
