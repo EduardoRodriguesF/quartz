@@ -22,6 +22,7 @@ colored = "2.0.0"
 hyper-tls = "0.5.0"
 chrono = "0.4.26"
 openssl = { version = "0.10.55", features = ["vendored"] }
+serde_json = "1.0.112"
 
 [badges]
 maintenance = { status = "actively-developed" }

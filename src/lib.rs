@@ -4,6 +4,7 @@ pub mod context;
 pub mod endpoint;
 pub mod history;
 pub mod state;
+pub mod validator;
 
 use std::collections::HashMap;
 use std::hash::Hash;
@@ -128,27 +129,38 @@ impl Ctx {
             .unwrap_or_else(|_| panic!("could not resolve {} context", state.red()))
     }
 
-    pub fn edit<T, F>(&self, path: PathBuf, validate: F) -> Result<(), Box<dyn std::error::Error>>
+    pub fn edit<F>(&self, path: PathBuf, validate: F) -> Result<(), Box<dyn std::error::Error>>
     where
-        F: FnOnce(String) -> Result<T, Box<dyn std::error::Error>>,
+        F: FnOnce(&str) -> Result<(), Box<dyn std::error::Error>>,
     {
-        let temp_path = Path::new(".quartz").join("user").join("EDIT.toml");
-        std::fs::copy(&path, &temp_path).unwrap();
+        let mut temp_path = Path::new(".quartz").join("user").join("EDIT");
+        if let Some(extension) = path.extension() {
+            temp_path.set_extension(extension);
+        }
+
+        std::fs::copy(&path, &temp_path)?;
 
         let _ = std::process::Command::new(&self.config.preferences.editor)
             .arg(&temp_path)
             .status()
-            .unwrap_or_else(|_| {
-                panic!("failed to open editor: {}", &self.config.preferences.editor)
+            .unwrap_or_else(|err| {
+                panic!(
+                    "failed to open editor: {}\n\n{}",
+                    &self.config.preferences.editor, err
+                );
             });
 
         let content = std::fs::read_to_string(&temp_path)?;
 
-        validate(content)?;
+        match validate(&content) {
+            Err(err) => {
+                std::fs::remove_file(&temp_path)?;
+                panic!("{}", err);
+            }
+            _ => (),
+        }
 
-        std::fs::copy(&temp_path, path)?;
-        std::fs::remove_file(temp_path)?;
-
+        std::fs::rename(&temp_path, path)?;
         Ok(())
     }
 }

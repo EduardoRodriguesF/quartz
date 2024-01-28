@@ -1,5 +1,4 @@
 use std::{
-    collections::HashMap,
     io::Write,
     path::{Path, PathBuf},
     str::FromStr,
@@ -14,7 +13,6 @@ use hyper::{
 use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
 
-use quartz_cli::state::StateField;
 use quartz_cli::{
     cli::EndpointShowCommands,
     history::{self, History, HistoryEntry},
@@ -26,6 +24,7 @@ use quartz_cli::{
     Ctx, CtxArgs, PairMap,
 };
 use quartz_cli::{context::Context, endpoint::EndpointInput};
+use quartz_cli::{state::StateField, validator};
 
 #[tokio::main]
 async fn main() {
@@ -401,10 +400,11 @@ async fn main() {
                 ctx.config.preferences.editor = editor;
             }
 
-            ctx.edit(specification.dir().join("endpoint.toml"), |c| {
-                Ok(toml::de::from_str::<Endpoint>(&c)?)
-            })
-            .unwrap_or_else(|e| panic!("{}", e.to_string()));
+            ctx.edit(
+                specification.dir().join("endpoint.toml"),
+                validator::toml_as::<Endpoint>,
+            )
+            .unwrap();
         }
         Commands::Remove { handle } => {
             let specification = ctx.require_input_handle(&handle);
@@ -512,10 +512,7 @@ async fn main() {
             }
 
             if should_edit {
-                let _ = std::process::Command::new(ctx.config.preferences.editor)
-                    .arg(handle.dir().join("body.json"))
-                    .status()
-                    .unwrap_or_else(|_| panic!("failed to open editor"));
+                ctx.edit(handle.dir(), validator::json).unwrap();
             }
 
             if should_print {
@@ -652,10 +649,8 @@ async fn main() {
             }
 
             if should_edit {
-                ctx.edit(context.dir().join("variables.toml"), |c| {
-                    Ok(toml::de::from_str::<HashMap<String, String>>(&c)?)
-                })
-                .unwrap_or_else(|e| panic!("{}", e.to_string()));
+                ctx.edit(context.dir().join("variables.toml"), validator::toml)
+                    .unwrap();
             }
         }
         Commands::Context { command } => match command {
@@ -737,10 +732,8 @@ async fn main() {
                 println!("{value}");
             }
             cli::ConfigCommands::Edit => {
-                let _ = std::process::Command::new(ctx.config.preferences.editor)
-                    .arg(Config::filepath().to_str().unwrap())
-                    .status()
-                    .unwrap_or_else(|_| panic!("failed to open editor"));
+                ctx.edit(Config::filepath(), validator::toml_as::<Config>)
+                    .unwrap();
             }
             cli::ConfigCommands::Set { key, value } => {
                 match key.as_str() {
