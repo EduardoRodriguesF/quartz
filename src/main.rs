@@ -455,33 +455,43 @@ async fn main() {
                 println!("{}", endpoint.query_string());
             }
         }
-        Commands::Header {
-            set: set_list,
-            remove: remove_list,
-            list: should_list,
-            get: maybe_get,
-        } => {
-            let (handle, mut endpoint) = ctx.require_endpoint();
+        Commands::Header { command } => {
+            if let Some(command) = command {
+                match command {
+                    cli::EndpointHeaderCommands::Get { key } => {
+                        let (_, endpoint) = ctx.require_endpoint();
+                        if let Some(header) = endpoint.headers.get(&key) {
+                            println!("{}", header);
+                        } else {
+                            panic!("no header named {} found", key);
+                        }
+                    }
+                    cli::EndpointHeaderCommands::Set { header: headers } => {
+                        let (handle, mut endpoint) = ctx.require_endpoint();
 
-            for key in remove_list {
-                endpoint.headers.remove(&key);
-            }
+                        for input in headers {
+                            endpoint.headers.set(&input);
+                        }
 
-            for header in set_list {
-                endpoint.headers.set(&header);
-            }
+                        endpoint.write(&handle);
+                    }
+                    cli::EndpointHeaderCommands::Remove { key: keys } => {
+                        let (_, mut endpoint) = ctx.require_endpoint();
 
-            if let Some(key) = maybe_get {
-                if let Some(value) = endpoint.headers.get(&key) {
-                    println!("{value}");
+                        for k in keys {
+                            endpoint.headers.remove(&k);
+                        }
+                    }
+                    cli::EndpointHeaderCommands::List => {
+                        let (_, endpoint) = ctx.require_endpoint();
+
+                        println!("{}", endpoint.query);
+                    }
                 }
-            }
-
-            if should_list {
+            } else {
+                let (_, endpoint) = ctx.require_endpoint();
                 println!("{}", endpoint.headers);
             }
-
-            endpoint.write(&handle);
         }
         Commands::Body {
             stdin: expects_stdin,

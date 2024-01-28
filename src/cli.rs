@@ -122,28 +122,16 @@ pub enum Commands {
         /// Defines the editor to be used for that run, overriding the quartz settings.
         editor: Option<String>,
     },
-    /// Manage current handle's endpoint query params
+    /// Manage current endpoint's query params
     Query {
         #[command(subcommand)]
         command: Option<EndpointQueryCommands>,
     },
-    /// Manage current handle's endpoint headers
+    /// Manage current endpoint's headers. Without subcomand, it prints the headers list.
+    #[command(alias = "headers")]
     Header {
-        /// Add new header entry in "key: value" format
-        #[arg(long, value_name = "HEADER")]
-        set: Vec<String>,
-
-        /// Print a header value
-        #[arg(long, value_name = "KEY")]
-        get: Option<String>,
-
-        /// Remove a header
-        #[arg(long, value_name = "KEY")]
-        remove: Vec<String>,
-
-        /// Print headers
-        #[arg(long)]
-        list: bool,
+        #[command(subcommand)]
+        command: Option<EndpointHeaderCommands>,
     },
     /// Manage current handle's endpoint request body
     Body {
@@ -274,6 +262,23 @@ pub enum EndpointQueryCommands {
     Remove { key: String },
 
     /// List all query params
+    #[command(name = "ls", alias = "list")]
+    List,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum EndpointHeaderCommands {
+    /// Print a header value
+    Get { key: String },
+
+    /// Add new header entry in "key: value" format
+    Set { header: Vec<String> },
+
+    /// Remove a header
+    #[command(name = "rm", alias = "remove")]
+    Remove { key: Vec<String> },
+
+    /// Print headers
     #[command(name = "ls", alias = "list")]
     List,
 }
