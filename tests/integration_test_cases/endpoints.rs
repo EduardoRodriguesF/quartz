@@ -227,3 +227,24 @@ fn it_can_run_from_another_handle() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn use_can_set_properties() -> TestResult {
+    let quartz = Quartz::preset_using_sample_endpoint()?;
+
+    let output = quartz.cmd(&[
+        "use",
+        "-X",
+        "POST",
+        "-H",
+        "Content-type: application/json",
+        "-H",
+        "Accept: application/json",
+        "-q",
+        "value=true",
+    ])?;
+
+    assert!(output.status.success(), "{}", output.stderr);
+
+    Ok(())
+}
