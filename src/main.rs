@@ -366,7 +366,7 @@ async fn main() {
 
                             println!("{}", value);
                         } else {
-                            println!("{}", endpoint.query);
+                            println!("{}", endpoint.query_string());
                         }
                     }
                     EndpointShowCommands::Headers { key } => {
