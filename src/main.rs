@@ -654,18 +654,8 @@ async fn main() {
             }
         }
         Commands::Context { command } => match command {
-            cli::ContextCommands::Create { name, copy } => {
-                let context = match copy {
-                    Some(copy_from) => {
-                        let mut context = Context::parse(&copy_from).unwrap_or_else(|_| {
-                            panic!("no context named {} to copy from", copy_from.red());
-                        });
-
-                        context.name = name.clone();
-                        context
-                    }
-                    None => Context::new(&name),
-                };
+            cli::ContextCommands::Create { name } => {
+                let context = Context::new(&name);
 
                 if context.exists() {
                     panic!("a context named {} already exists", name.red());
@@ -673,6 +663,22 @@ async fn main() {
 
                 if context.write().is_err() {
                     panic!("failed to create {} context", name);
+                }
+            }
+            cli::ContextCommands::Copy { src, dest } => {
+                let src = Context::parse(&src).unwrap_or_else(|_| {
+                    panic!("no {} context found", &src);
+                });
+                let mut dest = Context::parse(&dest).unwrap_or(Context::new(&dest));
+
+                for (key, value) in src.variables.iter() {
+                    dest.variables.insert(key.to_string(), value.to_string());
+                }
+
+                if dest.exists() {
+                    dest.update().unwrap();
+                } else {
+                    dest.write().unwrap();
                 }
             }
             cli::ContextCommands::Use { context } => {

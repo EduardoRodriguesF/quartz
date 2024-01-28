@@ -308,17 +308,16 @@ pub enum ConfigCommands {
 #[derive(Debug, Subcommand)]
 pub enum ContextCommands {
     /// Create a new context
-    Create {
-        name: String,
-        /// Copy variables from another context
-        #[arg(short, long, value_name = "CONTEXT")]
-        copy: Option<String>,
-    },
+    Create { name: String },
     /// Switch to another context
     Use { context: String },
     /// Print all available contexts
     #[command(name = "ls", alias = "list")]
     List,
+
+    /// Copy variables from a context to a new or existing one
+    #[command(name = "cp", alias = "copy")]
+    Copy { src: String, dest: String },
     /// Delete a context
     #[command(name = "rm", alias = "remove")]
     Remove { context: String },
