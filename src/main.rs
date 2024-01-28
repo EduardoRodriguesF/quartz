@@ -432,10 +432,13 @@ async fn main() {
                     println!("{query}");
                 }
             }
-            cli::EndpointQueryCommands::Set { query } => {
+            cli::EndpointQueryCommands::Set { query: queries } => {
                 let (handle, mut endpoint) = ctx.require_endpoint();
 
-                endpoint.query.set(&query);
+                for input in queries {
+                    endpoint.query.set(&input);
+                }
+
                 endpoint.write(&handle);
             }
             cli::EndpointQueryCommands::Remove { key } => {

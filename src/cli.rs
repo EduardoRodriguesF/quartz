@@ -264,19 +264,17 @@ pub enum LastResponseCommands {
 #[derive(Debug, Subcommand)]
 pub enum EndpointQueryCommands {
     /// Print query param value
-    #[command(name = "--get")]
     Get { key: Option<String> },
 
     /// Set query param value
-    #[command(name = "--set")]
-    Set { query: String },
+    Set { query: Vec<String> },
 
     /// Remove query param
-    #[command(name = "--remove")]
+    #[command(name = "rm", alias = "remove")]
     Remove { key: String },
 
     /// List all query params
-    #[command(name = "--list")]
+    #[command(name = "ls", alias = "list")]
     List,
 }
 
