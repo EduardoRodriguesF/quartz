@@ -476,16 +476,18 @@ async fn main() {
                         endpoint.write(&handle);
                     }
                     cli::EndpointHeaderCommands::Remove { key: keys } => {
-                        let (_, mut endpoint) = ctx.require_endpoint();
+                        let (handle, mut endpoint) = ctx.require_endpoint();
 
                         for k in keys {
                             endpoint.headers.remove(&k);
                         }
+
+                        endpoint.write(&handle);
                     }
                     cli::EndpointHeaderCommands::List => {
                         let (_, endpoint) = ctx.require_endpoint();
 
-                        println!("{}", endpoint.query);
+                        println!("{}", endpoint.headers);
                     }
                 }
             } else {
@@ -627,44 +629,44 @@ async fn main() {
                 }
             }
         }
-        Commands::Variable {
-            get: maybe_get,
-            set: set_list,
-            edit: should_edit,
-            list: should_list,
-        } => {
-            let state = ctx
-                .state
-                .get(StateField::Context)
-                .unwrap_or("default".into());
+        Commands::Variable { command } => {
+            let mut context = ctx.require_context();
 
-            let mut context = Context::parse(&state).unwrap_or_else(|_| {
-                panic!("failed to parse {} context", state);
-            });
+            if let Some(command) = command {
+                match command {
+                    cli::VariableCommands::Get { key } => {
+                        let v = context
+                            .variables
+                            .get(&key)
+                            .unwrap_or_else(|| panic!("{} variable not set", key));
 
-            if let Some(var) = maybe_get {
-                if let Some(value) = context.variables.get(&var) {
-                    println!("{}", value);
-                } else {
-                    panic!("variable {} does not exist", var);
-                }
-            }
+                        println!("{}", v);
+                    }
+                    cli::VariableCommands::Set {
+                        variable: variables,
+                    } => {
+                        for input in variables {
+                            context.variables.set(&input);
+                        }
 
-            if !set_list.is_empty() {
-                for set in set_list {
-                    context.variables.set(&set);
-                }
-
-                context.update().expect("failed to update variables");
-            }
-
-            if should_list {
+                        context.update().unwrap();
+                    }
+                    cli::VariableCommands::List => {
+                        println!("{}", context.variables);
+                    }
+                    cli::VariableCommands::Edit => {
+                        ctx.edit(&context.dir().join("variables.toml"), validator::toml)
+                            .unwrap();
+                    }
+                    cli::VariableCommands::Remove { key } => {
+                        context
+                            .variables
+                            .remove(&key)
+                            .unwrap_or_else(|| panic!("{} variable not set", key));
+                    }
+                };
+            } else {
                 println!("{}", context.variables);
-            }
-
-            if should_edit {
-                ctx.edit(&context.dir().join("variables.toml"), validator::toml)
-                    .unwrap();
             }
         }
         Commands::Context { command } => match command {

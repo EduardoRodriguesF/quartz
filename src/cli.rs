@@ -177,21 +177,8 @@ pub enum Commands {
     /// Manage current context's variables
     #[command(name = "var", alias = "variable")]
     Variable {
-        /// Print a variable value
-        #[arg(long, value_name = "KEY")]
-        get: Option<String>,
-
-        /// Set a variable: key=value
-        #[arg(long, value_name = "VARIABLE")]
-        set: Vec<String>,
-
-        /// Print all variables
-        #[arg(long)]
-        list: bool,
-
-        /// Open an editor to modify the context variables file
-        #[arg(short, long)]
-        edit: bool,
+        #[command(subcommand)]
+        command: Option<VariableCommands>,
     },
     /// Manage configuration for quartz
     Config {
@@ -271,7 +258,7 @@ pub enum EndpointHeaderCommands {
     /// Print a header value
     Get { key: String },
 
-    /// Add new header entry in "key: value" format
+    /// Add new or existent header. Expects "key: value" format
     Set { header: Vec<String> },
 
     /// Remove a header
@@ -312,8 +299,10 @@ pub enum ConfigCommands {
 pub enum ContextCommands {
     /// Create a new context
     Create { name: String },
+
     /// Switch to another context
     Use { context: String },
+
     /// Print all available contexts
     #[command(name = "ls", alias = "list")]
     List,
@@ -321,7 +310,27 @@ pub enum ContextCommands {
     /// Copy variables from a context to a new or existing one
     #[command(name = "cp", alias = "copy")]
     Copy { src: String, dest: String },
+
     /// Delete a context
     #[command(name = "rm", alias = "remove")]
     Remove { context: String },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum VariableCommands {
+    /// Open an editor to modify variables
+    Edit,
+
+    /// Display variable value
+    Get { key: String },
+
+    /// Add a new or existent variable value
+    Set { variable: Vec<String> },
+
+    /// Remove variable
+    Remove { key: String },
+
+    /// Display the list of variables
+    #[command(name = "ls", alias = "list")]
+    List,
 }
