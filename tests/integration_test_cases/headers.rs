@@ -4,8 +4,8 @@ use crate::utils::*;
 fn it_adds_new_header() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 
-    let set_output = quartz.cmd(&["header", "--set", "Content-type: application/json"])?;
-    let output = quartz.cmd(&["header", "--get", "Content-type"])?;
+    let set_output = quartz.cmd(&["header", "set", "Content-type: application/json"])?;
+    let output = quartz.cmd(&["header", "get", "Content-type"])?;
 
     assert!(set_output.status.success(), "{}", set_output.stderr);
     assert_eq!(output.stdout.trim(), "application/json");
@@ -25,14 +25,12 @@ fn it_adds_multiple_new_header() -> TestResult {
 
     let headers_add_output = quartz.cmd(&[
         "header",
-        "--set",
+        "set",
         sample_headers[0],
-        "--set",
         sample_headers[1],
-        "--set",
         sample_headers[2],
     ])?;
-    let output = quartz.cmd(&["header", "--list"])?;
+    let output = quartz.cmd(&["header", "ls"])?;
 
     assert!(
         headers_add_output.status.success(),
@@ -53,14 +51,13 @@ fn it_overwrites_existing_headers() -> TestResult {
 
     quartz.cmd(&[
         "header",
-        "--set",
+        "set",
         "Content-type: application/json",
-        "--set",
         "Accept: application/json",
     ])?;
 
-    let edit_output = quartz.cmd(&["header", "--set", "Content-type: plain/text"])?;
-    let output = quartz.cmd(&["header", "--list"])?;
+    let edit_output = quartz.cmd(&["header", "set", "Content-type: plain/text"])?;
+    let output = quartz.cmd(&["header", "ls"])?;
 
     assert!(edit_output.status.success(), "{}", edit_output.stdout);
 
@@ -82,20 +79,21 @@ fn it_removes_header_by_key() -> TestResult {
 
     quartz.cmd(&[
         "header",
-        "--set",
+        "set",
         "Content-type: application/json",
-        "--set",
         "Accept: form",
     ])?;
 
-    let remove_output = quartz.cmd(&["header", "--remove", "Content-type", "--list"])?;
+    let remove_output = quartz.cmd(&["header", "rm", "Content-type"])?;
     assert!(remove_output.status.success(), "{}", remove_output.stderr);
+
+    let list_output = quartz.cmd(&["header", "ls"])?;
     assert!(
-        !remove_output.stdout.contains("Content-type"),
+        !list_output.stdout.contains("Content-type"),
         "did not remove specified header"
     );
     assert!(
-        remove_output.stdout.contains("Accept"),
+        list_output.stdout.contains("Accept"),
         "removed specified header, but unrelated header is missing"
     );
 
@@ -106,19 +104,19 @@ fn it_removes_header_by_key() -> TestResult {
 fn it_does_not_allow_invalid_header_format() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 
-    let output = quartz.cmd(&["header", "--set", "Content-type"])?;
+    let output = quartz.cmd(&["header", "set", "Content-type"])?;
     assert!(
         !output.status.success(),
         "allowed header without value separation"
     );
 
-    let output = quartz.cmd(&["header", "--set", "Content-type = application/json"])?;
+    let output = quartz.cmd(&["header", "set", "Content-type = application/json"])?;
     assert!(
         !output.status.success(),
         "allowed header with incorrect key-value separation"
     );
 
-    let output = quartz.cmd(&["headers", "--set", "Content-type:application/json"])?;
+    let output = quartz.cmd(&["headers", "set", "Content-type:application/json"])?;
     assert!(
         !output.status.success(),
         "allowed header without proper spacing between key and value"
@@ -131,10 +129,10 @@ fn it_does_not_allow_invalid_header_format() -> TestResult {
 fn compatible_with_apply_context_option() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 
-    quartz.cmd(&["var", "--set", "contentType=application/json"])?;
-    quartz.cmd(&["header", "--set", "Content-type: {{contentType}}"])?;
+    quartz.cmd(&["var", "set", "contentType=application/json"])?;
+    quartz.cmd(&["header", "set", "Content-type: {{contentType}}"])?;
 
-    let output = quartz.cmd(&["--apply-context", "header", "--get", "Content-type"])?;
+    let output = quartz.cmd(&["--apply-context", "header", "get", "Content-type"])?;
 
     assert!(output.status.success(), "{}", output.stderr);
     assert_eq!(output.stdout.trim(), "application/json");
