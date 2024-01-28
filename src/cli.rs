@@ -181,12 +181,13 @@ pub enum Commands {
         #[arg(long, short, value_delimiter = ',', value_name = "FIELDS")]
         show: Vec<String>,
     },
+    #[command(name = "ctx", alias = "context")]
     Context {
         #[command(subcommand)]
         command: ContextCommands,
     },
     /// Manage current context's variables
-    #[command(alias = "var")]
+    #[command(name = "var", alias = "variable")]
     Variable {
         /// Print a variable value
         #[arg(long, value_name = "KEY")]
@@ -291,19 +292,16 @@ pub enum EndpointShowCommands {
 #[derive(Debug, Subcommand)]
 pub enum ConfigCommands {
     /// Open an editor to modify ~/.quartz.toml
-    #[command(name = "--edit")]
     Edit,
 
     /// Print configuration value
-    #[command(name = "--get")]
     Get { key: String },
 
     /// Set a configuration
-    #[command(name = "--set")]
     Set { key: String, value: String },
 
     /// Print ~/.quartz.toml
-    #[command(name = "--list")]
+    #[command(name = "ls", alias = "list")]
     List,
 }
 
@@ -319,9 +317,9 @@ pub enum ContextCommands {
     /// Switch to another context
     Use { context: String },
     /// Print all available contexts
-    #[command(alias = "ls")]
+    #[command(name = "ls", alias = "list")]
     List,
     /// Delete a context
-    #[command(alias = "rm")]
+    #[command(name = "rm", alias = "remove")]
     Remove { context: String },
 }
