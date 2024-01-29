@@ -277,21 +277,6 @@ async fn main() {
             });
             endpoint.write(&handle);
         }
-        Commands::Status { command } => match command {
-            cli::StatusCommands::Endpoint => {
-                if let Ok(endpoint) = ctx.state.get(StateField::Endpoint) {
-                    println!("{}", endpoint);
-                }
-            }
-            cli::StatusCommands::Context => {
-                println!(
-                    "{}",
-                    ctx.state
-                        .get(StateField::Context)
-                        .unwrap_or("default".into())
-                );
-            }
-        },
         Commands::List { depth: max_depth } => {
             let max_depth = max_depth.unwrap_or(999) as i16;
             let mut current = PathBuf::new();
@@ -385,6 +370,19 @@ async fn main() {
                         if let Some(chunk) = endpoint.body(&handle).data().await {
                             stdout().write_all(&chunk.unwrap()).await.unwrap();
                         }
+                    }
+                    EndpointShowCommands::Handle => {
+                        if let Ok(endpoint) = ctx.state.get(StateField::Endpoint) {
+                            println!("{}", endpoint);
+                        }
+                    }
+                    EndpointShowCommands::Context => {
+                        println!(
+                            "{}",
+                            ctx.state
+                                .get(StateField::Context)
+                                .unwrap_or("default".into())
+                        );
                     }
                 }
             } else {

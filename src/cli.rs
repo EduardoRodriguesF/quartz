@@ -93,11 +93,6 @@ pub enum Commands {
         #[arg(short = 'H', long)]
         header: Vec<String>,
     },
-    /// Print the current status of quartz
-    Status {
-        #[command(subcommand)]
-        command: StatusCommands,
-    },
     /// Lists available handles
     #[command(name = "ls", alias = "list")]
     List {
@@ -188,17 +183,6 @@ pub enum Commands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum StatusCommands {
-    /// Print the handle for the endpoint in use
-    #[command(name = "--endpoint")]
-    Endpoint,
-
-    /// Print the context in use
-    #[command(name = "--context")]
-    Context,
-}
-
-#[derive(Debug, Subcommand)]
 pub enum LastCommands {
     /// Print most recent handle used
     Handle,
@@ -274,9 +258,16 @@ pub enum EndpointHeaderCommands {
 pub enum EndpointShowCommands {
     Url,
     Method,
-    Headers { key: Option<String> },
-    Query { key: Option<String> },
+    Headers {
+        key: Option<String>,
+    },
+    Query {
+        key: Option<String>,
+    },
     Body,
+    Handle,
+    #[command(name = "ctx", alias = "context")]
+    Context,
 }
 
 #[derive(Debug, Subcommand)]
