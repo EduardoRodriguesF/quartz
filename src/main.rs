@@ -151,8 +151,8 @@ async fn main() {
 
             while let Some(chunk) = res.data().await {
                 if let Ok(chunk) = chunk {
-                    size = chunk.len();
-                    bytes = chunk;
+                    size += chunk.len();
+                    bytes = [bytes, chunk].concat().into();
                 }
             }
 
