@@ -404,6 +404,20 @@ async fn main() {
             )
             .unwrap();
         }
+        Commands::Copy { src, dest } => {
+            let src = ctx.require_input_handle(&src);
+            let dest = EndpointHandle::from_handle(dest);
+
+            let mut endpoint = src
+                .endpoint()
+                .unwrap_or_else(|| panic!("no endpoint at {}", src.handle().red()));
+
+            if !dest.exists() {
+                dest.write();
+            }
+
+            endpoint.write(&dest);
+        }
         Commands::Remove { handle } => {
             let specification = ctx.require_input_handle(&handle);
 

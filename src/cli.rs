@@ -100,6 +100,9 @@ pub enum Commands {
         #[arg(long, value_name = "N")]
         depth: Option<u16>,
     },
+    /// Copy an endpoint from one handle to another
+    #[command(name = "cp", alias = "copy")]
+    Copy { src: String, dest: String },
     /// Delete the specified handle recursively
     #[command(name = "rm", alias = "remove")]
     Remove {
