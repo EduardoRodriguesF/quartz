@@ -384,6 +384,36 @@ async fn main() {
                                 .unwrap_or("default".into())
                         );
                     }
+                    EndpointShowCommands::Snippet { command } => match command {
+                        cli::EndpointShowSnippetCommands::Curl => {
+                            let (handle, endpoint) = ctx.require_endpoint();
+                            print!("curl --location '{}'", endpoint.full_url().unwrap());
+                            print!(" --request {}", endpoint.method);
+
+                            for (key, value) in endpoint.headers.iter() {
+                                print!(" --header '{}: {}'", key, value);
+                            }
+
+                            let mut has_printed_data = false;
+                            if let Some(chunk) = endpoint.body(&handle).data().await {
+                                if !has_printed_data {
+                                    print!(" --data '");
+                                    has_printed_data = true;
+                                }
+
+                                let mut chunk = chunk.unwrap();
+                                if chunk.ends_with("\n".as_bytes()) {
+                                    chunk.truncate(chunk.len() - 1);
+                                }
+
+                                stdout().write_all(&chunk).await.unwrap();
+                            }
+
+                            if has_printed_data {
+                                println!("'");
+                            }
+                        }
+                    },
                 }
             } else {
                 let (_, endpoint) = ctx.require_endpoint();

@@ -271,6 +271,16 @@ pub enum EndpointShowCommands {
     Handle,
     #[command(name = "ctx", alias = "context")]
     Context,
+    /// Generate code snippet
+    Snippet {
+        #[command(subcommand)]
+        command: EndpointShowSnippetCommands,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum EndpointShowSnippetCommands {
+    Curl,
 }
 
 #[derive(Debug, Subcommand)]
