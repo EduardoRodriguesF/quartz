@@ -271,7 +271,7 @@ pub enum EndpointShowCommands {
     Handle,
     #[command(name = "ctx", alias = "context")]
     Context,
-    /// Generate code snippet
+    /// Generate code snippet for endpoint
     Snippet {
         #[command(subcommand)]
         command: EndpointShowSnippetCommands,
@@ -280,7 +280,11 @@ pub enum EndpointShowCommands {
 
 #[derive(Debug, Subcommand)]
 pub enum EndpointShowSnippetCommands {
-    Curl,
+    Curl {
+        /// Use long form cURL options (--header instead of -H)
+        #[arg(long)]
+        long: bool,
+    },
 }
 
 #[derive(Debug, Subcommand)]

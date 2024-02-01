@@ -3,6 +3,7 @@ pub mod config;
 pub mod context;
 pub mod endpoint;
 pub mod history;
+pub mod snippet;
 pub mod state;
 pub mod validator;
 
