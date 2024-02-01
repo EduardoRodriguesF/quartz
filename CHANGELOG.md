@@ -9,13 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Added
 
-- `send` command new edit flags: `-d,--data <DATA>`, `-H, --header <HEADER>`, `--query <QUERY>`, `--var <VARIABLE>`, `-X, --request <METHOD>`.
+- `show snippet` to generate code snippets for an endpoint.
+- `send` command new edit flags: `-d,--data <DATA>`, `-H, --header <HEADER>`, `--query <QUERY>`, `-v, --var <VARIABLE>`, `-X, --request <METHOD>`.
 - `use` command can now edit the current or to-be-used endpoint.
 
 ## Changed
 
 - `header`, `query`, `config` and `variable` commands now follow the same new pattern to promote consistency.
 - `create` options were revisited for better semantics with **curl** and other `send` and `use` options.
+
+## Fixed
+
+- After receiving response, quartz would only print and save the last chunk of response bytes instead of the entire body.
 
 ## [0.8.0] - 2023-08-12
 
