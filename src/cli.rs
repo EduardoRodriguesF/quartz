@@ -31,7 +31,7 @@ pub enum Commands {
         show: Vec<String>,
 
         /// Change a variable when sending the request.
-        #[arg(long, value_name = "VARIABLE")]
+        #[arg(long, short = 'v', value_name = "VARIABLE")]
         var: Vec<String>,
 
         /// Change or include an extra header
@@ -39,7 +39,7 @@ pub enum Commands {
         header: Vec<String>,
 
         /// Change or include an extra query param
-        #[arg(long)]
+        #[arg(long, short = 'q')]
         query: Vec<String>,
 
         /// Change request method
