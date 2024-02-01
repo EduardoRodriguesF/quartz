@@ -15,7 +15,11 @@ pub struct Curl {
 }
 
 impl Curl {
-    pub async fn print(&self, handle: &EndpointHandle, endpoint: &Endpoint) {
+    pub async fn print(
+        &self,
+        handle: &EndpointHandle,
+        endpoint: &Endpoint,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         print!(
             "curl {} '{}'",
             self.option_string(CurlOption::Location),
@@ -38,23 +42,27 @@ impl Curl {
 
         let mut has_printed_data = false;
         if let Some(chunk) = endpoint.body(&handle).data().await {
-            if !has_printed_data {
-                print!(" {} '", self.option_string(CurlOption::Data));
-                has_printed_data = true;
-            }
+            if let Ok(mut chunk) = chunk {
+                if !has_printed_data {
+                    print!(" {} '", self.option_string(CurlOption::Data));
+                    has_printed_data = true;
+                }
 
-            let mut chunk = chunk.unwrap();
-            if chunk.ends_with("\n".as_bytes()) {
-                chunk.truncate(chunk.len() - 1);
-            }
+                if chunk.ends_with("\n".as_bytes()) {
+                    chunk.truncate(chunk.len() - 1);
+                }
 
-            stdout().write_all(&chunk).unwrap();
+                stdout().write_all(&chunk)?;
+            }
         }
 
         if has_printed_data {
             println!("'");
         }
+
+        Ok(())
     }
+
     fn option_string(&self, option: CurlOption) -> String {
         let result = match option {
             CurlOption::Location => {
@@ -88,5 +96,29 @@ impl Curl {
         };
 
         result.to_string()
+    }
+}
+
+pub struct Http;
+
+impl Http {
+    pub async fn print(
+        handle: &EndpointHandle,
+        endpoint: &Endpoint,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let url = endpoint.full_url()?;
+        let path = url.path_and_query().unwrap();
+
+        println!("{} {} HTTP/1.1", endpoint.method, path.as_str());
+        println!("Host: {}", url.host().unwrap());
+        println!("{}", endpoint.headers);
+
+        if let Some(chunk) = endpoint.body(&handle).data().await {
+            if let Ok(chunk) = chunk {
+                stdout().write_all(&chunk)?;
+            }
+        }
+
+        Ok(())
     }
 }

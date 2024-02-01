@@ -285,6 +285,7 @@ pub enum EndpointShowSnippetCommands {
         #[arg(long)]
         long: bool,
     },
+    Http,
 }
 
 #[derive(Debug, Subcommand)]

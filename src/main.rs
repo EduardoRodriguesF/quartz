@@ -391,7 +391,11 @@ async fn main() {
 
                             let curl = snippet::Curl { long };
 
-                            curl.print(&handle, &endpoint).await;
+                            curl.print(&handle, &endpoint).await.unwrap();
+                        }
+                        cli::EndpointShowSnippetCommands::Http => {
+                            let (handle, endpoint) = ctx.require_endpoint();
+                            snippet::Http::print(&handle, &endpoint).await.unwrap();
                         }
                     },
                 }
