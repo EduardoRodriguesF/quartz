@@ -7,71 +7,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Added
+### Added
 
 - `show snippet` to generate code snippets for an endpoint.
 - `send` command new edit flags: `-d,--data <DATA>`, `-H, --header <HEADER>`, `--query <QUERY>`, `-v, --var <VARIABLE>`, `-X, --request <METHOD>`.
 - `use` command can now edit the current or to-be-used endpoint.
 
-## Changed
+### Changed
 
 - `header`, `query`, `config` and `variable` commands now follow the same new pattern to promote consistency.
 - `create` options were revisited for better semantics with **curl** and other `send` and `use` options.
 
-## Fixed
+### Fixed
 
 - After receiving response, quartz would only print and save the last chunk of response bytes instead of the entire body.
 
 ## [0.8.0] - 2023-08-12
 
-## Added
+### Added
 
 - New `last` command tree.
 - `--show <FIELDS>` to `history` and `send` commands to specify fields to be shown on listing.
 
-## Changed
+### Changed
 
 - History saving format changed, which probably breaks previously saved entries.
 
 ## [0.7.1] - 2023-08-05
 
-## Changed
+### Changed
 
 - `variables` options `--set` and `--edit` are now executed in that order. Changes from `--set` will be committed before `--edit` comes in.
 
-## Fixed
+### Fixed
 
 - It was possible to save malformed files through `edit` and `var --edit` commands. From now on, a parsing error is thrown. [#30](https://github.com/EduardoRodriguesF/quartz/issues/30)
 - Linux with aarch64 architecture were incompatible with quartz.
 
 ## [0.7.0] - 2023-07-29
 
-## Added
+### Added
 
 - More convenient `--get` option for `header` command.
 - It is now possible to use multiple `--set` in a single `variable` command.
 - New `--apply-context` option to apply context variables as soon as possible.
 
-## Changed
+### Changed
 
 - `headers` command was renamed to `header`.
 - Headers option `--add` was renamed to `--set`.
 
-## Fixed
+### Fixed
 
 - Query params could not use context variables.
 - Some outputs were inconsistent.
 
 ## [0.6.0] - 2023-07-25
 
-## Added
+### Added
 
 - New create `--query` option to use new query params system.
 - New url `--full` option to print with queries.
 - Query params can be defined separate from URL through the `query` command.
 - New `-x` option for temporary handle switch.
 
-## Changed
+### Changed
 
 - [**BREAKING CHANGE**] Handles are now separated by slash (/). What used to be "auth users create" is now "auth/users/create".
 - List command outputs a flat list of all handles to improve readability.
