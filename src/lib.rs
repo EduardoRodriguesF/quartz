@@ -58,6 +58,8 @@ pub struct Ctx {
 }
 
 impl Ctx {
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
+
     pub fn new(args: CtxArgs) -> Self {
         let config = Config::parse();
         let state = State {
@@ -176,5 +178,12 @@ impl Ctx {
 
         std::fs::rename(&temp_path, path)?;
         Ok(())
+    }
+
+    pub fn user_agent() -> String {
+        let mut agent = String::from("quartz/");
+        agent.push_str(Ctx::VERSION);
+
+        agent
     }
 }

@@ -117,6 +117,12 @@ async fn main() {
                 context.variables.set(&var);
             }
 
+            if !endpoint.headers.contains_key("user-agent") {
+                endpoint
+                    .headers
+                    .insert("user-agent".to_string(), Ctx::user_agent());
+            }
+
             endpoint.update(&mut EndpointInput {
                 headers,
                 query,
