@@ -277,6 +277,10 @@ pub enum EndpointShowCommands {
     Context,
     /// Generate code snippet for endpoint
     Snippet {
+        /// Use a new or overwritten variable
+        #[arg(long, short = 'v', value_name = "KEY=VALUE")]
+        var: Vec<String>,
+
         #[command(subcommand)]
         command: EndpointShowSnippetCommands,
     },

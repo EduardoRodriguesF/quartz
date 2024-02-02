@@ -422,19 +422,30 @@ async fn main() {
                                 .unwrap_or("default".into())
                         );
                     }
-                    EndpointShowCommands::Snippet { command } => match command {
-                        cli::EndpointShowSnippetCommands::Curl { long, multiline } => {
-                            let (handle, endpoint) = ctx.require_endpoint();
+                    EndpointShowCommands::Snippet {
+                        command,
+                        var: variables,
+                    } => {
+                        let (handle, mut endpoint) = ctx.require_endpoint();
+                        let mut context = ctx.require_context();
 
-                            let curl = snippet::Curl { long, multiline };
+                        for var in variables {
+                            context.variables.set(&var);
+                        }
 
-                            curl.print(&handle, &endpoint).await.unwrap();
+                        endpoint.apply_context(&context);
+
+                        match command {
+                            cli::EndpointShowSnippetCommands::Curl { long, multiline } => {
+                                let curl = snippet::Curl { long, multiline };
+
+                                curl.print(&handle, &endpoint).await.unwrap();
+                            }
+                            cli::EndpointShowSnippetCommands::Http => {
+                                snippet::Http::print(&handle, &endpoint).await.unwrap();
+                            }
                         }
-                        cli::EndpointShowSnippetCommands::Http => {
-                            let (handle, endpoint) = ctx.require_endpoint();
-                            snippet::Http::print(&handle, &endpoint).await.unwrap();
-                        }
-                    },
+                    }
                 }
             } else {
                 let (_, endpoint) = ctx.require_endpoint();
