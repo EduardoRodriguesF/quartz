@@ -8,7 +8,7 @@ use clap::Parser;
 use colored::Colorize;
 use hyper::{
     body::{Bytes, HttpBody},
-    Body, Client,
+    Body, Client, Uri,
 };
 use tokio::io::{stdout, AsyncWriteExt as _};
 use tokio::time::Instant;
@@ -112,7 +112,6 @@ async fn main() {
         } => {
             let (specification, mut endpoint) = ctx.require_endpoint();
             let mut context = ctx.require_context();
-
             for var in variables {
                 context.variables.set(&var);
             }
@@ -131,20 +130,50 @@ async fn main() {
                 None => endpoint.body(&specification),
             };
 
-            let req = endpoint
-                // TODO: Find a way around this clone
-                .clone()
-                .into_request(&specification)
-                .unwrap_or_else(|_| panic!("malformed request"));
+            let mut start: Instant;
+            let mut res: hyper::Response<Body>;
+            let mut duration: u64;
+            loop {
+                let req = endpoint
+                    // TODO: Find a way around this clone
+                    .clone()
+                    .into_request(&specification)
+                    .unwrap_or_else(|_| panic!("malformed request"));
 
-            let client = {
-                let https = hyper_tls::HttpsConnector::new();
-                Client::builder().build(https)
-            };
+                let client = {
+                    let https = hyper_tls::HttpsConnector::new();
+                    Client::builder().build(https)
+                };
 
-            let start = Instant::now();
-            let mut res = client.request(req).await.unwrap();
-            let duration = start.elapsed().as_millis() as u64;
+                start = Instant::now();
+                res = client.request(req).await.unwrap();
+                duration = start.elapsed().as_millis() as u64;
+
+                if !res.status().is_redirection() {
+                    break;
+                }
+
+                if let Some(location) = res.headers().get("Location") {
+                    let location = location.to_str().unwrap();
+
+                    if location.starts_with('/') {
+                        let url = endpoint.full_url().unwrap();
+                        // This is awful
+                        endpoint.url = Uri::builder()
+                            .authority(url.authority().unwrap().as_str())
+                            .scheme(url.scheme().unwrap().as_str())
+                            .path_and_query(location)
+                            .build()
+                            .unwrap()
+                            .to_string();
+                    } else {
+                        if Uri::from_str(location).is_ok() {
+                            endpoint.url = location.to_string();
+                        }
+                    }
+                };
+            }
+
             let status = res.status().as_u16();
 
             let mut bytes = Bytes::new();
