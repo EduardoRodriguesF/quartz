@@ -45,6 +45,18 @@ impl PairMap<'_> for Variables {
     }
 }
 
+impl Variables {
+    pub fn parse(file_content: &str) -> Self {
+        let mut variables = Variables::default();
+
+        for var in file_content.split('\n').filter(|line| !line.is_empty()) {
+            variables.set(var);
+        }
+
+        variables
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Context {
     pub name: String,
@@ -83,15 +95,13 @@ impl Context {
     }
 
     pub fn update(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let content = toml::ser::to_string(&self.variables)?;
-
         let mut var_file = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
-            .open(self.dir().join("variables.toml"))?;
+            .open(self.dir().join("variables"))?;
 
-        if !content.is_empty() {
-            var_file.write_all(content.as_bytes())?;
+        if !self.variables.is_empty() {
+            var_file.write_all(format!("{}", self.variables.to_string()).as_bytes())?;
         }
 
         Ok(())
@@ -105,13 +115,9 @@ impl Context {
     pub fn parse(name: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let mut context = Self::new(name);
 
-        let var_contents = std::fs::read_to_string(context.dir().join("variables.toml"))?;
+        let var_contents = std::fs::read_to_string(context.dir().join("variables"))?;
 
-        if let Ok(variables) = toml::de::from_str(&var_contents) {
-            context.variables = variables;
-        } else {
-            panic!("malformed variables file");
-        }
+        context.variables = Variables::parse(&var_contents);
 
         Ok(context)
     }

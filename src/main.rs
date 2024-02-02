@@ -15,6 +15,7 @@ use tokio::time::Instant;
 
 use quartz_cli::{
     cli::EndpointShowCommands,
+    context::Variables,
     history::{self, History, HistoryEntry},
     snippet,
 };
@@ -717,14 +718,19 @@ async fn main() {
                         println!("{}", context.variables);
                     }
                     cli::VariableCommands::Edit => {
-                        ctx.edit(&context.dir().join("variables.toml"), validator::toml)
-                            .unwrap();
+                        ctx.edit(&context.dir().join("variables"), |c| {
+                            Variables::parse(c);
+                            Ok(())
+                        })
+                        .unwrap();
                     }
                     cli::VariableCommands::Remove { key } => {
                         context
                             .variables
                             .remove(&key)
                             .unwrap_or_else(|| panic!("{} variable not set", key));
+
+                        context.update().unwrap();
                     }
                 };
             } else {
