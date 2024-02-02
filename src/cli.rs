@@ -31,7 +31,7 @@ pub enum Commands {
         show: Vec<String>,
 
         /// Change a variable when sending the request.
-        #[arg(long, short = 'v', value_name = "VARIABLE")]
+        #[arg(long, short = 'v', value_name = "KEY=VALUE")]
         var: Vec<String>,
 
         /// Change or include an extra header
@@ -67,7 +67,7 @@ pub enum Commands {
         method: Option<String>,
 
         /// Add a key-value pair to the URL query.
-        #[arg(short, long, value_name = "PARAM")]
+        #[arg(short, long, value_name = "KEY=VALUE")]
         query: Vec<String>,
 
         /// Set a header entry in "<key>: <value>" format. This argument can be passed multiple times
