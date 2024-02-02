@@ -109,6 +109,7 @@ async fn main() {
             var: variables,
             request,
             data,
+            no_follow,
         } => {
             let (specification, mut endpoint) = ctx.require_endpoint();
             let mut context = ctx.require_context();
@@ -149,7 +150,7 @@ async fn main() {
                 res = client.request(req).await.unwrap();
                 duration = start.elapsed().as_millis() as u64;
 
-                if !res.status().is_redirection() {
+                if no_follow || !res.status().is_redirection() {
                     break;
                 }
 

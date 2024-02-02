@@ -49,6 +49,10 @@ pub enum Commands {
         /// Sends data in request body
         #[arg(long, short = 'd')]
         data: Option<String>,
+
+        /// Prevent quartz from following redirects
+        #[arg(long)]
+        no_follow: bool,
     },
     /// Create a new handle
     Create {
