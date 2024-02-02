@@ -288,6 +288,10 @@ pub enum EndpointShowSnippetCommands {
         /// Use long form cURL options (--header instead of -H)
         #[arg(long)]
         long: bool,
+
+        /// Split output across multiple lines
+        #[arg(long)]
+        multiline: bool,
     },
     Http,
 }

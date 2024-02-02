@@ -416,10 +416,10 @@ async fn main() {
                         );
                     }
                     EndpointShowCommands::Snippet { command } => match command {
-                        cli::EndpointShowSnippetCommands::Curl { long } => {
+                        cli::EndpointShowSnippetCommands::Curl { long, multiline } => {
                             let (handle, endpoint) = ctx.require_endpoint();
 
-                            let curl = snippet::Curl { long };
+                            let curl = snippet::Curl { long, multiline };
 
                             curl.print(&handle, &endpoint).await.unwrap();
                         }

@@ -12,6 +12,7 @@ enum CurlOption {
 #[derive(Default)]
 pub struct Curl {
     pub long: bool,
+    pub multiline: bool,
 }
 
 impl Curl {
@@ -20,6 +21,8 @@ impl Curl {
         handle: &EndpointHandle,
         endpoint: &Endpoint,
     ) -> Result<(), Box<dyn std::error::Error>> {
+        let separator = if self.multiline { " \\\n\t" } else { " " };
+
         print!(
             "curl {} '{}'",
             self.option_string(CurlOption::Location),
@@ -33,7 +36,8 @@ impl Curl {
 
         for (key, value) in endpoint.headers.iter() {
             print!(
-                " {} '{}: {}'",
+                "{}{} '{}: {}'",
+                separator,
                 self.option_string(CurlOption::Header),
                 key,
                 value
@@ -44,7 +48,7 @@ impl Curl {
         if let Some(chunk) = endpoint.body(&handle).data().await {
             if let Ok(mut chunk) = chunk {
                 if !has_printed_data {
-                    print!(" {} '", self.option_string(CurlOption::Data));
+                    print!("{}{} '", separator, self.option_string(CurlOption::Data));
                     has_printed_data = true;
                 }
 
@@ -58,6 +62,8 @@ impl Curl {
 
         if has_printed_data {
             println!("'");
+        } else {
+            println!();
         }
 
         Ok(())
