@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Automatically follow redirects. It can be disable with `--no-follow` option.
 - `show snippet` to generate code snippets for an endpoint.
 - `send` command new edit flags: `-d,--data <DATA>`, `-H, --header <HEADER>`, `--query <QUERY>`, `-v, --var <VARIABLE>`, `-X, --request <METHOD>`.
 - `use` command can now edit the current or to-be-used endpoint.
