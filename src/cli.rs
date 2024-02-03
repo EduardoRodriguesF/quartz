@@ -74,7 +74,7 @@ pub enum Commands {
         #[arg(short = 'H', long)]
         header: Vec<String>,
 
-        /// Immediatly switches to this handle after creating it.
+        /// Immediatly switches to this handle after creating it
         #[arg(name = "use", long)]
         switch: bool,
     },
@@ -89,13 +89,18 @@ pub enum Commands {
         #[arg(short = 'X', long = "request")]
         method: Option<String>,
 
-        /// Add a parameter the URL query.
+        /// Add a parameter the URL query
         #[arg(short, long, value_name = "PARAM")]
         query: Vec<String>,
 
         /// Add a header entry in "<key>: <value>" format. This argument can be passed multiple times
         #[arg(short = 'H', long)]
         header: Vec<String>,
+
+        /// Make handle empty. Using it with other editing options will write a new endpoint in
+        /// place of the old one
+        #[arg(long)]
+        empty: bool,
     },
     /// Lists available handles
     #[command(name = "ls", alias = "list")]

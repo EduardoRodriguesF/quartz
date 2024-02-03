@@ -286,6 +286,7 @@ async fn main() {
             method,
             query,
             header: headers,
+            empty,
         } => {
             let handle = if let Some(handle) = handle {
                 let handle = ctx.require_input_handle(&handle);
@@ -304,6 +305,10 @@ async fn main() {
             } else {
                 ctx.require_handle()
             };
+
+            if empty {
+                handle.make_empty();
+            }
 
             if url.is_none() && method.is_none() && query.is_empty() && headers.is_empty() {
                 return;

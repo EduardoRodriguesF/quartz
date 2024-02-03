@@ -195,6 +195,15 @@ impl EndpointHandle {
         std::fs::create_dir_all(self.dir()).unwrap_or_else(|_| panic!("failed to create endpoint"));
     }
 
+    /// Removes endpoint to make it an empty handle
+    pub fn make_empty(&self) {
+        if let Some(_) = self.endpoint() {
+            let _ = std::fs::remove_file(self.dir().join("endpoint.toml"));
+            let _ = std::fs::remove_file(self.dir().join("body"));
+            let _ = std::fs::remove_file(self.dir().join("body.json"));
+        }
+    }
+
     pub fn children(&self) -> Vec<EndpointHandle> {
         let mut list = Vec::<EndpointHandle>::new();
 
