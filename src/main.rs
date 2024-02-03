@@ -132,11 +132,7 @@ async fn main() {
 
             endpoint.apply_context(&context);
 
-            let raw_body = match data {
-                Some(data) => Body::from(data),
-                None => endpoint.body(&handle),
-            };
-
+            let raw_body = data.unwrap_or(endpoint.body(&handle));
             let mut start: Instant;
             let mut res: hyper::Response<Body>;
             let mut duration: u64;
@@ -564,44 +560,37 @@ async fn main() {
             edit: should_edit,
             print: should_print,
         } => {
-            let (handle, mut endpoint) = ctx.require_endpoint();
+            let (handle, endpoint) = ctx.require_endpoint();
 
-            let mut body = endpoint.body(&handle);
-
-            if expects_stdin {
+            let body = if expects_stdin {
                 let mut input = String::new();
-
                 while let Ok(bytes) = std::io::stdin().read_line(&mut input) {
                     if bytes == 0 {
                         break;
                     }
                 }
 
-                body = Body::from(input);
-            }
-
-            if let Ok(mut file) = std::fs::OpenOptions::new()
-                .create(true)
-                .write(true)
-                .truncate(true)
-                .open(handle.dir().join("body.json"))
-            {
-                while let Some(chunk) = body.data().await {
-                    let _ = file.write_all(&chunk.unwrap());
+                if let Ok(mut file) = std::fs::OpenOptions::new()
+                    .create(true)
+                    .write(true)
+                    .truncate(true)
+                    .open(handle.dir().join("body.json"))
+                {
+                    let _ = file.write_all(input.as_bytes());
                 }
-            }
+
+                input
+            } else {
+                endpoint.body(&handle)
+            };
 
             if should_edit {
                 ctx.edit(&handle.dir(), validator::json).unwrap();
             }
 
             if should_print {
-                if let Some(chunk) = endpoint.body(&handle).data().await {
-                    stdout().write_all(&chunk.unwrap()).await.unwrap();
-                }
+                stdout().write_all(body.as_bytes()).await.unwrap();
             }
-
-            endpoint.write(&handle);
         }
         Commands::Last {
             command: maybe_command,

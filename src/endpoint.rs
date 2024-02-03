@@ -297,11 +297,9 @@ impl Endpoint {
         handle.dir().join("body.json").exists()
     }
 
-    pub fn body(&self, handle: &EndpointHandle) -> Body {
-        match std::fs::read(handle.dir().join("body.json")) {
-            Ok(bytes) => {
-                let mut content = String::from_utf8(bytes).unwrap();
-
+    pub fn body(&self, handle: &EndpointHandle) -> String {
+        match std::fs::read_to_string(handle.dir().join("body.json")) {
+            Ok(mut content) => {
                 for (key, value) in self.variables.iter() {
                     let key_match = format!("{{{{{}}}}}", key);
 
@@ -310,7 +308,7 @@ impl Endpoint {
 
                 content.into()
             }
-            Err(_) => Body::empty(),
+            Err(_) => "".to_string(),
         }
     }
 
@@ -373,7 +371,7 @@ impl Endpoint {
             builder = builder.header(key, value);
         }
 
-        builder.body(self.body(spec))
+        builder.body(self.body(spec).into())
     }
 
     pub fn colored_method(&self) -> colored::ColoredString {

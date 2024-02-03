@@ -76,9 +76,8 @@ fn compatible_with_apply_context_option() -> TestResult {
 
     quartz.cmd(&[
         "var",
-        "--set",
+        "set",
         "requestHello=123",
-        "--set",
         "requestSample=\"lorem ipsum\"",
     ])?;
     quartz.cmd_stdin(&["body", "--stdin"], SAMPLE_BODY_2_VARS)?;
