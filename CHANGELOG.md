@@ -28,7 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- `send` command's `--show` option. Use `last` instead.
+- Removed `send` command's `--show` option. Use `last` instead.
+- Removed simple get/set endpoint commands `url` and `method`. Prefer `use` options.
+- Removed `status` command. Use `show` instead.
 
 ## [0.8.0] - 2023-08-12
 
