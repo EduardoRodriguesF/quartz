@@ -60,7 +60,7 @@ fn it_outputs_resolved_string() -> TestResult {
         "helloString=true",
     ])?;
 
-    let output = quartz.cmd(&["query"])?;
+    let output = quartz.cmd(&["show", "query"])?;
 
     assert!(output.status.success(), "{}", output.stderr);
     assert_eq!(
@@ -83,7 +83,7 @@ fn compatible_with_apply_context_option() -> TestResult {
     assert!(output.status.success(), "{}", output.stderr);
     assert_eq!(output.stdout.trim(), "yay");
 
-    let output = quartz.cmd(&["--apply-context", "query"])?;
+    let output = quartz.cmd(&["--apply-context", "query", "ls"])?;
     assert!(output.status.success(), "{}", output.stderr);
     assert_eq!(output.stdout.trim(), "version=yay");
 

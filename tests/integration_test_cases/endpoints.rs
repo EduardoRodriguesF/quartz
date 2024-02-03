@@ -210,7 +210,7 @@ fn it_can_run_from_another_handle() -> TestResult {
 
     quartz.cmd(&["create", "anotherendpoint"])?;
 
-    let output = quartz.cmd(&["-x", "anotherendpoint", "status", "--endpoint"])?;
+    let output = quartz.cmd(&["-x", "anotherendpoint", "show", "handle"])?;
     assert!(output.status.success(), "{}", output.stderr);
     assert_eq!(
         output.stdout.trim(),
@@ -218,7 +218,7 @@ fn it_can_run_from_another_handle() -> TestResult {
         "did not use desired handle"
     );
 
-    let output = quartz.cmd(&["status", "--endpoint"])?;
+    let output = quartz.cmd(&["show", "handle"])?;
     assert_ne!(
         output.stdout.trim(),
         "anotherendpoint",
