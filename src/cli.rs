@@ -108,9 +108,14 @@ pub enum Commands {
     /// Copy an endpoint from one handle to another
     #[command(name = "cp", alias = "copy")]
     Copy { src: String, dest: String },
-    /// Delete handle recursively
+
+    /// Delete handles
     #[command(name = "rm", alias = "remove")]
     Remove {
+        /// Delete child handles recursively
+        #[arg(long, short = 'r')]
+        recursive: bool,
+
         /// Handle to be removed
         handle: String,
     },

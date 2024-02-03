@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `header`, `query`, `config` and `variable` commands now follow the same new pattern to promote consistency.
 - `create` options were revisited for better semantics with **curl** and other `send` and `use` options.
 - Variables are now edited in a plain-text file instead of TOML. (#41)
+- `rm` requires `-r` option to remove handles recursively. (#38)
 
 ### Fixed
 

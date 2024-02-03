@@ -468,8 +468,16 @@ async fn main() {
 
             endpoint.write(&dest);
         }
-        Commands::Remove { handle } => {
+        Commands::Remove { handle, recursive } => {
             let handle = ctx.require_input_handle(&handle);
+
+            if handle.children().len() > 0 && !recursive {
+                panic!(
+                    "{} has child handles. Use {} option to confirm",
+                    handle.handle(),
+                    "-r".red()
+                )
+            }
 
             if std::fs::remove_dir_all(handle.dir()).is_ok() {
                 println!("Deleted endpoint {}", handle.handle());
