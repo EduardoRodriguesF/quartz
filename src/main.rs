@@ -478,86 +478,72 @@ async fn main() {
                 panic!("failed to delete endpoint {}", handle.handle());
             }
         }
-        Commands::Query { command } => {
-            if let Some(command) = command {
-                match command {
-                    cli::EndpointQueryCommands::Get { key } => {
-                        let (_, endpoint) = ctx.require_endpoint();
-
-                        let value = endpoint
-                            .query
-                            .get(&key)
-                            .unwrap_or_else(|| panic!("no query param {} found", key.red()));
-
-                        println!("{value}");
-                    }
-                    cli::EndpointQueryCommands::Set { query: queries } => {
-                        let (handle, mut endpoint) = ctx.require_endpoint();
-
-                        for input in queries {
-                            endpoint.query.set(&input);
-                        }
-
-                        endpoint.write(&handle);
-                    }
-                    cli::EndpointQueryCommands::Remove { key } => {
-                        let (handle, mut endpoint) = ctx.require_endpoint();
-
-                        endpoint.query.remove(&key);
-
-                        endpoint.write(&handle);
-                    }
-                    cli::EndpointQueryCommands::List => {
-                        let (_, endpoint) = ctx.require_endpoint();
-
-                        println!("{}", endpoint.query);
-                    }
-                }
-            } else {
+        Commands::Query { command } => match command {
+            cli::EndpointQueryCommands::Get { key } => {
                 let (_, endpoint) = ctx.require_endpoint();
-                println!("{}", endpoint.query_string());
+
+                let value = endpoint
+                    .query
+                    .get(&key)
+                    .unwrap_or_else(|| panic!("no query param {} found", key.red()));
+
+                println!("{value}");
             }
-        }
-        Commands::Header { command } => {
-            if let Some(command) = command {
-                match command {
-                    cli::EndpointHeaderCommands::Get { key } => {
-                        let (_, endpoint) = ctx.require_endpoint();
-                        if let Some(header) = endpoint.headers.get(&key) {
-                            println!("{}", header);
-                        } else {
-                            panic!("no header named {} found", key);
-                        }
-                    }
-                    cli::EndpointHeaderCommands::Set { header: headers } => {
-                        let (handle, mut endpoint) = ctx.require_endpoint();
+            cli::EndpointQueryCommands::Set { query: queries } => {
+                let (handle, mut endpoint) = ctx.require_endpoint();
 
-                        for input in headers {
-                            endpoint.headers.set(&input);
-                        }
-
-                        endpoint.write(&handle);
-                    }
-                    cli::EndpointHeaderCommands::Remove { key: keys } => {
-                        let (handle, mut endpoint) = ctx.require_endpoint();
-
-                        for k in keys {
-                            endpoint.headers.remove(&k);
-                        }
-
-                        endpoint.write(&handle);
-                    }
-                    cli::EndpointHeaderCommands::List => {
-                        let (_, endpoint) = ctx.require_endpoint();
-
-                        println!("{}", endpoint.headers);
-                    }
+                for input in queries {
+                    endpoint.query.set(&input);
                 }
-            } else {
+
+                endpoint.write(&handle);
+            }
+            cli::EndpointQueryCommands::Remove { key } => {
+                let (handle, mut endpoint) = ctx.require_endpoint();
+
+                endpoint.query.remove(&key);
+
+                endpoint.write(&handle);
+            }
+            cli::EndpointQueryCommands::List => {
                 let (_, endpoint) = ctx.require_endpoint();
+
+                println!("{}", endpoint.query);
+            }
+        },
+        Commands::Header { command } => match command {
+            cli::EndpointHeaderCommands::Get { key } => {
+                let (_, endpoint) = ctx.require_endpoint();
+                if let Some(header) = endpoint.headers.get(&key) {
+                    println!("{}", header);
+                } else {
+                    panic!("no header named {} found", key);
+                }
+            }
+            cli::EndpointHeaderCommands::Set { header: headers } => {
+                let (handle, mut endpoint) = ctx.require_endpoint();
+
+                for input in headers {
+                    endpoint.headers.set(&input);
+                }
+
+                endpoint.write(&handle);
+            }
+            cli::EndpointHeaderCommands::Remove { key: keys } => {
+                let (handle, mut endpoint) = ctx.require_endpoint();
+
+                for k in keys {
+                    endpoint.headers.remove(&k);
+                }
+
+                endpoint.write(&handle);
+            }
+            cli::EndpointHeaderCommands::List => {
+                let (_, endpoint) = ctx.require_endpoint();
+
                 println!("{}", endpoint.headers);
             }
-        }
+        },
         Commands::Body {
             stdin: expects_stdin,
             edit: should_edit,
@@ -695,47 +681,43 @@ async fn main() {
         Commands::Variable { command } => {
             let mut context = ctx.require_context();
 
-            if let Some(command) = command {
-                match command {
-                    cli::VariableCommands::Get { key } => {
-                        let v = context
-                            .variables
-                            .get(&key)
-                            .unwrap_or_else(|| panic!("{} variable not set", key));
+            match command {
+                cli::VariableCommands::Get { key } => {
+                    let v = context
+                        .variables
+                        .get(&key)
+                        .unwrap_or_else(|| panic!("{} variable not set", key));
 
-                        println!("{}", v);
+                    println!("{}", v);
+                }
+                cli::VariableCommands::Set {
+                    variable: variables,
+                } => {
+                    for input in variables {
+                        context.variables.set(&input);
                     }
-                    cli::VariableCommands::Set {
-                        variable: variables,
-                    } => {
-                        for input in variables {
-                            context.variables.set(&input);
-                        }
 
-                        context.update().unwrap();
-                    }
-                    cli::VariableCommands::List => {
-                        println!("{}", context.variables);
-                    }
-                    cli::VariableCommands::Edit => {
-                        ctx.edit(&context.dir().join("variables"), |c| {
-                            Variables::parse(c);
-                            Ok(())
-                        })
-                        .unwrap();
-                    }
-                    cli::VariableCommands::Remove { key } => {
-                        context
-                            .variables
-                            .remove(&key)
-                            .unwrap_or_else(|| panic!("{} variable not set", key));
+                    context.update().unwrap();
+                }
+                cli::VariableCommands::List => {
+                    println!("{}", context.variables);
+                }
+                cli::VariableCommands::Edit => {
+                    ctx.edit(&context.dir().join("variables"), |c| {
+                        Variables::parse(c);
+                        Ok(())
+                    })
+                    .unwrap();
+                }
+                cli::VariableCommands::Remove { key } => {
+                    context
+                        .variables
+                        .remove(&key)
+                        .unwrap_or_else(|| panic!("{} variable not set", key));
 
-                        context.update().unwrap();
-                    }
-                };
-            } else {
-                println!("{}", context.variables);
-            }
+                    context.update().unwrap();
+                }
+            };
         }
         Commands::Context { command } => match command {
             cli::ContextCommands::Create { name } => {

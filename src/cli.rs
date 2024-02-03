@@ -128,13 +128,13 @@ pub enum Commands {
     /// Manage current endpoint's query params
     Query {
         #[command(subcommand)]
-        command: Option<EndpointQueryCommands>,
+        command: EndpointQueryCommands,
     },
     /// Manage current endpoint's headers. Without subcomand, it prints the headers list.
     #[command(alias = "headers")]
     Header {
         #[command(subcommand)]
-        command: Option<EndpointHeaderCommands>,
+        command: EndpointHeaderCommands,
     },
     /// Manage current handle's endpoint request body
     Body {
@@ -181,7 +181,7 @@ pub enum Commands {
     #[command(name = "var", alias = "variable")]
     Variable {
         #[command(subcommand)]
-        command: Option<VariableCommands>,
+        command: VariableCommands,
     },
     /// Manage configuration for quartz
     Config {
