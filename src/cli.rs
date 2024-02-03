@@ -117,7 +117,7 @@ pub enum Commands {
     /// Print out endpoint informations
     Show {
         #[command(subcommand)]
-        command: Option<EndpointShowCommands>,
+        command: EndpointShowCommands,
     },
     /// Open an editor to modify endpoint in use
     Edit {
@@ -266,14 +266,19 @@ pub enum EndpointHeaderCommands {
 pub enum EndpointShowCommands {
     Url,
     Method,
+    /// Display endpoint's headers
     Headers {
         key: Option<String>,
     },
+    /// Display endpoint's query params
     Query {
         key: Option<String>,
     },
+    /// Display endpoint's request body
     Body,
+    /// Display current handle
     Handle,
+    /// Display current context
     #[command(name = "ctx", alias = "context")]
     Context,
     /// Generate code snippet for endpoint
@@ -285,6 +290,8 @@ pub enum EndpointShowCommands {
         #[command(subcommand)]
         command: EndpointShowSnippetCommands,
     },
+    /// Display endpoint configuration file
+    Endpoint,
 }
 
 #[derive(Debug, Subcommand)]
