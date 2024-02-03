@@ -102,7 +102,7 @@ pub enum Commands {
     List {
         /// Set a limit for how deep the listing goes in sub-handles
         #[arg(long, value_name = "N")]
-        depth: Option<u16>,
+        depth: Option<usize>,
     },
     /// Copy an endpoint from one handle to another
     #[command(name = "cp", alias = "copy")]

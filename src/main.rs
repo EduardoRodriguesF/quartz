@@ -321,7 +321,7 @@ async fn main() {
             endpoint.write(&handle);
         }
         Commands::List { depth: max_depth } => {
-            let max_depth = max_depth.unwrap_or(999) as i16;
+            let max_depth = max_depth.unwrap_or(usize::MAX).max(1);
             let mut current = PathBuf::new();
 
             if let Some(handle) = EndpointHandle::from_state(&ctx.state) {
@@ -337,7 +337,6 @@ async fn main() {
             let traverse_handles = TraverseEndpoints {
                 f: &|recurse, handles| {
                     for handle in handles {
-                        let depth = (handle.path.len() as i16 - 1).max(0);
                         let children = handle.children();
 
                         if !handle.path.is_empty() {
@@ -362,7 +361,7 @@ async fn main() {
                         }
 
                         if !children.is_empty() {
-                            if depth < max_depth {
+                            if handle.path.len() < max_depth {
                                 // Avoid extra newline from Specification::QUARTZ usage
                                 if !handle.path.is_empty() {
                                     println!();
