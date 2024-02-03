@@ -125,7 +125,7 @@ pub struct EndpointInput {
 impl EndpointHandle {
     /// Points to top-level quartz folder.
     ///
-    /// This constant can be used to traverse through all specifications starting
+    /// This constant can be used to traverse through all handles starting
     /// from the top one.
     pub const QUARTZ: Self = Self { path: vec![] };
 
@@ -208,7 +208,7 @@ impl EndpointHandle {
 
                 if let Ok(vec) = std::fs::read(path.join("spec")) {
                     let spec = String::from_utf8(vec).unwrap_or_else(|_| {
-                        panic!("failed to get endpoint specification");
+                        panic!("failed to get handle");
                     });
 
                     let mut path = self.path.clone();

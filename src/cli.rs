@@ -7,7 +7,7 @@ use clap::{Parser, Subcommand};
 #[command(author = "Eduardo R. <contato@edurodrigues.dev>")]
 #[command(about = "Text-based API Client", long_about = None, version)]
 pub struct Cli {
-    /// Run quartz using a specific handle
+    /// Run command with given handle
     #[arg(short = 'x', value_name = "HANDLE")]
     pub from_handle: Option<String>,
 
@@ -107,10 +107,10 @@ pub enum Commands {
     /// Copy an endpoint from one handle to another
     #[command(name = "cp", alias = "copy")]
     Copy { src: String, dest: String },
-    /// Delete the specified handle recursively
+    /// Delete handle recursively
     #[command(name = "rm", alias = "remove")]
     Remove {
-        /// Endpoint specification
+        /// Handle to be removed
         handle: String,
     },
     /// Print out endpoint informations

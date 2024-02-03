@@ -112,7 +112,7 @@ async fn main() {
             data,
             no_follow,
         } => {
-            let (specification, mut endpoint) = ctx.require_endpoint();
+            let (handle, mut endpoint) = ctx.require_endpoint();
             let mut context = ctx.require_context();
             for var in variables {
                 context.variables.set(&var);
@@ -135,7 +135,7 @@ async fn main() {
 
             let raw_body = match data {
                 Some(data) => Body::from(data),
-                None => endpoint.body(&specification),
+                None => endpoint.body(&handle),
             };
 
             let mut start: Instant;
@@ -145,7 +145,7 @@ async fn main() {
                 let req = endpoint
                     // TODO: Find a way around this clone
                     .clone()
-                    .into_request(&specification)
+                    .into_request(&handle)
                     .unwrap_or_else(|_| panic!("malformed request"));
 
                 let client = {
@@ -215,7 +215,7 @@ async fn main() {
                     headers,
                 };
 
-                HistoryEntry::new(specification.handle(), request, response)
+                HistoryEntry::new(handle.handle(), request, response)
             };
 
             if show_fields.is_empty() {
@@ -324,8 +324,8 @@ async fn main() {
             let max_depth = max_depth.unwrap_or(999) as i16;
             let mut current = PathBuf::new();
 
-            if let Some(specification) = EndpointHandle::from_state(&ctx.state) {
-                current = specification.dir()
+            if let Some(handle) = EndpointHandle::from_state(&ctx.state) {
+                current = handle.dir()
             }
 
             // This code is a mess.
@@ -335,33 +335,33 @@ async fn main() {
                 f: &'s dyn Fn(&TraverseEndpoints, Vec<EndpointHandle>),
             }
             let traverse_handles = TraverseEndpoints {
-                f: &|recurse, specifications| {
-                    for spec in specifications {
-                        let depth = (spec.path.len() as i16 - 1).max(0);
-                        let children = spec.children();
+                f: &|recurse, handles| {
+                    for handle in handles {
+                        let depth = (handle.path.len() as i16 - 1).max(0);
+                        let children = handle.children();
 
-                        if let Some(endpoint) = spec.endpoint() {
-                            if current == spec.dir() {
+                        if let Some(endpoint) = handle.endpoint() {
+                            if current == handle.dir() {
                                 print!(
                                     "*  {: >5} {}",
                                     endpoint.colored_method().bold(),
-                                    spec.handle().green()
+                                    handle.handle().green()
                                 );
                             } else {
                                 print!(
                                     "   {: >5} {}",
                                     endpoint.colored_method().bold(),
-                                    spec.handle()
+                                    handle.handle()
                                 );
                             }
-                        } else if !spec.path.is_empty() {
-                            print!("   {: >5} {}", "---".dimmed(), spec.handle());
+                        } else if !handle.path.is_empty() {
+                            print!("   {: >5} {}", "---".dimmed(), handle.handle());
                         }
 
                         if !children.is_empty() {
                             if depth < max_depth {
                                 // Avoid extra newline from Specification::QUARTZ usage
-                                if !spec.path.is_empty() {
+                                if !handle.path.is_empty() {
                                     println!();
                                 }
 
@@ -459,14 +459,14 @@ async fn main() {
             }
         }
         Commands::Edit { editor } => {
-            let specification = ctx.require_handle();
+            let handle = ctx.require_handle();
 
             if let Some(editor) = editor {
                 ctx.config.preferences.editor = editor;
             }
 
             ctx.edit(
-                &specification.dir().join("endpoint.toml"),
+                &handle.dir().join("endpoint.toml"),
                 validator::toml_as::<Endpoint>,
             )
             .unwrap();
@@ -486,12 +486,12 @@ async fn main() {
             endpoint.write(&dest);
         }
         Commands::Remove { handle } => {
-            let specification = ctx.require_input_handle(&handle);
+            let handle = ctx.require_input_handle(&handle);
 
-            if std::fs::remove_dir_all(specification.dir()).is_ok() {
-                println!("Deleted endpoint {}", specification.handle());
+            if std::fs::remove_dir_all(handle.dir()).is_ok() {
+                println!("Deleted endpoint {}", handle.handle());
             } else {
-                panic!("failed to delete endpoint {}", specification.handle());
+                panic!("failed to delete endpoint {}", handle.handle());
             }
         }
         Commands::Query { command } => {
