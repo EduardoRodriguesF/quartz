@@ -177,6 +177,7 @@ pub enum Commands {
         #[arg(long, short, value_delimiter = ',', value_name = "FIELDS")]
         show: Vec<String>,
     },
+    /// Manage project's contexts
     #[command(name = "ctx", alias = "context")]
     Context {
         #[command(subcommand)]
