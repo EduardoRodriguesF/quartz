@@ -117,7 +117,11 @@ impl Http {
 
         println!("{} {} HTTP/1.1", endpoint.method, path.as_str());
         println!("Host: {}", url.host().unwrap());
-        println!("{}", endpoint.headers);
+        print!("{}", endpoint.headers);
+
+        if endpoint.has_body(&handle) {
+            println!()
+        }
 
         if let Some(chunk) = endpoint.body(&handle).data().await {
             if let Ok(chunk) = chunk {

@@ -293,8 +293,12 @@ impl Endpoint {
         toml::to_string(&self)
     }
 
-    pub fn body(&self, spec: &EndpointHandle) -> Body {
-        match std::fs::read(spec.dir().join("body.json")) {
+    pub fn has_body(&self, handle: &EndpointHandle) -> bool {
+        handle.dir().join("body.json").exists()
+    }
+
+    pub fn body(&self, handle: &EndpointHandle) -> Body {
+        match std::fs::read(handle.dir().join("body.json")) {
             Ok(bytes) => {
                 let mut content = String::from_utf8(bytes).unwrap();
 

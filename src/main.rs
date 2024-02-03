@@ -507,7 +507,7 @@ async fn main() {
             cli::EndpointQueryCommands::List => {
                 let (_, endpoint) = ctx.require_endpoint();
 
-                println!("{}", endpoint.query);
+                print!("{}", endpoint.query);
             }
         },
         Commands::Header { command } => match command {
@@ -540,7 +540,7 @@ async fn main() {
             cli::EndpointHeaderCommands::List => {
                 let (_, endpoint) = ctx.require_endpoint();
 
-                println!("{}", endpoint.headers);
+                print!("{}", endpoint.headers);
             }
         },
         Commands::Body {
@@ -612,15 +612,15 @@ async fn main() {
                     cli::LastCommands::Request { command } => match command {
                         cli::LastRequestCommands::Url => println!("{}", entry.request.endpoint.url),
                         cli::LastRequestCommands::Query => {
-                            println!("{}", entry.request.endpoint.query)
+                            print!("{}", entry.request.endpoint.query)
                         }
                         cli::LastRequestCommands::Headers => {
-                            println!("{}", entry.request.endpoint.headers)
+                            print!("{}", entry.request.endpoint.headers)
                         }
                         cli::LastRequestCommands::Method => {
                             println!("{}", entry.request.endpoint.method)
                         }
-                        cli::LastRequestCommands::Body => println!("{}", entry.request.body),
+                        cli::LastRequestCommands::Body => print!("{}", entry.request.body),
                         cli::LastRequestCommands::Context => {
                             println!("{}", entry.request.context.name)
                         }
@@ -628,9 +628,9 @@ async fn main() {
                     cli::LastCommands::Response { command } => match command {
                         cli::LastResponseCommands::Status => println!("{}", entry.response.status),
                         cli::LastResponseCommands::Headers => {
-                            println!("{}", entry.response.headers)
+                            print!("{}", entry.response.headers)
                         }
-                        cli::LastResponseCommands::Body => println!("{}", entry.response.body),
+                        cli::LastResponseCommands::Body => print!("{}", entry.response.body),
                         cli::LastResponseCommands::Size => println!("{}", entry.response.size),
                     },
                 }
