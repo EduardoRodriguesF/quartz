@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - After receiving response, quartz would only print and save the last chunk of response bytes instead of the entire body.
 - `ls` command's `--depth` option was behaving inconsistently.
 
+### Removed
+
+- `send` command's `--show` option. Use `last` instead.
+
 ## [0.8.0] - 2023-08-12
 
 ### Added

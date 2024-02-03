@@ -104,7 +104,6 @@ async fn main() {
                 .unwrap_or_else(|_| panic!("failed to save configuration file"));
         }
         Commands::Send {
-            show: show_fields,
             header: headers,
             query,
             var: variables,
@@ -218,29 +217,7 @@ async fn main() {
                 HistoryEntry::new(handle.handle(), request, response)
             };
 
-            if show_fields.is_empty() {
-                // Regular output
-                println!("Status: {}", res.status());
-                println!("Duration: {}ms", duration);
-                println!("Size: {} bytes", size);
-
-                let _ = stdout().write_all(&bytes).await;
-            } else {
-                let mut outputs: Vec<String> = Vec::new();
-                for key in &show_fields {
-                    match entry.field_as_string(key) {
-                        Ok(value) => outputs.push(value),
-                        Err(..) => eprintln!("invalid field: {}", key),
-                    }
-                }
-
-                for value in outputs {
-                    println!("{}", value);
-                }
-
-                return;
-            }
-
+            let _ = stdout().write_all(&bytes).await;
             let _ = entry.write();
         }
         Commands::Create {

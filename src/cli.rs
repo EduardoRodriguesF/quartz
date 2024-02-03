@@ -26,10 +26,6 @@ pub enum Commands {
     Init { directory: Option<PathBuf> },
     /// Send request using the current handle's endpoint and outputs the response
     Send {
-        /// Which fields to show after the request is complete, separated by comma (,). See manual page for a list of valid fields
-        #[arg(long, short, value_delimiter = ',', value_name = "FIELDS")]
-        show: Vec<String>,
-
         /// Change a variable when sending the request.
         #[arg(long, short = 'v', value_name = "KEY=VALUE")]
         var: Vec<String>,
