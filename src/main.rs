@@ -362,85 +362,93 @@ async fn main() {
 
             (traverse_handles.f)(&traverse_handles, vec![EndpointHandle::QUARTZ]);
         }
-        Commands::Show { command } => {
-            let (handle, endpoint) = ctx.require_endpoint();
+        Commands::Show { command } => match command {
+            EndpointShowCommands::Url => {
+                let (_, endpoint) = ctx.require_endpoint();
+                println!("{}", endpoint.url);
+            }
+            EndpointShowCommands::Method => {
+                let (_, endpoint) = ctx.require_endpoint();
+                println!("{}", endpoint.method);
+            }
+            EndpointShowCommands::Query { key } => {
+                let (_, endpoint) = ctx.require_endpoint();
 
-            match command {
-                EndpointShowCommands::Url => println!("{}", endpoint.url),
-                EndpointShowCommands::Method => println!("{}", endpoint.method),
-                EndpointShowCommands::Query { key } => {
-                    if let Some(key) = key {
-                        let value = endpoint
-                            .query
-                            .get(&key)
-                            .unwrap_or_else(|| panic!("No {} query param found", key.red()));
+                if let Some(key) = key {
+                    let value = endpoint
+                        .query
+                        .get(&key)
+                        .unwrap_or_else(|| panic!("No {} query param found", key.red()));
 
-                        println!("{}", value);
-                    } else {
-                        println!("{}", endpoint.query_string());
-                    }
-                }
-                EndpointShowCommands::Headers { key } => {
-                    if let Some(key) = key {
-                        let value = endpoint
-                            .headers
-                            .get(&key)
-                            .unwrap_or_else(|| panic!("No {} header found", key.red()));
-
-                        println!("{}", value);
-                    } else {
-                        println!("{}", endpoint.headers);
-                    }
-                }
-                EndpointShowCommands::Body => {
-                    if let Some(chunk) = endpoint.body(&handle).data().await {
-                        stdout().write_all(&chunk.unwrap()).await.unwrap();
-                    }
-                }
-                EndpointShowCommands::Handle => {
-                    if let Ok(endpoint) = ctx.state.get(StateField::Endpoint) {
-                        println!("{}", endpoint);
-                    }
-                }
-                EndpointShowCommands::Context => {
-                    println!(
-                        "{}",
-                        ctx.state
-                            .get(StateField::Context)
-                            .unwrap_or("default".into())
-                    );
-                }
-                EndpointShowCommands::Snippet {
-                    command,
-                    var: variables,
-                } => {
-                    let (handle, mut endpoint) = ctx.require_endpoint();
-                    let mut context = ctx.require_context();
-
-                    for var in variables {
-                        context.variables.set(&var);
-                    }
-
-                    endpoint.apply_context(&context);
-
-                    match command {
-                        cli::EndpointShowSnippetCommands::Curl { long, multiline } => {
-                            let curl = snippet::Curl { long, multiline };
-
-                            curl.print(&handle, &endpoint).await.unwrap();
-                        }
-                        cli::EndpointShowSnippetCommands::Http => {
-                            snippet::Http::print(&handle, &endpoint).await.unwrap();
-                        }
-                    }
-                }
-                EndpointShowCommands::Endpoint => {
-                    let (_, endpoint) = ctx.require_endpoint();
-
-                    println!("{}", endpoint.to_toml().unwrap());
+                    println!("{}", value);
+                } else {
+                    println!("{}", endpoint.query_string());
                 }
             }
-        }
+            EndpointShowCommands::Headers { key } => {
+                let (_, endpoint) = ctx.require_endpoint();
+
+                if let Some(key) = key {
+                    let value = endpoint
+                        .headers
+                        .get(&key)
+                        .unwrap_or_else(|| panic!("No {} header found", key.red()));
+
+                    println!("{}", value);
+                } else {
+                    println!("{}", endpoint.headers);
+                }
+            }
+            EndpointShowCommands::Body => {
+                let (handle, endpoint) = ctx.require_endpoint();
+
+                if let Some(chunk) = endpoint.body(&handle).data().await {
+                    stdout().write_all(&chunk.unwrap()).await.unwrap();
+                }
+            }
+            EndpointShowCommands::Handle => {
+                if let Ok(endpoint) = ctx.state.get(StateField::Endpoint) {
+                    println!("{}", endpoint);
+                }
+            }
+            EndpointShowCommands::Context => {
+                println!(
+                    "{}",
+                    ctx.state
+                        .get(StateField::Context)
+                        .unwrap_or("default".into())
+                );
+            }
+            EndpointShowCommands::Snippet {
+                command,
+                var: variables,
+            } => {
+                let (handle, mut endpoint) = ctx.require_endpoint();
+                let mut context = ctx.require_context();
+
+                for var in variables {
+                    context.variables.set(&var);
+                }
+
+                endpoint.apply_context(&context);
+
+                match command {
+                    cli::EndpointShowSnippetCommands::Curl { long, multiline } => {
+                        let curl = snippet::Curl { long, multiline };
+
+                        curl.print(&handle, &endpoint).await.unwrap();
+                    }
+                    cli::EndpointShowSnippetCommands::Http => {
+                        snippet::Http::print(&handle, &endpoint).await.unwrap();
+                    }
+                }
+            }
+            EndpointShowCommands::Endpoint => {
+                let (_, endpoint) = ctx.require_endpoint();
+
+                println!("{}", endpoint.to_toml().unwrap());
+            }
+        },
         Commands::Edit { editor } => {
             let handle = ctx.require_handle();
 
