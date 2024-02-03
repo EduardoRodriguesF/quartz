@@ -287,24 +287,29 @@ async fn main() {
             query,
             header: headers,
         } => {
-            let (handle, mut endpoint) = if let Some(handle) = handle {
+            let handle = if let Some(handle) = handle {
                 let handle = ctx.require_input_handle(&handle);
 
                 if !handle.dir().exists() {
                     panic!("endpoint does not exist");
                 }
 
-                if let Ok(()) = StateField::Endpoint.set(&handle.path.join("/")) {
+                if StateField::Endpoint.set(&handle.path.join("/")).is_ok() {
                     println!("Switched to {} endpoint", handle.handle().green());
                 } else {
                     panic!("failed to switch to {} endpoint", handle.handle().red());
                 }
 
-                let endpoint = ctx.require_endpoint_from_handle(&handle);
-                (handle, endpoint)
+                handle
             } else {
-                ctx.require_endpoint()
+                ctx.require_handle()
             };
+
+            if url.is_none() && method.is_none() && query.is_empty() && headers.is_empty() {
+                return;
+            }
+
+            let mut endpoint = handle.endpoint().unwrap_or(Endpoint::default());
 
             endpoint.update(&mut EndpointInput {
                 url,
