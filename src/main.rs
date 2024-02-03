@@ -340,22 +340,25 @@ async fn main() {
                         let depth = (handle.path.len() as i16 - 1).max(0);
                         let children = handle.children();
 
-                        if let Some(endpoint) = handle.endpoint() {
-                            if current == handle.dir() {
-                                print!(
-                                    "*  {: >5} {}",
-                                    endpoint.colored_method().bold(),
-                                    handle.handle().green()
-                                );
-                            } else {
-                                print!(
-                                    "   {: >5} {}",
-                                    endpoint.colored_method().bold(),
-                                    handle.handle()
-                                );
-                            }
-                        } else if !handle.path.is_empty() {
-                            print!("   {: >5} {}", "---".dimmed(), handle.handle());
+                        if !handle.path.is_empty() {
+                            let (annotation, method, display_handle) = {
+                                let mut ann = " ";
+                                let mut m = "---".dimmed();
+                                let mut h = handle.handle().normal();
+
+                                if current == handle.dir() {
+                                    ann = "*";
+                                    h = h.green();
+                                }
+
+                                if let Some(endpoint) = handle.endpoint() {
+                                    m = endpoint.colored_method().bold();
+                                }
+
+                                (ann, m, h)
+                            };
+
+                            print!("{}  {: >5} {}", annotation, method, display_handle);
                         }
 
                         if !children.is_empty() {
