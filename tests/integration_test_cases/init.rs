@@ -6,7 +6,7 @@ fn it_initializes_quartz() -> TestResult {
 
     let output = quartz.cmd(&["init"])?;
 
-    assert!(output.status.success(), "{}", output.stdout);
+    assert!(output.status.success(), "{}", output.stderr);
     assert!(quartz.dir().exists(), ".quartz was not created");
 
     Ok(())
