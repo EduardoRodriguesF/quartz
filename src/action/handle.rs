@@ -1,3 +1,5 @@
+use std::process::exit;
+
 use crate::{
     endpoint::{Endpoint, EndpointHandle, EndpointInput},
     validator, Ctx, QuartzResult, StateField,
@@ -24,7 +26,7 @@ pub struct CpArgs {
 }
 
 pub struct RmArgs {
-    pub handle: String,
+    pub handles: Vec<String>,
     pub recursive: bool,
 }
 
@@ -113,21 +115,28 @@ pub fn cp(ctx: &Ctx, args: CpArgs) {
 }
 
 pub fn rm(ctx: &Ctx, args: RmArgs) {
-    let handle = ctx.require_input_handle(&args.handle);
+    let mut exit_code = 0;
 
-    if handle.children(ctx).len() > 0 && !args.recursive {
-        panic!(
-            "{} has child handles. Use {} option to confirm",
-            handle.handle(),
-            "-r".red()
-        )
+    for name in args.handles {
+        let handle = ctx.require_input_handle(&name);
+
+        if handle.children(ctx).len() > 0 && !args.recursive {
+            panic!(
+                "{} has child handles. Use {} option to confirm",
+                handle.handle(),
+                "-r".red()
+            )
+        }
+
+        if std::fs::remove_dir_all(handle.dir(ctx)).is_ok() {
+            println!("Deleted endpoint {}", handle.handle());
+        } else {
+            exit_code = 1;
+            eprintln!("failed to delete endpoint {}", handle.handle());
+        }
     }
 
-    if std::fs::remove_dir_all(handle.dir(ctx)).is_ok() {
-        println!("Deleted endpoint {}", handle.handle());
-    } else {
-        panic!("failed to delete endpoint {}", handle.handle());
-    }
+    exit(exit_code);
 }
 
 pub fn edit(ctx: &mut Ctx, args: EditArgs) -> QuartzResult {

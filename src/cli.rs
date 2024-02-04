@@ -116,8 +116,8 @@ pub enum Cmd {
         #[arg(long, short = 'r')]
         recursive: bool,
 
-        /// Handle to be removed
-        handle: String,
+        /// Handles to be removed
+        handle: Vec<String>,
     },
     /// Print out endpoint informations
     Show {
