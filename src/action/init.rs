@@ -52,5 +52,13 @@ pub fn cmd(dir: Option<PathBuf>) -> QuartzResult {
         panic!("failed to create default context");
     }
 
+    println!(
+        "Initialized quartz project in {}",
+        std::fs::canonicalize(quartz_dir.clone())
+            .unwrap_or(quartz_dir)
+            .to_str()
+            .unwrap()
+    );
+
     Ok(())
 }
