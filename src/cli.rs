@@ -369,8 +369,8 @@ pub enum VarCmd {
     /// Add a new or existent variable value
     Set { variable: Vec<String> },
 
-    /// Remove variable
-    Rm { key: String },
+    /// Remove variables
+    Rm { key: Vec<String> },
 
     /// Display the list of variables
     #[command(name = "ls", alias = "list")]

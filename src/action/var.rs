@@ -1,3 +1,5 @@
+use std::process::exit;
+
 use crate::{cli::VarCmd as Cmd, env::Variables, Ctx, PairMap, QuartzResult};
 
 pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
@@ -34,7 +36,7 @@ pub fn set(ctx: &Ctx, variables: Vec<String>) -> QuartzResult {
 
 pub fn ls(ctx: &Ctx) {
     let env = ctx.require_env();
-    println!("{}", env.variables);
+    print!("{}", env.variables);
 }
 
 pub fn edit(ctx: &Ctx) -> QuartzResult {
@@ -47,12 +49,18 @@ pub fn edit(ctx: &Ctx) -> QuartzResult {
     Ok(())
 }
 
-pub fn rm(ctx: &Ctx, key: String) -> QuartzResult {
+pub fn rm(ctx: &Ctx, keys: Vec<String>) -> QuartzResult {
+    let mut exit_code = 0;
     let mut env = ctx.require_env();
-    env.variables
-        .remove(&key)
-        .unwrap_or_else(|| panic!("{} variable not set", key));
+
+    for key in keys {
+        env.variables.remove(&key).unwrap_or_else(|| {
+            exit_code = 1;
+            eprintln!("{} variable not set", key);
+            "".to_string()
+        });
+    }
 
     env.update(ctx)?;
-    Ok(())
+    exit(exit_code);
 }

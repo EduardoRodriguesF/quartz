@@ -98,6 +98,7 @@ impl Env {
         let mut var_file = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
+            .truncate(true)
             .open(self.dir(ctx).join("variables"))?;
 
         if !self.variables.is_empty() {

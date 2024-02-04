@@ -62,7 +62,7 @@ pub struct Ctx {
 }
 
 impl Ctx {
-    const VERSION: &str = env!("CARGO_PKG_VERSION");
+    const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
     pub fn new(args: CtxArgs) -> QuartzResult<Self> {
         let config = Config::parse();

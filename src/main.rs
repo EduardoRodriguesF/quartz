@@ -1,7 +1,13 @@
+use std::process::exit;
+
 use clap::Parser;
 use colored::Colorize;
 
-use quartz_cli::{action, cli::Cli, Ctx, CtxArgs, QuartzResult};
+use quartz_cli::{
+    action,
+    cli::{Cli, Cmd},
+    Ctx, CtxArgs, QuartzResult,
+};
 
 #[tokio::main]
 async fn main() -> QuartzResult {
@@ -18,6 +24,13 @@ async fn main() -> QuartzResult {
     }));
 
     let args = Cli::parse();
+
+    // Pre CTX commands
+    if let Cmd::Init { ref directory } = args.command {
+        action::init::cmd(directory.clone())?;
+        exit(0);
+    }
+
     let mut ctx = Ctx::new(CtxArgs {
         from_handle: args.from_handle,
         early_apply_environment: args.apply_environment,

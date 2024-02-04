@@ -11,7 +11,7 @@ pub struct State {
 }
 
 impl StateField {
-    pub const STATE_DIR: &str = "user/state";
+    pub const STATE_DIR: &'static str = "user/state";
 
     pub fn file_path(&self, ctx: &Ctx) -> PathBuf {
         ctx.path().join(Self::STATE_DIR).join(match self {
