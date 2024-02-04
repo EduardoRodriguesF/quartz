@@ -111,3 +111,33 @@ fn each_env_has_its_own_variables() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn it_can_remove_variable() -> TestResult {
+    let quartz = Quartz::preset_using_default_env()?;
+
+    quartz.cmd(&["var", "set", "baseUrl=localhost"])?;
+    let output = quartz.cmd(&["var", "rm", "baseUrl"])?;
+    let get_output = quartz.cmd(&["var", "get", "baseUrl"])?;
+
+    assert!(output.status.success(), "{}", output.stderr);
+    assert!(get_output.stdout.is_empty(), "{:?}", output.stdout);
+
+    Ok(())
+}
+
+#[test]
+fn it_can_remove_multiple_variable() -> TestResult {
+    let quartz = Quartz::preset_using_default_env()?;
+
+    quartz.cmd(&["var", "set", "baseUrl=localhost", "other=true", "flag=on"])?;
+    let output = quartz.cmd(&["var", "rm", "baseUrl", "flag"])?;
+    assert!(output.status.success(), "{}", output.stderr);
+
+    let output = quartz.cmd(&["var", "ls"])?;
+    assert!(output.stdout.contains("other=true"), "{}", output.stdout);
+    assert!(!output.stdout.contains("baseUrl"), "{}", output.stdout);
+    assert!(!output.stdout.contains("flag"), "{}", output.stdout);
+
+    Ok(())
+}

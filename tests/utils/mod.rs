@@ -104,8 +104,6 @@ impl Quartz {
 
         let child_stdin = child.stdin.as_mut().unwrap();
         child_stdin.write_all(stdin.as_bytes())?;
-        // Close stdin to finish and avoid indefinite blocking
-        drop(child_stdin);
 
         let output = child.wait_with_output()?;
 

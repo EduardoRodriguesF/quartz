@@ -11,3 +11,14 @@ fn it_initializes_quartz() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn it_cant_init_over_other() -> TestResult {
+    let quartz = Quartz::preset_empty_project()?;
+
+    let output = quartz.cmd(&["init"])?;
+
+    assert!(!output.status.success(), "{}", output.stdout);
+
+    Ok(())
+}
