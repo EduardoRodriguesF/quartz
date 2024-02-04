@@ -244,7 +244,7 @@ pub enum QueryCmd {
 
     /// Remove query param
     #[command(name = "rm", alias = "remove")]
-    Rm { key: String },
+    Rm { key: Vec<String> },
 
     /// List all query params
     #[command(name = "ls", alias = "list")]

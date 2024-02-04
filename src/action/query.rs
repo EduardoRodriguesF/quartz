@@ -34,10 +34,12 @@ pub fn set(ctx: &Ctx, queries: Vec<String>) {
     endpoint.write(&handle);
 }
 
-pub fn rm(ctx: &Ctx, key: String) {
+pub fn rm(ctx: &Ctx, keys: Vec<String>) {
     let (handle, mut endpoint) = ctx.require_endpoint();
 
-    endpoint.query.remove(&key);
+    for key in keys {
+        endpoint.query.remove(&key);
+    }
 
     endpoint.write(&handle);
 }

@@ -49,6 +49,38 @@ fn it_can_remove_query() -> TestResult {
 }
 
 #[test]
+fn it_can_remove_multiple_query() -> TestResult {
+    let quartz = Quartz::preset_using_sample_endpoint()?;
+
+    quartz.cmd(&[
+        "query",
+        "set",
+        "fields=example",
+        "where=email=example@email.com",
+        "value=false",
+    ])?;
+    let remove_output = quartz.cmd(&["query", "rm", "fields", "where"])?;
+
+    let get_output = quartz.cmd(&["query", "get", "fields"])?;
+    assert!(remove_output.status.success(), "{}", remove_output.stderr);
+    assert_eq!(get_output.stdout.trim(), "", "did not removed query");
+
+    let get_output = quartz.cmd(&["query", "get", "where"])?;
+    assert!(remove_output.status.success(), "{}", remove_output.stderr);
+    assert_eq!(get_output.stdout.trim(), "", "did not removed query");
+
+    let get_output = quartz.cmd(&["query", "get", "value"])?;
+    assert!(remove_output.status.success(), "{}", remove_output.stderr);
+    assert_eq!(
+        get_output.stdout.trim(),
+        "false",
+        "removed query that shouldn't"
+    );
+
+    Ok(())
+}
+
+#[test]
 fn it_outputs_resolved_string() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 
