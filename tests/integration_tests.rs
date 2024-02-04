@@ -1,2 +1,2 @@
-mod integration_test_cases;
+mod it;
 mod utils;
