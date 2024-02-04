@@ -3,12 +3,12 @@ use std::{
     fmt::Display,
     io::Write,
     ops::{Deref, DerefMut},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use serde::{Deserialize, Serialize};
 
-use crate::PairMap;
+use crate::{Ctx, PairMap};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Variables(pub HashMap<String, String>);
@@ -80,25 +80,25 @@ impl Context {
         }
     }
 
-    pub fn dir(&self) -> PathBuf {
-        Path::new(".quartz").join("contexts").join(&self.name)
+    pub fn dir(&self, ctx: &Ctx) -> PathBuf {
+        ctx.path().join("contexts").join(&self.name)
     }
 
-    pub fn write(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let dir = self.dir();
+    pub fn write(&self, ctx: &Ctx) -> Result<(), Box<dyn std::error::Error>> {
+        let dir = self.dir(ctx);
 
         std::fs::create_dir(dir)?;
 
-        self.update()?;
+        self.update(ctx)?;
 
         Ok(())
     }
 
-    pub fn update(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn update(&self, ctx: &Ctx) -> Result<(), Box<dyn std::error::Error>> {
         let mut var_file = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
-            .open(self.dir().join("variables"))?;
+            .open(self.dir(ctx).join("variables"))?;
 
         if !self.variables.is_empty() {
             var_file.write_all(format!("{}", self.variables.to_string()).as_bytes())?;
@@ -108,14 +108,14 @@ impl Context {
     }
 
     /// Returns `true` if this context already exists on the quartz project.
-    pub fn exists(&self) -> bool {
-        self.dir().exists()
+    pub fn exists(&self, ctx: &Ctx) -> bool {
+        self.dir(ctx).exists()
     }
 
-    pub fn parse(name: &str) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn parse(ctx: &Ctx, name: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let mut context = Self::new(name);
 
-        if let Ok(var_contents) = std::fs::read_to_string(context.dir().join("variables")) {
+        if let Ok(var_contents) = std::fs::read_to_string(context.dir(ctx).join("variables")) {
             context.variables = Variables::parse(&var_contents);
         }
 

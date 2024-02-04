@@ -28,7 +28,7 @@ pub fn set(ctx: &Ctx, variables: Vec<String>) -> QuartzResult {
         context.variables.set(&input);
     }
 
-    context.update()?;
+    context.update(ctx)?;
     Ok(())
 }
 
@@ -39,7 +39,7 @@ pub fn ls(ctx: &Ctx) {
 
 pub fn edit(ctx: &Ctx) -> QuartzResult {
     let context = ctx.require_context();
-    ctx.edit(&context.dir().join("variables"), |c| {
+    ctx.edit(&context.dir(ctx).join("variables"), |c| {
         Variables::parse(c);
         Ok(())
     })?;
@@ -54,6 +54,6 @@ pub fn rm(ctx: &Ctx, key: String) -> QuartzResult {
         .remove(&key)
         .unwrap_or_else(|| panic!("{} variable not set", key));
 
-    context.update()?;
+    context.update(ctx)?;
     Ok(())
 }

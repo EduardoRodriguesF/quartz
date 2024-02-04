@@ -25,23 +25,23 @@ pub fn get(ctx: &Ctx, key: String) {
 }
 
 pub fn set(ctx: &Ctx, queries: Vec<String>) {
-    let (handle, mut endpoint) = ctx.require_endpoint();
+    let (_, mut endpoint) = ctx.require_endpoint();
 
     for input in queries {
         endpoint.query.set(&input);
     }
 
-    endpoint.write(&handle);
+    endpoint.write();
 }
 
 pub fn rm(ctx: &Ctx, keys: Vec<String>) {
-    let (handle, mut endpoint) = ctx.require_endpoint();
+    let (_, mut endpoint) = ctx.require_endpoint();
 
     for key in keys {
         endpoint.query.remove(&key);
     }
 
-    endpoint.write(&handle);
+    endpoint.write();
 }
 
 pub fn ls(ctx: &Ctx) {

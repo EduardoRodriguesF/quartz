@@ -9,8 +9,8 @@ use std::ops::{Deref, DerefMut};
 use std::path::{Path, PathBuf};
 
 use crate::context::{Context, Variables};
-use crate::state::{State, StateField};
-use crate::PairMap;
+use crate::state::StateField;
+use crate::{Ctx, PairMap};
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct Query(pub HashMap<String, String>);
@@ -111,6 +111,9 @@ pub struct Endpoint {
     /// Variable values applied from a [`Context`]
     #[serde(skip_serializing, skip_deserializing)]
     pub variables: Variables,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    pub path: PathBuf,
 }
 
 #[derive(Default)]
@@ -147,8 +150,8 @@ impl EndpointHandle {
         Self { path }
     }
 
-    pub fn from_state(state: &State) -> Option<Self> {
-        if let Ok(handle) = state.get(StateField::Endpoint) {
+    pub fn from_state(ctx: &Ctx) -> Option<Self> {
+        if let Ok(handle) = ctx.state.get(ctx, StateField::Endpoint) {
             if handle.is_empty() {
                 return None;
             }
@@ -163,8 +166,8 @@ impl EndpointHandle {
         self.path.last().unwrap_or(&String::new()).clone()
     }
 
-    pub fn dir(&self) -> PathBuf {
-        let mut result = Path::new(".quartz").join("endpoints");
+    pub fn dir(&self, ctx: &Ctx) -> PathBuf {
+        let mut result = ctx.path().join("endpoints");
 
         for parent in &self.path {
             let name = Endpoint::name_to_dir(parent);
@@ -179,13 +182,13 @@ impl EndpointHandle {
         self.path.join("/")
     }
 
-    pub fn exists(&self) -> bool {
-        self.dir().exists()
+    pub fn exists(&self, ctx: &Ctx) -> bool {
+        self.dir(ctx).exists()
     }
 
     /// Records files to build this endpoint with `parse` methods.
-    pub fn write(&self) {
-        let mut dir = Path::new(".quartz").join("endpoints");
+    pub fn write(&self, ctx: &Ctx) {
+        let mut dir = ctx.path().join("endpoints");
         for entry in &self.path {
             dir = dir.join(Endpoint::name_to_dir(entry));
 
@@ -201,21 +204,22 @@ impl EndpointHandle {
             let _ = file.write_all(entry.as_bytes());
         }
 
-        std::fs::create_dir_all(self.dir()).unwrap_or_else(|_| panic!("failed to create endpoint"));
+        std::fs::create_dir_all(self.dir(ctx))
+            .unwrap_or_else(|_| panic!("failed to create endpoint"));
     }
 
     /// Removes endpoint to make it an empty handle
-    pub fn make_empty(&self) {
-        if let Some(_) = self.endpoint() {
-            let _ = std::fs::remove_file(self.dir().join("endpoint.toml"));
-            let _ = std::fs::remove_file(self.dir().join("body"));
+    pub fn make_empty(&self, ctx: &Ctx) {
+        if let Some(_) = self.endpoint(ctx) {
+            let _ = std::fs::remove_file(self.dir(ctx).join("endpoint.toml"));
+            let _ = std::fs::remove_file(self.dir(ctx).join("body"));
         }
     }
 
-    pub fn children(&self) -> Vec<EndpointHandle> {
+    pub fn children(&self, ctx: &Ctx) -> Vec<EndpointHandle> {
         let mut list = Vec::<EndpointHandle>::new();
 
-        if let Ok(paths) = std::fs::read_dir(self.dir()) {
+        if let Ok(paths) = std::fs::read_dir(self.dir(ctx)) {
             for path in paths {
                 let path = path.unwrap().path();
 
@@ -240,14 +244,14 @@ impl EndpointHandle {
     }
 
     #[must_use]
-    pub fn endpoint(&self) -> Option<Endpoint> {
-        Endpoint::from_dir(&self.dir()).ok()
+    pub fn endpoint(&self, ctx: &Ctx) -> Option<Endpoint> {
+        Endpoint::from_dir(&self.dir(ctx)).ok()
     }
 }
 
 impl From<&mut EndpointInput> for Endpoint {
     fn from(value: &mut EndpointInput) -> Self {
-        let mut endpoint = Self::new();
+        let mut endpoint = Self::default();
         endpoint.update(value);
 
         endpoint
@@ -255,9 +259,10 @@ impl From<&mut EndpointInput> for Endpoint {
 }
 
 impl Endpoint {
-    pub fn new() -> Self {
+    pub fn new(path: PathBuf) -> Self {
         Self {
             method: String::from("GET"),
+            path,
             ..Default::default()
         }
     }
@@ -270,7 +275,8 @@ impl Endpoint {
         let bytes = std::fs::read(dir.join("endpoint.toml"))?;
         let content = String::from_utf8(bytes)?;
 
-        let endpoint: Endpoint = toml::from_str(&content)?;
+        let mut endpoint: Endpoint = toml::from_str(&content)?;
+        endpoint.path = dir.to_path_buf();
 
         Ok(endpoint)
     }
@@ -301,12 +307,12 @@ impl Endpoint {
         toml::to_string(&self)
     }
 
-    pub fn has_body(&self, handle: &EndpointHandle) -> bool {
-        handle.dir().join("body").exists()
+    pub fn has_body(&self) -> bool {
+        self.path.join("body").exists()
     }
 
-    pub fn body(&self, handle: &EndpointHandle) -> String {
-        match std::fs::read_to_string(handle.dir().join("body")) {
+    pub fn body(&self) -> String {
+        match std::fs::read_to_string(self.path.join("body")) {
             Ok(mut content) => {
                 for (key, value) in self.variables.iter() {
                     let key_match = format!("{{{{{}}}}}", key);
@@ -318,6 +324,10 @@ impl Endpoint {
             }
             Err(_) => "".to_string(),
         }
+    }
+
+    pub fn set_handle(&mut self, ctx: &Ctx, handle: &EndpointHandle) {
+        self.path = handle.dir(ctx).to_path_buf();
     }
 
     pub fn apply_context(&mut self, context: &Context) {
@@ -368,7 +378,7 @@ impl Endpoint {
     }
 
     /// Returns the a [`Request`] consuming struct.
-    pub fn into_request(self, spec: &EndpointHandle) -> Result<Request<Body>, hyper::http::Error> {
+    pub fn into_request(self) -> Result<Request<Body>, hyper::http::Error> {
         let mut builder = hyper::Request::builder().uri(&self.full_url()?);
 
         if let Ok(method) = hyper::Method::from_bytes(self.method.as_bytes()) {
@@ -379,7 +389,7 @@ impl Endpoint {
             builder = builder.header(key, value);
         }
 
-        builder.body(self.body(spec).into())
+        builder.body(self.body().into())
     }
 
     pub fn colored_method(&self) -> colored::ColoredString {
@@ -419,7 +429,7 @@ impl Endpoint {
         result.join("&")
     }
 
-    pub fn write(&mut self, handle: &EndpointHandle) {
+    pub fn write(&mut self) {
         let toml_content = self
             .to_toml()
             .unwrap_or_else(|_| panic!("failed to generate settings"));
@@ -428,7 +438,7 @@ impl Endpoint {
             .write(true)
             .create(true)
             .truncate(true)
-            .open(handle.dir().join("endpoint.toml"))
+            .open(self.path.join("endpoint.toml"))
             .unwrap_or_else(|_| panic!("failed to open config file"));
 
         file.write_all(toml_content.as_bytes())
@@ -444,6 +454,7 @@ impl Default for Endpoint {
             headers: Default::default(),
             variables: Default::default(),
             query: Default::default(),
+            path: Default::default(),
         }
     }
 }

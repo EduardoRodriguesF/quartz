@@ -16,14 +16,14 @@ pub fn cmd(ctx: &Ctx, command: Cmd, args: BodyArgs) -> QuartzResult {
 }
 
 pub fn print(ctx: &Ctx) {
-    let (handle, endpoint) = ctx.require_endpoint();
+    let (_, endpoint) = ctx.require_endpoint();
 
-    print!("{}", endpoint.body(&handle));
+    print!("{}", endpoint.body());
 }
 
 pub fn edit(ctx: &Ctx, format: Option<String>) -> QuartzResult {
     let handle = ctx.require_handle();
-    let path = handle.dir().join("body");
+    let path = handle.dir(ctx).join("body");
 
     if let Some(format) = format {
         // We cannot validate json for now. If we do so, variable notation will fail because it can
@@ -55,7 +55,7 @@ pub fn stdin(ctx: &Ctx) {
         .create(true)
         .write(true)
         .truncate(true)
-        .open(handle.dir().join("body"))
+        .open(handle.dir(ctx).join("body"))
     {
         let _ = file.write_all(input.as_bytes());
     }

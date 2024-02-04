@@ -6,8 +6,8 @@ pub fn cmd(ctx: &Ctx, max_depth: Option<usize>) {
     let max_depth = max_depth.unwrap_or(usize::MAX).max(1);
     let mut current = PathBuf::new();
 
-    if let Some(handle) = EndpointHandle::from_state(&ctx.state) {
-        current = handle.dir()
+    if let Some(handle) = EndpointHandle::from_state(ctx) {
+        current = handle.dir(ctx)
     }
 
     // This code is a mess.
@@ -19,7 +19,7 @@ pub fn cmd(ctx: &Ctx, max_depth: Option<usize>) {
     let traverse_handles = TraverseEndpoints {
         f: &|recurse, handles| {
             for handle in handles {
-                let children = handle.children();
+                let children = handle.children(ctx);
 
                 if !handle.path.is_empty() {
                     let (annotation, method, display_handle) = {
@@ -27,12 +27,12 @@ pub fn cmd(ctx: &Ctx, max_depth: Option<usize>) {
                         let mut m = "---".dimmed();
                         let mut h = handle.handle().normal();
 
-                        if current == handle.dir() {
+                        if current == handle.dir(ctx) {
                             ann = "*";
                             h = h.green();
                         }
 
-                        if let Some(endpoint) = handle.endpoint() {
+                        if let Some(endpoint) = handle.endpoint(ctx) {
                             m = endpoint.colored_method().bold();
                         }
 

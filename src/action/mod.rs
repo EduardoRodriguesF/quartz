@@ -50,17 +50,20 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
             query,
             header: headers,
             switch,
-        } => action::handle::create(action::handle::CreateArgs {
-            handle,
-            config: EndpointInput {
-                url,
-                method,
-                query,
-                headers,
-                ..Default::default()
+        } => action::handle::create(
+            ctx,
+            action::handle::CreateArgs {
+                handle,
+                config: EndpointInput {
+                    url,
+                    method,
+                    query,
+                    headers,
+                    ..Default::default()
+                },
+                switch,
             },
-            switch,
-        }),
+        ),
 
         Cmd::Use {
             handle,

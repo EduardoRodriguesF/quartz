@@ -1,4 +1,4 @@
-use crate::{Endpoint, EndpointHandle, QuartzResult};
+use crate::{Endpoint, QuartzResult};
 
 enum CurlOption {
     Location,
@@ -14,7 +14,7 @@ pub struct Curl {
 }
 
 impl Curl {
-    pub fn print(&self, handle: &EndpointHandle, endpoint: &Endpoint) -> QuartzResult {
+    pub fn print(&self, endpoint: &Endpoint) -> QuartzResult {
         let separator = if self.multiline { " \\\n\t" } else { " " };
 
         print!(
@@ -38,7 +38,7 @@ impl Curl {
             );
         }
 
-        let mut body = endpoint.body(&handle);
+        let mut body = endpoint.body();
         if !body.is_empty() {
             print!("{}{} '", separator, self.option_string(CurlOption::Data));
 
@@ -92,7 +92,7 @@ impl Curl {
 pub struct Http;
 
 impl Http {
-    pub fn print(handle: &EndpointHandle, endpoint: &Endpoint) -> QuartzResult {
+    pub fn print(endpoint: &Endpoint) -> QuartzResult {
         let url = endpoint.full_url()?;
         let path = url.path_and_query().unwrap();
 
@@ -100,12 +100,12 @@ impl Http {
         println!("Host: {}", url.host().unwrap());
         print!("{}", endpoint.headers);
 
-        if endpoint.has_body(&handle) {
+        if endpoint.has_body() {
             println!()
         }
 
-        if endpoint.has_body(&handle) {
-            let body = endpoint.body(&handle);
+        if endpoint.has_body() {
+            let body = endpoint.body();
             print!("{body}");
         }
 

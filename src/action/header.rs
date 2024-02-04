@@ -23,23 +23,23 @@ pub fn get(ctx: &Ctx, key: String) {
 }
 
 pub fn set(ctx: &Ctx, headers: Vec<String>) {
-    let (handle, mut endpoint) = ctx.require_endpoint();
+    let (_, mut endpoint) = ctx.require_endpoint();
 
     for input in headers {
         endpoint.headers.set(&input);
     }
 
-    endpoint.write(&handle);
+    endpoint.write();
 }
 
 pub fn rm(ctx: &Ctx, keys: Vec<String>) {
-    let (handle, mut endpoint) = ctx.require_endpoint();
+    let (_, mut endpoint) = ctx.require_endpoint();
 
     for k in keys {
         endpoint.headers.remove(&k);
     }
 
-    endpoint.write(&handle);
+    endpoint.write();
 }
 
 pub fn ls(ctx: &Ctx) {

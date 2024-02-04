@@ -1,7 +1,7 @@
 use crate::{cli::SnippetCmd as Cmd, snippet, Ctx, PairMap, QuartzResult};
 
 pub fn cmd(ctx: &Ctx, command: Cmd, variables: Vec<String>) -> QuartzResult {
-    let (handle, mut endpoint) = ctx.require_endpoint();
+    let (_, mut endpoint) = ctx.require_endpoint();
     let mut context = ctx.require_context();
 
     for var in variables {
@@ -14,10 +14,10 @@ pub fn cmd(ctx: &Ctx, command: Cmd, variables: Vec<String>) -> QuartzResult {
         Cmd::Curl { long, multiline } => {
             let curl = snippet::Curl { long, multiline };
 
-            curl.print(&handle, &endpoint)?;
+            curl.print(&endpoint)?;
         }
         Cmd::Http => {
-            snippet::Http::print(&handle, &endpoint)?;
+            snippet::Http::print(&endpoint)?;
         }
     };
 

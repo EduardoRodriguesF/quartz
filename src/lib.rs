@@ -8,8 +8,9 @@ pub mod snippet;
 pub mod state;
 pub mod validator;
 
+use std::env;
 use std::hash::Hash;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::{collections::HashMap, ffi::OsString};
 
 use colored::Colorize;
@@ -58,28 +59,41 @@ pub struct Ctx {
     pub args: CtxArgs,
     pub config: Config,
     pub state: State,
+    path: PathBuf,
 }
 
 impl Ctx {
     const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-    pub fn new(args: CtxArgs) -> Self {
+    pub fn new(args: CtxArgs) -> QuartzResult<Self> {
         let config = Config::parse();
         let state = State {
             handle: args.from_handle.clone(),
         };
 
-        Ctx {
+        let mut path = env::current_dir()?;
+        loop {
+            if path.join(".quartz").exists() {
+                break;
+            }
+
+            if !path.pop() {
+                panic!("could not find a quartz project");
+            }
+        }
+
+        Ok(Ctx {
             args,
             config,
             state,
-        }
+            path: path.join(".quartz"),
+        })
     }
 
     pub fn require_input_handle(&self, handle: &str) -> EndpointHandle {
         let result = EndpointHandle::from_handle(handle);
 
-        if !result.exists() {
+        if !result.exists(self) {
             panic!("could not find {} handle", handle.red());
         }
 
@@ -93,7 +107,7 @@ impl Ctx {
         }
 
         let mut result = None;
-        if let Ok(handle) = self.state.get(StateField::Endpoint) {
+        if let Ok(handle) = self.state.get(self, StateField::Endpoint) {
             if !handle.is_empty() {
                 result = Some(EndpointHandle::from_handle(handle));
             }
@@ -113,7 +127,7 @@ impl Ctx {
     }
 
     pub fn require_endpoint_from_handle(&self, handle: &EndpointHandle) -> Endpoint {
-        let mut endpoint = handle.endpoint().unwrap_or_else(|| {
+        let mut endpoint = handle.endpoint(self).unwrap_or_else(|| {
             panic!("no endpoint at {}", handle.handle().red());
         });
 
@@ -133,10 +147,10 @@ impl Ctx {
     pub fn require_context(&self) -> Context {
         let state = self
             .state
-            .get(StateField::Context)
+            .get(self, StateField::Context)
             .unwrap_or("default".into());
 
-        Context::parse(&state)
+        Context::parse(self, &state)
             .unwrap_or_else(|_| panic!("could not resolve {} context", state.red()))
     }
 
@@ -179,7 +193,7 @@ impl Ctx {
     where
         F: FnOnce(&str) -> QuartzResult,
     {
-        let mut temp_path = Path::new(".quartz").join("user").join(format!("EDIT"));
+        let mut temp_path = self.path().join("user").join(format!("EDIT"));
 
         let extension: Option<OsString> = {
             if let Some(extension) = extension {
@@ -227,5 +241,9 @@ impl Ctx {
         agent.push_str(Ctx::VERSION);
 
         agent
+    }
+
+    pub fn path(&self) -> &Path {
+        self.path.as_ref()
     }
 }

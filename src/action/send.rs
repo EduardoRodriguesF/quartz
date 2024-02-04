@@ -45,7 +45,7 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
 
     endpoint.apply_context(&context);
 
-    let raw_body = args.data.unwrap_or(endpoint.body(&handle));
+    let raw_body = args.data.unwrap_or(endpoint.body());
     let mut start: Instant;
     let mut res: hyper::Response<Body>;
     let mut duration: u64;
@@ -53,7 +53,7 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
         let req = endpoint
             // TODO: Find a way around this clone
             .clone()
-            .into_request(&handle)
+            .into_request()
             .unwrap_or_else(|_| panic!("malformed request"));
 
         let client = {

@@ -39,7 +39,7 @@ pub fn method(ctx: &Ctx) {
 }
 
 pub fn handle(ctx: &Ctx) {
-    if let Ok(endpoint) = ctx.state.get(StateField::Endpoint) {
+    if let Ok(endpoint) = ctx.state.get(ctx, StateField::Endpoint) {
         println!("{}", endpoint);
     }
 }
