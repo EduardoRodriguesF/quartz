@@ -268,7 +268,7 @@ impl Endpoint {
     }
 
     pub fn name_to_dir(name: &str) -> String {
-        trim_newline(name.replace(['/', '\\'], "-"))
+        name.trim().replace(['/', '\\'], "-")
     }
 
     pub fn from_dir(dir: &Path) -> Result<Self, Box<dyn std::error::Error>> {
@@ -468,20 +468,4 @@ impl Default for Endpoint {
             path: Default::default(),
         }
     }
-}
-
-fn trim_newline<S>(s: S) -> String
-where
-    S: Into<String> + std::fmt::Display,
-{
-    let mut s = s.to_string();
-
-    while s.ends_with('\n') {
-        s.pop();
-        if s.ends_with('\r') {
-            s.pop();
-        }
-    }
-
-    s.trim().to_string()
 }
