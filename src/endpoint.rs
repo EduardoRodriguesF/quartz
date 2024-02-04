@@ -8,7 +8,7 @@ use std::io::Write;
 use std::ops::{Deref, DerefMut};
 use std::path::{Path, PathBuf};
 
-use crate::context::{Context, Variables};
+use crate::env::{Env, Variables};
 use crate::state::StateField;
 use crate::{Ctx, PairMap};
 
@@ -108,7 +108,7 @@ pub struct Endpoint {
     /// List of (key, value) pairs.
     pub headers: Headers,
 
-    /// Variable values applied from a [`Context`]
+    /// Variable values applied from a [`Env`]
     #[serde(skip_serializing, skip_deserializing)]
     pub variables: Variables,
 
@@ -330,8 +330,8 @@ impl Endpoint {
         self.path = handle.dir(ctx).to_path_buf();
     }
 
-    pub fn apply_context(&mut self, context: &Context) {
-        for (key, value) in context.variables.iter() {
+    pub fn apply_env(&mut self, env: &Env) {
+        for (key, value) in env.variables.iter() {
             let key_match = format!("{{{{{}}}}}", key); // {{key}}
 
             self.url = self.url.replace(&key_match, value);
@@ -360,7 +360,7 @@ impl Endpoint {
                 .collect();
         }
 
-        self.variables = context.variables.clone();
+        self.variables = env.variables.clone();
     }
 
     pub fn full_url(&self) -> Result<Uri, InvalidUri> {

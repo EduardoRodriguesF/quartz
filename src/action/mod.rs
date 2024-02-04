@@ -114,7 +114,7 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         } => action::history::cmd(max_count, date, show)?,
 
         Cmd::Var { command } => action::var::cmd(ctx, command)?,
-        Cmd::Context { command } => action::env::cmd(ctx, command)?,
+        Cmd::Env { command } => action::env::cmd(ctx, command)?,
         Cmd::Config { command } => action::config::cmd(ctx, command)?,
     };
 

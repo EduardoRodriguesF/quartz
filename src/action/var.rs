@@ -1,4 +1,4 @@
-use crate::{cli::VarCmd as Cmd, context::Variables, Ctx, PairMap, QuartzResult};
+use crate::{cli::VarCmd as Cmd, env::Variables, Ctx, PairMap, QuartzResult};
 
 pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
     match command {
@@ -13,8 +13,8 @@ pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
 }
 
 pub fn get(ctx: &Ctx, key: String) {
-    let context = ctx.require_context();
-    let v = context
+    let env = ctx.require_env();
+    let v = env
         .variables
         .get(&key)
         .unwrap_or_else(|| panic!("{} variable not set", key));
@@ -23,23 +23,23 @@ pub fn get(ctx: &Ctx, key: String) {
 }
 
 pub fn set(ctx: &Ctx, variables: Vec<String>) -> QuartzResult {
-    let mut context = ctx.require_context();
+    let mut env = ctx.require_env();
     for input in variables {
-        context.variables.set(&input);
+        env.variables.set(&input);
     }
 
-    context.update(ctx)?;
+    env.update(ctx)?;
     Ok(())
 }
 
 pub fn ls(ctx: &Ctx) {
-    let context = ctx.require_context();
-    println!("{}", context.variables);
+    let env = ctx.require_env();
+    println!("{}", env.variables);
 }
 
 pub fn edit(ctx: &Ctx) -> QuartzResult {
-    let context = ctx.require_context();
-    ctx.edit(&context.dir(ctx).join("variables"), |c| {
+    let env = ctx.require_env();
+    ctx.edit(&env.dir(ctx).join("variables"), |c| {
         Variables::parse(c);
         Ok(())
     })?;
@@ -48,12 +48,11 @@ pub fn edit(ctx: &Ctx) -> QuartzResult {
 }
 
 pub fn rm(ctx: &Ctx, key: String) -> QuartzResult {
-    let mut context = ctx.require_context();
-    context
-        .variables
+    let mut env = ctx.require_env();
+    env.variables
         .remove(&key)
         .unwrap_or_else(|| panic!("{} variable not set", key));
 
-    context.update(ctx)?;
+    env.update(ctx)?;
     Ok(())
 }

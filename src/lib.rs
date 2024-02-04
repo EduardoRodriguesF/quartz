@@ -1,14 +1,13 @@
 pub mod action;
 pub mod cli;
 pub mod config;
-pub mod context;
 pub mod endpoint;
+pub mod env;
 pub mod history;
 pub mod snippet;
 pub mod state;
 pub mod validator;
 
-use std::env;
 use std::hash::Hash;
 use std::path::{Path, PathBuf};
 use std::{collections::HashMap, ffi::OsString};
@@ -16,8 +15,8 @@ use std::{collections::HashMap, ffi::OsString};
 use colored::Colorize;
 
 use config::Config;
-use context::Context;
 use endpoint::{Endpoint, EndpointHandle};
+use env::Env;
 use state::{State, StateField};
 
 pub type QuartzResult<T = (), E = Box<dyn std::error::Error>> = Result<T, E>;
@@ -52,7 +51,7 @@ where
 
 pub struct CtxArgs {
     pub from_handle: Option<String>,
-    pub early_apply_context: bool,
+    pub early_apply_environment: bool,
 }
 
 pub struct Ctx {
@@ -71,7 +70,7 @@ impl Ctx {
             handle: args.from_handle.clone(),
         };
 
-        let mut path = env::current_dir()?;
+        let mut path = std::env::current_dir()?;
         loop {
             if path.join(".quartz").exists() {
                 break;
@@ -131,27 +130,27 @@ impl Ctx {
             panic!("no endpoint at {}", handle.handle().red());
         });
 
-        if self.args.early_apply_context {
-            let context = self.require_context();
-            endpoint.apply_context(&context);
+        if self.args.early_apply_environment {
+            let env = self.require_env();
+            endpoint.apply_env(&env);
         }
 
         endpoint
     }
 
-    /// Returns current context.
+    /// Returns current env.
     ///
     /// # Panics
     ///
     /// Program is terminated if it is unable to require it.
-    pub fn require_context(&self) -> Context {
+    pub fn require_env(&self) -> Env {
         let state = self
             .state
-            .get(self, StateField::Context)
+            .get(self, StateField::Env)
             .unwrap_or("default".into());
 
-        Context::parse(self, &state)
-            .unwrap_or_else(|_| panic!("could not resolve {} context", state.red()))
+        Env::parse(self, &state)
+            .unwrap_or_else(|_| panic!("could not resolve {} environment", state.red()))
     }
 
     /// Opens an editor to modified the specified file at `path` in a temporary file.

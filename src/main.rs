@@ -20,7 +20,7 @@ async fn main() -> QuartzResult {
     let args = Cli::parse();
     let mut ctx = Ctx::new(CtxArgs {
         from_handle: args.from_handle,
-        early_apply_context: args.apply_context,
+        early_apply_environment: args.apply_environment,
     })?;
 
     // When true, ensures pagers and/or grep keeps the output colored

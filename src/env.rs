@@ -58,12 +58,12 @@ impl Variables {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Context {
+pub struct Env {
     pub name: String,
     pub variables: Variables,
 }
 
-impl Default for Context {
+impl Default for Env {
     fn default() -> Self {
         Self {
             name: String::from("default"),
@@ -72,7 +72,7 @@ impl Default for Context {
     }
 }
 
-impl Context {
+impl Env {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
@@ -81,7 +81,7 @@ impl Context {
     }
 
     pub fn dir(&self, ctx: &Ctx) -> PathBuf {
-        ctx.path().join("contexts").join(&self.name)
+        ctx.path().join("env").join(&self.name)
     }
 
     pub fn write(&self, ctx: &Ctx) -> Result<(), Box<dyn std::error::Error>> {
@@ -107,18 +107,18 @@ impl Context {
         Ok(())
     }
 
-    /// Returns `true` if this context already exists on the quartz project.
+    /// Returns `true` if this environment already exists on the quartz project.
     pub fn exists(&self, ctx: &Ctx) -> bool {
         self.dir(ctx).exists()
     }
 
     pub fn parse(ctx: &Ctx, name: &str) -> Result<Self, Box<dyn std::error::Error>> {
-        let mut context = Self::new(name);
+        let mut env = Self::new(name);
 
-        if let Ok(var_contents) = std::fs::read_to_string(context.dir(ctx).join("variables")) {
-            context.variables = Variables::parse(&var_contents);
+        if let Ok(var_contents) = std::fs::read_to_string(env.dir(ctx).join("variables")) {
+            env.variables = Variables::parse(&var_contents);
         }
 
-        Ok(context)
+        Ok(env)
     }
 }

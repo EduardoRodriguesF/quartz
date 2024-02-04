@@ -25,9 +25,9 @@ pub struct Args {
 
 pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
     let (handle, mut endpoint) = ctx.require_endpoint();
-    let mut context = ctx.require_context();
+    let mut env = ctx.require_env();
     for var in args.variables {
-        context.variables.set(&var);
+        env.variables.set(&var);
     }
 
     if !endpoint.headers.contains_key("user-agent") {
@@ -43,7 +43,7 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
         ..Default::default()
     });
 
-    endpoint.apply_context(&context);
+    endpoint.apply_env(&env);
 
     let raw_body = args.data.unwrap_or(endpoint.body());
     let mut start: Instant;
@@ -111,7 +111,7 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
 
         let request = history::Request {
             endpoint,
-            context,
+            env,
             duration,
             body: String::from_utf8_lossy(&req_body_bytes).to_string(),
         };

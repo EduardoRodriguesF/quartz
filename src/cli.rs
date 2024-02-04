@@ -11,10 +11,10 @@ pub struct Cli {
     #[arg(short = 'x', value_name = "HANDLE")]
     pub from_handle: Option<String>,
 
-    /// Apply context on endpoint as soon as possible. Allows to get resolved information on
+    /// Apply environment on endpoint as soon as possible. Allows to get resolved information on
     /// output
     #[arg(short = 'c', long)]
-    pub apply_context: bool,
+    pub apply_environment: bool,
 
     #[command(subcommand)]
     pub command: Cmd,
@@ -172,13 +172,13 @@ pub enum Cmd {
         #[arg(long, short, value_delimiter = ',', value_name = "FIELDS")]
         show: Vec<String>,
     },
-    /// Manage project's contexts
-    #[command(name = "ctx", alias = "context")]
-    Context {
+    /// Manage project's environments
+    #[command(name = "env", alias = "environment")]
+    Env {
         #[command(subcommand)]
         command: EnvCmd,
     },
-    /// Manage current context's variables
+    /// Manage current environment's variables
     #[command(name = "var", alias = "variable")]
     Var {
         #[command(subcommand)]
@@ -218,7 +218,7 @@ pub enum LastReqCmd {
     Method,
     Headers,
     Body,
-    Context,
+    Env,
 }
 
 #[derive(Debug, Subcommand)]
@@ -279,9 +279,9 @@ pub enum ShowCmd {
     Body,
     /// Display current handle
     Handle,
-    /// Display current context
-    #[command(name = "ctx", alias = "context")]
-    Context,
+    /// Display current environment
+    #[command(name = "env", alias = "environment")]
+    Env,
     /// Generate code snippet for endpoint
     Snippet {
         /// Use a new or overwritten variable
@@ -339,23 +339,23 @@ pub enum BodyCmd {
 
 #[derive(Debug, Subcommand)]
 pub enum EnvCmd {
-    /// Create a new context
+    /// Create a new environment
     Create { name: String },
 
-    /// Switch to another context
-    Use { context: String },
+    /// Switch to another environment
+    Use { env: String },
 
-    /// Print all available contexts
+    /// Print all available environments
     #[command(name = "ls", alias = "list")]
     Ls,
 
-    /// Copy variables from a context to a new or existing one
+    /// Copy variables from a environment to a new or existing one
     #[command(name = "cp", alias = "copy")]
     Cp { src: String, dest: String },
 
-    /// Delete a context
+    /// Delete a environment
     #[command(name = "rm", alias = "remove")]
-    Rm { context: String },
+    Rm { env: String },
 }
 
 #[derive(Debug, Subcommand)]

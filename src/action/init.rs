@@ -25,8 +25,8 @@ pub fn cmd(dir: Option<PathBuf>) -> QuartzResult {
         "user",
         "user/history",
         "user/state",
-        "contexts",
-        "contexts/default",
+        "env",
+        "env/default",
     ];
 
     for dir in ensure_dirs {

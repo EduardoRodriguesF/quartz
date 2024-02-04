@@ -20,7 +20,7 @@ pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
         Cmd::Method => method(ctx),
         Cmd::Body => action::body::print(ctx),
         Cmd::Handle => handle(ctx),
-        Cmd::Context => action::env::print(ctx),
+        Cmd::Env => action::env::print(ctx),
         Cmd::Endpoint => endpoint(ctx)?,
         Cmd::Snippet { command, var } => action::snippet::cmd(&ctx, command, var)?,
     };

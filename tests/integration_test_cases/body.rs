@@ -73,7 +73,7 @@ fn it_changes_existent_body() -> TestResult {
 }
 
 #[test]
-fn compatible_with_apply_context_option() -> TestResult {
+fn compatible_with_apply_env_option() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 
     quartz.cmd(&[
@@ -84,7 +84,7 @@ fn compatible_with_apply_context_option() -> TestResult {
     ])?;
     quartz.cmd_stdin(&["body", "stdin"], SAMPLE_BODY_2_VARS)?;
 
-    let output = quartz.cmd(&["--apply-context", "body", "show"])?;
+    let output = quartz.cmd(&["--apply-environment", "body", "show"])?;
 
     assert!(output.status.success(), "{}", output.stderr);
     assert_eq!(output.stdout.trim(), SAMPLE_BODY_2.trim());

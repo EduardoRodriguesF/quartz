@@ -3,7 +3,7 @@ use std::{io::Write, path::PathBuf};
 
 pub enum StateField {
     Endpoint,
-    Context,
+    Env,
 }
 
 pub struct State {
@@ -16,7 +16,7 @@ impl StateField {
     pub fn file_path(&self, ctx: &Ctx) -> PathBuf {
         ctx.path().join(Self::STATE_DIR).join(match self {
             Self::Endpoint => "endpoint",
-            Self::Context => "context",
+            Self::Env => "env",
         })
     }
 

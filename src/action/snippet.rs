@@ -2,13 +2,13 @@ use crate::{cli::SnippetCmd as Cmd, snippet, Ctx, PairMap, QuartzResult};
 
 pub fn cmd(ctx: &Ctx, command: Cmd, variables: Vec<String>) -> QuartzResult {
     let (_, mut endpoint) = ctx.require_endpoint();
-    let mut context = ctx.require_context();
+    let mut env = ctx.require_env();
 
     for var in variables {
-        context.variables.set(&var);
+        env.variables.set(&var);
     }
 
-    endpoint.apply_context(&context);
+    endpoint.apply_env(&env);
 
     match command {
         Cmd::Curl { long, multiline } => {

@@ -2,7 +2,7 @@ use crate::utils::*;
 
 #[test]
 fn it_can_create_variables() -> TestResult {
-    let quartz = Quartz::preset_using_default_context()?;
+    let quartz = Quartz::preset_using_default_env()?;
 
     let output = quartz.cmd(&["var", "set", "baseUrl=localhost"])?;
     assert!(output.status.success(), "{}", output.stderr);
@@ -19,7 +19,7 @@ fn it_can_create_variables() -> TestResult {
 
 #[test]
 fn it_can_set_multiple_variables() -> TestResult {
-    let quartz = Quartz::preset_using_default_context()?;
+    let quartz = Quartz::preset_using_default_env()?;
 
     let output = quartz.cmd(&["var", "set", "baseUrl=localhost", "scheme=https"])?;
     assert!(output.status.success(), "{}", output.stderr);
@@ -42,7 +42,7 @@ fn it_can_set_multiple_variables() -> TestResult {
 }
 #[test]
 fn it_ignores_outer_single_quotes() -> TestResult {
-    let quartz = Quartz::preset_using_default_context()?;
+    let quartz = Quartz::preset_using_default_env()?;
 
     let set_output = quartz.cmd(&["variable", "set", "baseUrl='localhost'"])?;
     let get_output = quartz.cmd(&["variable", "get", "baseUrl"])?;
@@ -59,7 +59,7 @@ fn it_ignores_outer_single_quotes() -> TestResult {
 
 #[test]
 fn it_ignores_outer_double_quotes() -> TestResult {
-    let quartz = Quartz::preset_using_default_context()?;
+    let quartz = Quartz::preset_using_default_env()?;
 
     let set_output = quartz.cmd(&["variable", "set", "baseUrl=\"localhost\""])?;
     let get_output = quartz.cmd(&["variable", "get", "baseUrl"])?;
@@ -76,7 +76,7 @@ fn it_ignores_outer_double_quotes() -> TestResult {
 
 #[test]
 fn it_can_overwrite_existing_variables() -> TestResult {
-    let quartz = Quartz::preset_using_default_context()?;
+    let quartz = Quartz::preset_using_default_env()?;
 
     quartz.cmd(&["variable", "set", "baseUrl=localhost"])?;
 
@@ -94,17 +94,17 @@ fn it_can_overwrite_existing_variables() -> TestResult {
 }
 
 #[test]
-fn each_context_has_its_own_variables() -> TestResult {
-    let quartz = Quartz::preset_using_default_context()?;
+fn each_env_has_its_own_variables() -> TestResult {
+    let quartz = Quartz::preset_using_default_env()?;
 
     quartz.cmd(&["variable", "set", "baseUrl=localhost"])?;
-    quartz.cmd(&["context", "create", "example"])?;
-    quartz.cmd(&["context", "use", "example"])?;
+    quartz.cmd(&["env", "create", "example"])?;
+    quartz.cmd(&["env", "use", "example"])?;
 
     let output = quartz.cmd(&["variable", "get", "baseUrl"])?;
     assert_ne!(output.stdout.trim(), "localhost", "");
 
-    quartz.cmd(&["context", "use", "default"])?;
+    quartz.cmd(&["env", "use", "default"])?;
 
     let output = quartz.cmd(&["variable", "get", "baseUrl"])?;
     assert_eq!(output.stdout.trim(), "localhost");

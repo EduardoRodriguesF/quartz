@@ -126,13 +126,13 @@ fn it_does_not_allow_invalid_header_format() -> TestResult {
 }
 
 #[test]
-fn compatible_with_apply_context_option() -> TestResult {
+fn compatible_with_apply_env_option() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 
     quartz.cmd(&["var", "set", "contentType=application/json"])?;
     quartz.cmd(&["header", "set", "Content-type: {{contentType}}"])?;
 
-    let output = quartz.cmd(&["--apply-context", "header", "get", "Content-type"])?;
+    let output = quartz.cmd(&["--apply-environment", "header", "get", "Content-type"])?;
 
     assert!(output.status.success(), "{}", output.stderr);
     assert_eq!(output.stdout.trim(), "application/json");

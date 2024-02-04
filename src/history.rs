@@ -10,8 +10,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 
-use crate::context::Context;
 use crate::endpoint::{Endpoint, Headers};
+use crate::env::Env;
 
 pub struct History {
     unvisited: Vec<u64>,
@@ -34,7 +34,7 @@ pub struct HistoryEntry {
 pub struct Request {
     pub body: String,
     pub endpoint: Endpoint,
-    pub context: Context,
+    pub env: Env,
     pub duration: u64,
 }
 
@@ -195,7 +195,7 @@ impl Display for HistoryEntry {
 
         // General informations
         writeln!(f, "Url: {}", self.request.endpoint.url)?;
-        writeln!(f, "Context: {}", self.request.context.name)?;
+        writeln!(f, "Environment: {}", self.request.env.name)?;
         writeln!(f, "Date: {}", self.date().unwrap_or("Unknown".into()))?;
 
         // Body

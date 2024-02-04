@@ -43,7 +43,7 @@ pub fn req(command: ReqCmd, request: &history::Request) {
         ReqCmd::Headers => print!("{}", request.endpoint.headers),
         ReqCmd::Method => println!("{}", request.endpoint.method),
         ReqCmd::Body => print!("{}", request.body),
-        ReqCmd::Context => println!("{}", request.context.name),
+        ReqCmd::Env => println!("{}", request.env.name),
     }
 }
 
