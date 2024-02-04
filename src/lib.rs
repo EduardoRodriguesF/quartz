@@ -8,9 +8,9 @@ pub mod snippet;
 pub mod state;
 pub mod validator;
 
-use std::collections::HashMap;
 use std::hash::Hash;
 use std::path::Path;
+use std::{collections::HashMap, ffi::OsString};
 
 use colored::Colorize;
 
@@ -140,7 +140,7 @@ impl Ctx {
             .unwrap_or_else(|_| panic!("could not resolve {} context", state.red()))
     }
 
-    /// Opens an editor to modified the specified file at `path` with a temporary file.
+    /// Opens an editor to modified the specified file at `path` in a temporary file.
     ///
     /// After the program exits, `validate` function is ran on temporary file before moving it to
     /// the original file, effectively commiting the edits.
@@ -151,13 +151,52 @@ impl Ctx {
     ///
     /// * `path` - A path slice to a file
     /// * `validate` - Validator method to ensure the edit can be saved without errors
-    pub fn edit<F>(&self, path: &Path, validate: F) -> Result<(), Box<dyn std::error::Error>>
+    pub fn edit<F>(&self, path: &Path, validate: F) -> QuartzResult
     where
-        F: FnOnce(&str) -> Result<(), Box<dyn std::error::Error>>,
+        F: FnOnce(&str) -> QuartzResult,
     {
-        let mut temp_path = Path::new(".quartz").join("user").join("EDIT");
-        if let Some(extension) = path.extension() {
+        self.edit_with_extension::<F>(path, None, validate)
+    }
+
+    /// Opens an editor to modified the specified file at `path` with `extension` in a temporary file.
+    ///
+    /// After the program exits, `validate` function is ran on temporary file before moving it to
+    /// the original file, effectively commiting the edits.
+    ///
+    /// If `validate` returns [`Err`], the temporary file is deleted while original file is preserved as is.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - A path slice to a file
+    /// * `extension` - Which extension to create temporary file with
+    /// * `validate` - Validator method to ensure the edit can be saved without errors
+    pub fn edit_with_extension<F>(
+        &self,
+        path: &Path,
+        extension: Option<&str>,
+        validate: F,
+    ) -> QuartzResult
+    where
+        F: FnOnce(&str) -> QuartzResult,
+    {
+        let mut temp_path = Path::new(".quartz").join("user").join(format!("EDIT"));
+
+        let extension: Option<OsString> = {
+            if let Some(extension) = extension {
+                Some(OsString::from(extension))
+            } else if let Some(extension) = path.extension() {
+                Some(extension.to_os_string())
+            } else {
+                None
+            }
+        };
+
+        if let Some(extension) = extension {
             temp_path.set_extension(extension);
+        }
+
+        if !path.exists() {
+            std::fs::File::create(path)?;
         }
 
         std::fs::copy(path, &temp_path)?;

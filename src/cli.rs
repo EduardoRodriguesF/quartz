@@ -143,17 +143,12 @@ pub enum Cmd {
     },
     /// Manage current handle's endpoint request body
     Body {
-        /// Expect a new request body via standard input
-        #[arg(long)]
-        stdin: bool,
+        /// Which extension to read body as. E.g.: quartz body --format json edit
+        #[arg(long, value_name = "EXT")]
+        format: Option<String>,
 
-        /// Open an editor to modify the endpoint's request body
-        #[arg(long, short)]
-        edit: bool,
-
-        /// Print request body
-        #[arg(long, short)]
-        print: bool,
+        #[command(subcommand)]
+        command: BodyCmd,
     },
     /// Print information about last request or response
     Last {
@@ -328,6 +323,18 @@ pub enum ConfigCmd {
     /// Print ~/.quartz.toml
     #[command(name = "ls", alias = "list")]
     Ls,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum BodyCmd {
+    /// Print request body to stdout
+    Show,
+
+    /// Expect a new request body via standard input
+    Stdin,
+
+    /// Open an editor to modify the endpoint's request body
+    Edit,
 }
 
 #[derive(Debug, Subcommand)]

@@ -209,7 +209,6 @@ impl EndpointHandle {
         if let Some(_) = self.endpoint() {
             let _ = std::fs::remove_file(self.dir().join("endpoint.toml"));
             let _ = std::fs::remove_file(self.dir().join("body"));
-            let _ = std::fs::remove_file(self.dir().join("body.json"));
         }
     }
 
@@ -303,11 +302,11 @@ impl Endpoint {
     }
 
     pub fn has_body(&self, handle: &EndpointHandle) -> bool {
-        handle.dir().join("body.json").exists()
+        handle.dir().join("body").exists()
     }
 
     pub fn body(&self, handle: &EndpointHandle) -> String {
-        match std::fs::read_to_string(handle.dir().join("body.json")) {
+        match std::fs::read_to_string(handle.dir().join("body")) {
             Ok(mut content) => {
                 for (key, value) in self.variables.iter() {
                     let key_match = format!("{{{{{}}}}}", key);

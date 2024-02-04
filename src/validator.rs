@@ -1,7 +1,14 @@
-use toml::Value;
+use serde_json;
+use toml::Value as TomlValue;
 
-pub fn json(content: &str) -> Result<(), Box<dyn std::error::Error>> {
-    serde_json::from_str(content)?;
+use crate::QuartzResult;
+
+pub fn infallible(_input: &str) -> QuartzResult {
+    Ok(())
+}
+
+pub fn json(input: &str) -> QuartzResult {
+    serde_json::from_str::<serde_json::Value>(input)?;
 
     Ok(())
 }
@@ -15,17 +22,17 @@ pub fn json(content: &str) -> Result<(), Box<dyn std::error::Error>> {
 /// ```
 /// use quartz_cli::validator;
 ///
-/// let content = r#"
+/// let input = r#"
 ///     title = 'TOML Example'
 ///
 ///     [owner]
 ///     name = 'Lisa'
 /// "#;
 ///
-/// assert_eq!(validator::toml(content).is_ok(), true);
+/// assert_eq!(validator::toml(input).is_ok(), true);
 /// ```
-pub fn toml(content: &str) -> Result<(), Box<dyn std::error::Error>> {
-    toml_as::<Value>(content)
+pub fn toml(input: &str) -> QuartzResult {
+    toml_as::<TomlValue>(input)
 }
 
 /// Checks if a string is valid TOML for `T`.
@@ -47,28 +54,28 @@ pub fn toml(content: &str) -> Result<(), Box<dyn std::error::Error>> {
 ///     name: String,
 /// }
 ///
-/// let content = r#"
+/// let input = r#"
 ///     title = 'TOML Example'
 ///
 ///     [owner]
 ///     name = 'Lisa'
 /// "#;
 ///
-/// let content_missing = r#"
+/// let input_missing = r#"
 ///     title = 'TOML Example'
 ///
 ///     [owner]
 /// "#;
 ///
 ///
-/// assert_eq!(validator::toml_as::<Config>(content).is_ok(), true);
-/// assert_eq!(validator::toml_as::<Config>(content_missing).is_err(), true);
+/// assert_eq!(validator::toml_as::<Config>(input).is_ok(), true);
+/// assert_eq!(validator::toml_as::<Config>(input_missing).is_err(), true);
 /// ```
-pub fn toml_as<T>(content: &str) -> Result<(), Box<dyn std::error::Error>>
+pub fn toml_as<T>(input: &str) -> QuartzResult
 where
     T: serde::de::DeserializeOwned,
 {
-    toml::from_str::<T>(content)?;
+    toml::from_str::<T>(input)?;
 
     Ok(())
 }

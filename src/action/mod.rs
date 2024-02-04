@@ -96,8 +96,8 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Query { command } => action::query::cmd(&ctx, command)?,
         Cmd::Header { command } => action::header::cmd(&ctx, command)?,
 
-        Cmd::Body { stdin, edit, print } => {
-            action::body::cmd(ctx, action::body::BodyArgs { stdin, edit, print })?
+        Cmd::Body { format, command } => {
+            action::body::cmd(ctx, command, action::body::BodyArgs { format })?
         }
 
         Cmd::Last { command, date } => {

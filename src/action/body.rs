@@ -1,24 +1,16 @@
-use crate::{validator, Ctx, QuartzResult};
+use crate::{cli::BodyCmd as Cmd, validator, Ctx, QuartzResult};
 use std::io::Write;
 
 pub struct BodyArgs {
-    pub stdin: bool,
-    pub edit: bool,
-    pub print: bool,
+    pub format: Option<String>,
 }
 
-pub fn cmd(ctx: &Ctx, args: BodyArgs) -> QuartzResult {
-    if args.stdin {
-        stdin(ctx);
-    }
-
-    if args.edit {
-        edit(ctx)?;
-    }
-
-    if args.print {
-        print(ctx);
-    }
+pub fn cmd(ctx: &Ctx, command: Cmd, args: BodyArgs) -> QuartzResult {
+    match command {
+        Cmd::Show => print(ctx),
+        Cmd::Stdin => stdin(ctx),
+        Cmd::Edit => edit(ctx, args.format)?,
+    };
 
     Ok(())
 }
@@ -29,9 +21,22 @@ pub fn print(ctx: &Ctx) {
     print!("{}", endpoint.body(&handle));
 }
 
-pub fn edit(ctx: &Ctx) -> QuartzResult {
+pub fn edit(ctx: &Ctx, format: Option<String>) -> QuartzResult {
     let handle = ctx.require_handle();
-    ctx.edit(&handle.dir(), validator::json)?;
+    let path = handle.dir().join("body");
+
+    if let Some(format) = format {
+        // We cannot validate json for now. If we do so, variable notation will fail because it can
+        // generate invalid JSON. For exemple:
+        //
+        // { "value": {{n}} }
+        //
+        // n must be a number, so we don't wrap it in quotes. This JSON before variables is
+        // invalid. A solution may or may not be done later.
+        ctx.edit_with_extension(&path, Some(&format), validator::infallible)?;
+    } else {
+        ctx.edit(&path, validator::infallible)?;
+    }
 
     Ok(())
 }
@@ -50,7 +55,7 @@ pub fn stdin(ctx: &Ctx) {
         .create(true)
         .write(true)
         .truncate(true)
-        .open(handle.dir().join("body.json"))
+        .open(handle.dir().join("body"))
     {
         let _ = file.write_all(input.as_bytes());
     }
