@@ -248,3 +248,16 @@ fn use_can_set_properties() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn can_empty_out_handle() -> TestResult {
+    let quartz = Quartz::preset_using_sample_endpoint()?;
+
+    let output = quartz.cmd(&["use", "--empty"])?;
+    let show_err = quartz.cmd(&["show", "endpoint"])?;
+
+    assert!(output.status.success(), "{}", output.stderr);
+    assert!(!show_err.status.success(), "{}", output.stdout);
+
+    Ok(())
+}
