@@ -374,7 +374,18 @@ impl Endpoint {
             url.push_str(&query_string);
         }
 
-        Uri::try_from(url)
+        let result = Uri::try_from(&url);
+
+        if result.is_err() {
+            if !url.contains("://") {
+                let mut scheme = "http://".to_owned();
+                scheme.push_str(&url);
+
+                return Uri::try_from(scheme);
+            }
+        }
+
+        result
     }
 
     /// Returns the a [`Request`] consuming struct.

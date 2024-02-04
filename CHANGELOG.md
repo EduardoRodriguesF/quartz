@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `send` command new edit flags: `-d,--data <DATA>`, `-H, --header <HEADER>`, `--query <QUERY>`, `-v, --var <VARIABLE>`, `-X, --request <METHOD>`.
 - `use` command can now edit the current or to-be-used endpoint.
 - You can now make a handle empty again with `use`'s `--empty` option.
+- When sending the request, it fills URL with HTTP scheme if none is present.
 
 ### Changed
 
