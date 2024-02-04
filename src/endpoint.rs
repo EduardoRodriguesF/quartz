@@ -122,6 +122,15 @@ pub struct EndpointInput {
     pub variables: Vec<String>,
 }
 
+impl EndpointInput {
+    pub fn has_changes(&self) -> bool {
+        self.url.is_some()
+            || self.method.is_some()
+            || !self.query.is_empty()
+            || !self.headers.is_empty()
+    }
+}
+
 impl EndpointHandle {
     /// Points to top-level quartz folder.
     ///

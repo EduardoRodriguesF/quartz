@@ -1,6 +1,4 @@
-use crate::{Endpoint, EndpointHandle};
-use hyper::body::HttpBody;
-use std::io::{stdout, Write};
+use crate::{Endpoint, EndpointHandle, QuartzResult};
 
 enum CurlOption {
     Location,
@@ -16,11 +14,7 @@ pub struct Curl {
 }
 
 impl Curl {
-    pub async fn print(
-        &self,
-        handle: &EndpointHandle,
-        endpoint: &Endpoint,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn print(&self, handle: &EndpointHandle, endpoint: &Endpoint) -> QuartzResult {
         let separator = if self.multiline { " \\\n\t" } else { " " };
 
         print!(
@@ -44,26 +38,16 @@ impl Curl {
             );
         }
 
-        let mut has_printed_data = false;
-        if let Some(chunk) = endpoint.body(&handle).data().await {
-            if let Ok(mut chunk) = chunk {
-                if !has_printed_data {
-                    print!("{}{} '", separator, self.option_string(CurlOption::Data));
-                    has_printed_data = true;
-                }
+        let mut body = endpoint.body(&handle);
+        if !body.is_empty() {
+            print!("{}{} '", separator, self.option_string(CurlOption::Data));
 
-                if chunk.ends_with("\n".as_bytes()) {
-                    chunk.truncate(chunk.len() - 1);
-                }
-
-                stdout().write_all(&chunk)?;
+            if body.ends_with("\n") {
+                body.truncate(body.len() - 1);
             }
-        }
 
-        if has_printed_data {
+            print!("{body}");
             println!("'");
-        } else {
-            println!();
         }
 
         Ok(())
@@ -108,10 +92,7 @@ impl Curl {
 pub struct Http;
 
 impl Http {
-    pub async fn print(
-        handle: &EndpointHandle,
-        endpoint: &Endpoint,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn print(handle: &EndpointHandle, endpoint: &Endpoint) -> QuartzResult {
         let url = endpoint.full_url()?;
         let path = url.path_and_query().unwrap();
 
@@ -123,10 +104,9 @@ impl Http {
             println!()
         }
 
-        if let Some(chunk) = endpoint.body(&handle).data().await {
-            if let Ok(chunk) = chunk {
-                stdout().write_all(&chunk)?;
-            }
+        if endpoint.has_body(&handle) {
+            let body = endpoint.body(&handle);
+            print!("{body}");
         }
 
         Ok(())

@@ -17,11 +17,11 @@ pub struct Cli {
     pub apply_context: bool,
 
     #[command(subcommand)]
-    pub command: Commands,
+    pub command: Cmd,
 }
 
 #[derive(Debug, Subcommand)]
-pub enum Commands {
+pub enum Cmd {
     /// Initialize quartz
     Init { directory: Option<PathBuf> },
     /// Send request using the current handle's endpoint and outputs the response
@@ -100,18 +100,18 @@ pub enum Commands {
     },
     /// Lists available handles
     #[command(name = "ls", alias = "list")]
-    List {
+    Ls {
         /// Set a limit for how deep the listing goes in sub-handles
         #[arg(long, value_name = "N")]
         depth: Option<usize>,
     },
     /// Copy an endpoint from one handle to another
     #[command(name = "cp", alias = "copy")]
-    Copy { src: String, dest: String },
+    Cp { src: String, dest: String },
 
     /// Delete handles
     #[command(name = "rm", alias = "remove")]
-    Remove {
+    Rm {
         /// Delete child handles recursively
         #[arg(long, short = 'r')]
         recursive: bool,
@@ -122,7 +122,7 @@ pub enum Commands {
     /// Print out endpoint informations
     Show {
         #[command(subcommand)]
-        command: EndpointShowCommands,
+        command: ShowCmd,
     },
     /// Open an editor to modify endpoint in use
     Edit {
@@ -133,13 +133,13 @@ pub enum Commands {
     /// Manage current endpoint's query params
     Query {
         #[command(subcommand)]
-        command: EndpointQueryCommands,
+        command: QueryCmd,
     },
     /// Manage current endpoint's headers. Without subcomand, it prints the headers list.
     #[command(alias = "headers")]
     Header {
         #[command(subcommand)]
-        command: EndpointHeaderCommands,
+        command: HeaderCmd,
     },
     /// Manage current handle's endpoint request body
     Body {
@@ -162,7 +162,7 @@ pub enum Commands {
         date: Option<String>,
 
         #[command(subcommand)]
-        command: Option<LastCommands>,
+        command: Option<LastCmd>,
     },
     /// Print request history
     History {
@@ -181,23 +181,23 @@ pub enum Commands {
     #[command(name = "ctx", alias = "context")]
     Context {
         #[command(subcommand)]
-        command: ContextCommands,
+        command: EnvCmd,
     },
     /// Manage current context's variables
     #[command(name = "var", alias = "variable")]
-    Variable {
+    Var {
         #[command(subcommand)]
-        command: VariableCommands,
+        command: VarCmd,
     },
     /// Manage configuration for quartz
     Config {
         #[command(subcommand)]
-        command: ConfigCommands,
+        command: ConfigCmd,
     },
 }
 
 #[derive(Debug, Subcommand)]
-pub enum LastCommands {
+pub enum LastCmd {
     /// Print most recent handle used
     Handle,
 
@@ -205,19 +205,19 @@ pub enum LastCommands {
     Date,
 
     /// Print last request information
-    Request {
+    Req {
         #[command(subcommand)]
-        command: LastRequestCommands,
+        command: LastReqCmd,
     },
     /// Print last response information
-    Response {
+    Res {
         #[command(subcommand)]
-        command: LastResponseCommands,
+        command: LastResCmd,
     },
 }
 
 #[derive(Debug, Subcommand)]
-pub enum LastRequestCommands {
+pub enum LastReqCmd {
     Url,
     Query,
     Method,
@@ -227,7 +227,7 @@ pub enum LastRequestCommands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum LastResponseCommands {
+pub enum LastResCmd {
     Status,
     Headers,
     Body,
@@ -235,7 +235,7 @@ pub enum LastResponseCommands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum EndpointQueryCommands {
+pub enum QueryCmd {
     /// Print query param value
     Get { key: String },
 
@@ -252,7 +252,7 @@ pub enum EndpointQueryCommands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum EndpointHeaderCommands {
+pub enum HeaderCmd {
     /// Print a header value
     Get { key: String },
 
@@ -269,7 +269,7 @@ pub enum EndpointHeaderCommands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum EndpointShowCommands {
+pub enum ShowCmd {
     Url,
     Method,
     /// Display endpoint's headers
@@ -294,14 +294,14 @@ pub enum EndpointShowCommands {
         var: Vec<String>,
 
         #[command(subcommand)]
-        command: EndpointShowSnippetCommands,
+        command: SnippetCmd,
     },
     /// Display endpoint configuration file
     Endpoint,
 }
 
 #[derive(Debug, Subcommand)]
-pub enum EndpointShowSnippetCommands {
+pub enum SnippetCmd {
     Curl {
         /// Use long form cURL options (--header instead of -H)
         #[arg(long)]
@@ -315,7 +315,7 @@ pub enum EndpointShowSnippetCommands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum ConfigCommands {
+pub enum ConfigCmd {
     /// Open an editor to modify ~/.quartz.toml
     Edit,
 
@@ -331,7 +331,7 @@ pub enum ConfigCommands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum ContextCommands {
+pub enum EnvCmd {
     /// Create a new context
     Create { name: String },
 
@@ -352,7 +352,7 @@ pub enum ContextCommands {
 }
 
 #[derive(Debug, Subcommand)]
-pub enum VariableCommands {
+pub enum VarCmd {
     /// Open an editor to modify variables
     Edit,
 

@@ -1,3 +1,4 @@
+pub mod action;
 pub mod cli;
 pub mod config;
 pub mod context;
@@ -17,6 +18,8 @@ use config::Config;
 use context::Context;
 use endpoint::{Endpoint, EndpointHandle};
 use state::{State, StateField};
+
+pub type QuartzResult<T = (), E = Box<dyn std::error::Error>> = Result<T, E>;
 
 pub trait PairMap<'a, K = String, V = String>
 where
