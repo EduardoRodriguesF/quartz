@@ -5,8 +5,8 @@ pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
         Cmd::Edit => edit(ctx)?,
         Cmd::Get { key } => get(ctx, key),
         Cmd::Set { variable } => set(ctx, variable)?,
-        Cmd::Remove { key } => rm(ctx, key)?,
-        Cmd::List => ls(ctx),
+        Cmd::Rm { key } => rm(ctx, key)?,
+        Cmd::Ls => ls(ctx),
     };
 
     Ok(())

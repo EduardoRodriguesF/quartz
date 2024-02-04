@@ -244,11 +244,11 @@ pub enum QueryCmd {
 
     /// Remove query param
     #[command(name = "rm", alias = "remove")]
-    Remove { key: String },
+    Rm { key: String },
 
     /// List all query params
     #[command(name = "ls", alias = "list")]
-    List,
+    Ls,
 }
 
 #[derive(Debug, Subcommand)]
@@ -261,11 +261,11 @@ pub enum HeaderCmd {
 
     /// Remove a header
     #[command(name = "rm", alias = "remove")]
-    Remove { key: Vec<String> },
+    Rm { key: Vec<String> },
 
     /// Print headers
     #[command(name = "ls", alias = "list")]
-    List,
+    Ls,
 }
 
 #[derive(Debug, Subcommand)]
@@ -327,7 +327,7 @@ pub enum ConfigCmd {
 
     /// Print ~/.quartz.toml
     #[command(name = "ls", alias = "list")]
-    List,
+    Ls,
 }
 
 #[derive(Debug, Subcommand)]
@@ -340,15 +340,15 @@ pub enum EnvCmd {
 
     /// Print all available contexts
     #[command(name = "ls", alias = "list")]
-    List,
+    Ls,
 
     /// Copy variables from a context to a new or existing one
     #[command(name = "cp", alias = "copy")]
-    Copy { src: String, dest: String },
+    Cp { src: String, dest: String },
 
     /// Delete a context
     #[command(name = "rm", alias = "remove")]
-    Remove { context: String },
+    Rm { context: String },
 }
 
 #[derive(Debug, Subcommand)]
@@ -363,9 +363,9 @@ pub enum VarCmd {
     Set { variable: Vec<String> },
 
     /// Remove variable
-    Remove { key: String },
+    Rm { key: String },
 
     /// Display the list of variables
     #[command(name = "ls", alias = "list")]
-    List,
+    Ls,
 }

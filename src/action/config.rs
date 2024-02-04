@@ -5,7 +5,7 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Get { key } => get(ctx, key),
         Cmd::Edit => edit(ctx)?,
         Cmd::Set { key, value } => set(ctx, key, value),
-        Cmd::List => ls(ctx),
+        Cmd::Ls => ls(ctx),
     };
 
     Ok(())

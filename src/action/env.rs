@@ -5,10 +5,10 @@ use std::path::Path;
 pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Create { name } => create(name),
-        Cmd::Copy { src, dest } => cp(src, dest)?,
+        Cmd::Cp { src, dest } => cp(src, dest)?,
         Cmd::Use { context } => switch(context)?,
-        Cmd::List => ls(ctx),
-        Cmd::Remove { context } => rm(context),
+        Cmd::Ls => ls(ctx),
+        Cmd::Rm { context } => rm(context),
     };
 
     Ok(())
