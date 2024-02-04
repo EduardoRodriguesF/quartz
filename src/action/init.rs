@@ -1,4 +1,4 @@
-use crate::{Context, QuartzResult};
+use crate::QuartzResult;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
@@ -26,6 +26,7 @@ pub fn cmd(dir: Option<PathBuf>) -> QuartzResult {
         "user/history",
         "user/state",
         "contexts",
+        "contexts/default",
     ];
 
     for dir in ensure_dirs {
@@ -46,10 +47,6 @@ pub fn cmd(dir: Option<PathBuf>) -> QuartzResult {
         {
             let _ = gitignore.write("\n# Quartz\n.quartz/user".as_bytes());
         }
-    }
-
-    if Context::default().write().is_err() {
-        panic!("failed to create default context");
     }
 
     println!(

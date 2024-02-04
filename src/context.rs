@@ -115,9 +115,9 @@ impl Context {
     pub fn parse(name: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let mut context = Self::new(name);
 
-        let var_contents = std::fs::read_to_string(context.dir().join("variables"))?;
-
-        context.variables = Variables::parse(&var_contents);
+        if let Ok(var_contents) = std::fs::read_to_string(context.dir().join("variables")) {
+            context.variables = Variables::parse(&var_contents);
+        }
 
         Ok(context)
     }
