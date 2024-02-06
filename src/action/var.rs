@@ -56,7 +56,7 @@ pub fn rm(ctx: &Ctx, keys: Vec<String>) -> QuartzResult {
     for key in keys {
         env.variables.remove(&key).unwrap_or_else(|| {
             exit_code = 1;
-            eprintln!("{} variable not set", key);
+            eprintln!("{}: No such variable", key);
             "".to_string()
         });
     }

@@ -1,6 +1,6 @@
-use std::convert::Infallible;
+use std::{convert::Infallible, process::exit};
 
-use crate::{cli::HeaderCmd as Cmd, Ctx, PairMap, QuartzResult};
+use crate::{cli::HeaderCmd as Cmd, Ctx, PairMap, QuartzExitCode, QuartzResult};
 
 pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult<(), Infallible> {
     match command {
@@ -33,13 +33,21 @@ pub fn set(ctx: &Ctx, headers: Vec<String>) {
 }
 
 pub fn rm(ctx: &Ctx, keys: Vec<String>) {
+    let mut code = QuartzExitCode::Success;
     let (_, mut endpoint) = ctx.require_endpoint();
 
     for k in keys {
-        endpoint.headers.remove(&k);
+        if endpoint.headers.contains_key(&k) {
+            endpoint.headers.remove(&k);
+            println!("Removed header: {}", k);
+        } else {
+            code = QuartzExitCode::Error;
+            eprintln!("{}: No such header", k);
+        }
     }
 
     endpoint.write();
+    exit(code as i32);
 }
 
 pub fn ls(ctx: &Ctx) {

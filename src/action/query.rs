@@ -1,6 +1,6 @@
-use crate::{cli::QueryCmd as Cmd, Ctx, PairMap, QuartzResult};
+use crate::{cli::QueryCmd as Cmd, Ctx, PairMap, QuartzExitCode, QuartzResult};
 use colored::Colorize;
-use std::convert::Infallible;
+use std::{convert::Infallible, process::exit};
 
 pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult<(), Infallible> {
     match command {
@@ -35,13 +35,21 @@ pub fn set(ctx: &Ctx, queries: Vec<String>) {
 }
 
 pub fn rm(ctx: &Ctx, keys: Vec<String>) {
+    let mut code = QuartzExitCode::Success;
     let (_, mut endpoint) = ctx.require_endpoint();
 
-    for key in keys {
-        endpoint.query.remove(&key);
+    for k in keys {
+        if endpoint.query.contains_key(&k) {
+            endpoint.query.remove(&k);
+            println!("Removed query param: {}", k);
+        } else {
+            code = QuartzExitCode::Error;
+            eprintln!("{}: No such query param", k);
+        }
     }
 
     endpoint.write();
+    exit(code as i32);
 }
 
 pub fn ls(ctx: &Ctx) {

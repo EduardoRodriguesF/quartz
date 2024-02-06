@@ -21,6 +21,11 @@ use state::{State, StateField};
 
 pub type QuartzResult<T = (), E = Box<dyn std::error::Error>> = Result<T, E>;
 
+pub enum QuartzExitCode {
+    Success,
+    Error,
+}
+
 pub trait PairMap<'a, K = String, V = String>
 where
     K: Eq + PartialEq + Hash + From<&'a str>,
