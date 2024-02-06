@@ -67,6 +67,62 @@ impl Quartz {
         Ok(quartz)
     }
 
+    /// httpbin.org mapping.
+    ///
+    /// # Endpoints
+    ///
+    /// * httpbin/get
+    /// * httpbin/post
+    /// * httpbin/redirect
+    /// * httpbin/redirect/absolute
+    /// * httpbin/redirect/relative
+    pub fn preset_httpbin() -> Result<Self, std::io::Error> {
+        let quartz = Quartz::preset_empty_project()?;
+
+        quartz.cmd(&["var", "set", "BASE_URL=http://httpbin.org"])?;
+
+        quartz.cmd(&[
+            "create",
+            "httpbin/get",
+            "--url",
+            "{{BASE_URL}}/get",
+            "-q",
+            "value=10",
+        ])?;
+
+        quartz.cmd(&[
+            "create",
+            "httpbin/post",
+            "-X",
+            "POST",
+            "--url",
+            "{{BASE_URL}}/post",
+        ])?;
+
+        quartz.cmd(&[
+            "create",
+            "httpbin/redirect",
+            "--url",
+            "{{BASE_URL}}/redirect/{{N}}",
+        ])?;
+        quartz.cmd(&[
+            "create",
+            "httpbin/redirect/absolute",
+            "--url",
+            "{{BASE_URL}}/absolute-redirect/{{N}}",
+        ])?;
+        quartz.cmd(&[
+            "create",
+            "httpbin/redirect/relative",
+            "--url",
+            "{{BASE_URL}}/relative-redirect/{{N}}",
+        ])?;
+
+        quartz.cmd(&["use", "httpbin/get"])?;
+
+        Ok(quartz)
+    }
+
     pub fn preset_using_default_env() -> Result<Self, std::io::Error> {
         let quartz = Quartz::preset_empty_project()?;
 
