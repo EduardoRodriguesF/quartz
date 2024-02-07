@@ -389,7 +389,10 @@ impl Endpoint {
     }
 
     /// Returns the a [`Request`] consuming struct.
-    pub fn into_request(self) -> Result<Request<Body>, hyper::http::Error> {
+    pub fn into_request<T>(self, body: T) -> Result<Request<Body>, hyper::http::Error>
+    where
+        T: Into<Body>,
+    {
         let mut builder = hyper::Request::builder().uri(&self.full_url()?);
 
         if let Ok(method) = hyper::Method::from_bytes(self.method.as_bytes()) {
@@ -400,7 +403,7 @@ impl Endpoint {
             builder = builder.header(key, value);
         }
 
-        builder.body(self.body().into())
+        builder.body(body.into())
     }
 
     pub fn colored_method(&self) -> colored::ColoredString {

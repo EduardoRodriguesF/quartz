@@ -53,7 +53,7 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
         let req = endpoint
             // TODO: Find a way around this clone
             .clone()
-            .into_request()
+            .into_request(raw_body.clone())
             .unwrap_or_else(|_| panic!("malformed request"));
 
         let client = {
