@@ -23,7 +23,7 @@ pub enum Field {
 #[derive(Debug, Clone)]
 pub struct CookieError;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Domain(String);
 
 impl Deref for Domain {
@@ -234,7 +234,7 @@ impl CookieBuilder {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Cookie {
     domain: Domain,
     subdomains: bool,
@@ -441,7 +441,7 @@ impl CookieJar {
     }
 
     /// Insert new [`Cookie`] from Set-Cookie `input` from `domain`.
-    pub fn set(&mut self, domain: &str, input: &'_ str) {
+    pub fn set(&mut self, domain: &str, input: &'_ str) -> Cookie {
         let mut cookie = Cookie::builder();
         cookie.domain(domain);
 
@@ -482,8 +482,10 @@ impl CookieJar {
         // To remove a cookie, the server returns a Set-Cookie header
         // with an expiration date in the past.
         if !cookie.expired() {
-            self.insert(cookie);
+            self.insert(cookie.clone());
         }
+
+        cookie
     }
 
     pub fn find_by_name(&self, s: &str) -> Vec<&Cookie> {
@@ -534,7 +536,7 @@ impl CookieJar {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct PathAttr(Vec<String>);
 
 impl Deref for PathAttr {
