@@ -474,11 +474,17 @@ impl CookieJar {
 
             let cookie = cookie.build().unwrap();
 
+            // Removing existing cookie ensures it is possible to
+            // overwrite its value.
             if self.contains(&cookie) {
                 self.remove(&cookie);
             }
 
-            self.insert(cookie);
+            // To remove a cookie, the server returns a Set-Cookie header
+            // with an expiration date in the past.
+            if !cookie.expired() {
+                self.insert(cookie);
+            }
         }
     }
 
