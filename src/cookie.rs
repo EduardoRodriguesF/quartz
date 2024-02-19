@@ -442,49 +442,47 @@ impl CookieJar {
 
     /// Insert new [`Cookie`] from Set-Cookie `input` from `domain`.
     pub fn set(&mut self, domain: &str, input: &'_ str) {
-        for input in input.split(',') {
-            let mut cookie = Cookie::builder();
-            cookie.domain(domain);
+        let mut cookie = Cookie::builder();
+        cookie.domain(domain);
 
-            let (pair, settings) = input.split_once(';').unwrap_or((input, ""));
+        let (pair, settings) = input.split_once(';').unwrap_or((input, ""));
 
-            let (key, value) =
-                Self::pair(pair).unwrap_or_else(|| panic!("malformed cookie: {}", pair));
+        let (key, value) = Self::pair(pair).unwrap_or_else(|| panic!("malformed cookie: {}", pair));
 
-            cookie.name(key);
-            cookie.value(value);
+        cookie.name(key);
+        cookie.value(value);
 
-            for v in settings.split(';') {
-                let (key, value) = Self::pair(v).unwrap_or((v, ""));
+        for v in settings.split(';') {
+            let (key, value) = Self::pair(v).unwrap_or((v, ""));
 
-                match key.to_lowercase().as_str() {
-                    "domain" => cookie.domain(value),
-                    "path" => cookie.path(value),
-                    "secure" => cookie.secure(true),
-                    "max-age" => cookie
-                        .expires_at(value.parse::<i64>().unwrap() + Utc::now().timestamp_micros()),
-                    "expires" => cookie.expires_at(
-                        DateTime::parse_from_rfc2822(value)
-                            .unwrap()
-                            .timestamp_micros(),
-                    ),
-                    _ => &mut cookie,
-                };
-            }
+            match key.to_lowercase().as_str() {
+                "domain" => cookie.domain(value),
+                "path" => cookie.path(value),
+                "secure" => cookie.secure(true),
+                "max-age" => {
+                    cookie.expires_at(value.parse::<i64>().unwrap() + Utc::now().timestamp_micros())
+                }
+                "expires" => cookie.expires_at(
+                    DateTime::parse_from_rfc2822(value)
+                        .unwrap()
+                        .timestamp_micros(),
+                ),
+                _ => &mut cookie,
+            };
+        }
 
-            let cookie = cookie.build().unwrap();
+        let cookie = cookie.build().unwrap();
 
-            // Removing existing cookie ensures it is possible to
-            // overwrite its value.
-            if self.contains(&cookie) {
-                self.remove(&cookie);
-            }
+        // Removing existing cookie ensures it is possible to
+        // overwrite its value.
+        if self.contains(&cookie) {
+            self.remove(&cookie);
+        }
 
-            // To remove a cookie, the server returns a Set-Cookie header
-            // with an expiration date in the past.
-            if !cookie.expired() {
-                self.insert(cookie);
-            }
+        // To remove a cookie, the server returns a Set-Cookie header
+        // with an expiration date in the past.
+        if !cookie.expired() {
+            self.insert(cookie);
         }
     }
 
