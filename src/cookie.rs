@@ -709,4 +709,25 @@ mod test {
 
         assert_eq!(cookie.value(), "false");
     }
+
+    #[test]
+    fn jar_set_remove() {
+        let mut jar = CookieJar::default();
+
+        let foo = jar.set("httpbin.org", "foo=bar");
+        let baz = jar.set("httpbin.org", "baz=baz");
+        assert_eq!(jar.len(), 2);
+        assert!(jar.contains(&foo));
+
+        jar.set("httpbin.org", "foo=; Expires=Sun, 06 Nov 1994 08:49:37 GMT");
+        assert_eq!(jar.len(), 1);
+        assert!(!jar.contains(&foo));
+
+        jar.set(
+            "httpbin.org",
+            "baz=bar; Expires=Sun, 06 Nov 1994 08:49:37 GMT",
+        );
+        assert_eq!(jar.len(), 0);
+        assert!(!jar.contains(&baz));
+    }
 }
