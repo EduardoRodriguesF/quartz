@@ -49,6 +49,14 @@ pub enum Cmd {
         /// Prevent quartz from following redirects
         #[arg(long)]
         no_follow: bool,
+
+        /// Pass cookie data to request header
+        #[arg(long, short = 'b', value_name = "DATA|FILENAME")]
+        cookie: Vec<String>,
+
+        /// Which file to write all cookies after a completed request
+        #[arg(long, short = 'c', value_name = "FILE")]
+        cookie_jar: Option<PathBuf>,
     },
     /// Create a new handle
     Create {
@@ -282,6 +290,15 @@ pub enum ShowCmd {
     /// Display current environment
     #[command(name = "env", alias = "environment")]
     Env,
+
+    /// Display environment cookies
+    Cookies {
+        key: Option<String>,
+
+        /// Filter cookies that match this domain
+        #[arg(long, short = 'd')]
+        domain: Option<String>,
+    },
     /// Generate code snippet for endpoint
     Snippet {
         /// Use a new or overwritten variable

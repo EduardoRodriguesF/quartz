@@ -4,6 +4,7 @@ use crate::{endpoint::EndpointInput, QuartzResult};
 
 pub mod body;
 pub mod config;
+pub mod cookie;
 pub mod env;
 pub mod handle;
 pub mod header;
@@ -28,6 +29,8 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
             request,
             data,
             no_follow,
+            cookie,
+            cookie_jar,
         } => {
             action::send::cmd(
                 ctx,
@@ -38,6 +41,8 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
                     request,
                     data,
                     no_follow,
+                    cookies: cookie,
+                    cookie_jar,
                 },
             )
             .await?

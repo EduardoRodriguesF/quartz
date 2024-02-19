@@ -21,6 +21,15 @@ pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
         Cmd::Body => action::body::print(ctx),
         Cmd::Handle => handle(ctx),
         Cmd::Env => action::env::print(ctx),
+        Cmd::Cookies { key, domain } => {
+            let args = action::cookie::CookieArgs { domain };
+
+            if let Some(key) = key {
+                action::cookie::get(ctx, key, args);
+            } else {
+                action::cookie::ls(ctx, args);
+            }
+        }
         Cmd::Endpoint => endpoint(ctx)?,
         Cmd::Snippet { command, var } => action::snippet::cmd(&ctx, command, var)?,
     };

@@ -8,7 +8,7 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-use crate::{Ctx, PairMap};
+use crate::{cookie::CookieJar, Ctx, PairMap};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Variables(pub HashMap<String, String>);
@@ -121,5 +121,9 @@ impl Env {
         }
 
         Ok(env)
+    }
+
+    pub fn cookie_jar(&self, ctx: &Ctx) -> CookieJar {
+        CookieJar::read(&self.dir(ctx).join(CookieJar::FILENAME)).unwrap_or_default()
     }
 }

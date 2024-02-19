@@ -45,7 +45,7 @@ pub fn cmd(dir: Option<PathBuf>) -> QuartzResult {
             .append(true)
             .open(directory.join(".gitignore"))
         {
-            let _ = gitignore.write("\n# Quartz\n.quartz/user".as_bytes());
+            let _ = gitignore.write("\n# Quartz\n.quartz/user\n.quartz/env/**/cookies".as_bytes());
         }
     }
 

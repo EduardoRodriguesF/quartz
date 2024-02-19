@@ -1,4 +1,5 @@
 use crate::{
+    cookie::CookieJar,
     endpoint::{EndpointInput, Headers},
     history::{self, HistoryEntry},
     Ctx, PairMap, QuartzResult,
@@ -7,6 +8,7 @@ use hyper::{
     body::{Bytes, HttpBody},
     Body, Client, Uri,
 };
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use tokio::{
     io::{stdout, AsyncWriteExt as _},
@@ -21,6 +23,8 @@ pub struct Args {
     pub request: Option<String>,
     pub data: Option<String>,
     pub no_follow: bool,
+    pub cookies: Vec<String>,
+    pub cookie_jar: Option<PathBuf>,
 }
 
 pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
@@ -35,6 +39,40 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
             .headers
             .insert("user-agent".to_string(), Ctx::user_agent());
     }
+
+    let mut cookie_jar = env.cookie_jar(ctx);
+
+    let extras = args
+        .cookies
+        .iter()
+        .map(|c| {
+            if c.contains('=') {
+                return vec![c.to_owned()];
+            }
+
+            let path = Path::new(c);
+            if !path.exists() {
+                panic!("no such file: {c}");
+            }
+
+            CookieJar::read(&path)
+                .unwrap()
+                .iter()
+                .map(|c| format!("{}={}", c.name(), c.value()))
+                .collect()
+        })
+        .flatten();
+
+    let cookie_value = cookie_jar
+        .iter()
+        .map(|c| format!("{}={}", c.name(), c.value()))
+        .chain(extras)
+        .collect::<Vec<String>>()
+        .join("; ");
+
+    endpoint
+        .headers
+        .insert(String::from("Cookie"), cookie_value);
 
     endpoint.update(&mut EndpointInput {
         headers: args.headers,
@@ -65,6 +103,12 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
         res = client.request(req).await?;
         duration = start.elapsed().as_millis() as u64;
 
+        if let Some(cookie_header) = res.headers().get("Set-Cookie") {
+            let url = endpoint.full_url()?;
+
+            cookie_jar.set(url.host().unwrap(), cookie_header.to_str()?);
+        }
+
         if args.no_follow || !res.status().is_redirection() {
             break;
         }
@@ -88,6 +132,11 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
             }
         };
     }
+
+    match args.cookie_jar {
+        Some(path) => cookie_jar.write_at(&path)?,
+        None => cookie_jar.write()?,
+    };
 
     let status = res.status().as_u16();
 
