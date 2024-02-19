@@ -370,7 +370,7 @@ impl Cookie {
 
     /// Whether this cookie is expired.
     pub fn expired(&self) -> bool {
-        Utc::now().timestamp_micros() > self.expires_at
+        self.expires_at != 0 && Utc::now().timestamp_micros() > self.expires_at
     }
 
     pub fn domain(&self) -> &Domain {
@@ -493,6 +493,8 @@ impl CookieJar {
     /// Read [`CookieJar`] struct from Netscape HTTP Cookie file.
     /// Empty, malformed, or commented (starting with "#") lines will be skipped.
     ///
+    /// Expired cookies are also ignored berfore loaded in-memory.
+    ///
     /// # Errors
     ///
     /// This function will return an error if the file does not exist.
@@ -507,7 +509,9 @@ impl CookieJar {
             }
 
             if let Ok(cookie) = Cookie::from_str(line) {
-                cookies.insert(cookie);
+                if !cookie.expired() {
+                    cookies.insert(cookie);
+                }
             }
         }
 
