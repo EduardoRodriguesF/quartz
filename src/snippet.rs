@@ -1,4 +1,7 @@
+use std::ops::Deref;
+
 use crate::{Endpoint, QuartzResult};
+use hyper::{Body, Request, Response};
 
 enum CurlOption {
     Location,
@@ -89,7 +92,63 @@ impl Curl {
     }
 }
 
-pub struct Http;
+pub struct Http(String);
+
+impl Deref for Http {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl From<&Response<Body>> for Http {
+    fn from(value: &Response<Body>) -> Self {
+        let mut output = String::new();
+
+        output.push_str(&format!("< {:?}", value.version()));
+        output.push_str(&format!(" {:?}", value.status()));
+        output.push('\n');
+
+        for (k, v) in value.headers().iter() {
+            output.push_str(&format!(
+                "< {}: {}\n",
+                k.as_str(),
+                v.to_str().unwrap_or_default()
+            ))
+        }
+
+        output.push('<');
+
+        Self(output)
+    }
+}
+
+impl From<&Request<Body>> for Http {
+    fn from(value: &Request<Body>) -> Self {
+        let mut output = String::new();
+
+        output.push_str(&format!(
+            "> {} {} {:?}\n",
+            value.method(),
+            value.uri().path_and_query().unwrap().as_str(),
+            value.version()
+        ));
+        output.push_str(&format!("> Host: {}\n", value.uri().host().unwrap()));
+
+        for (k, v) in value.headers().iter() {
+            output.push_str(&format!(
+                "> {}: {}\n",
+                k.as_str(),
+                v.to_str().unwrap_or_default()
+            ))
+        }
+
+        output.push('>');
+
+        Self(output)
+    }
+}
 
 impl Http {
     pub fn print(endpoint: &Endpoint) -> QuartzResult {
