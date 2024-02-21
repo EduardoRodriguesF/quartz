@@ -8,12 +8,8 @@ use crate::{
     Ctx, QuartzResult,
 };
 
-pub struct Args {
-    pub date_format: Option<String>,
-}
-
-pub fn cmd(ctx: &Ctx, maybe_command: Option<Cmd>, args: Args) -> QuartzResult<(), Infallible> {
-    let mut entry = History::last(ctx).expect("no history found");
+pub fn cmd(ctx: &Ctx, maybe_command: Option<Cmd>) -> QuartzResult<(), Infallible> {
+    let entry = History::last(ctx).expect("no history found");
 
     if maybe_command.is_none() {
         println!("{entry}");

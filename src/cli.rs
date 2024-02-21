@@ -160,10 +160,6 @@ pub enum Cmd {
     },
     /// Print information about last request or response
     Last {
-        /// Format date time output
-        #[arg(long, value_name = "FORMAT")]
-        date: Option<String>,
-
         #[command(subcommand)]
         command: Option<LastCmd>,
     },

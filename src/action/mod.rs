@@ -112,9 +112,7 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
             action::body::cmd(ctx, command, action::body::BodyArgs { format })?
         }
 
-        Cmd::Last { command, date } => {
-            action::last::cmd(ctx, command, action::last::Args { date_format: date })?
-        }
+        Cmd::Last { command } => action::last::cmd(ctx, command)?,
 
         Cmd::History { max_count } => {
             action::history::cmd(ctx, action::history::Args { max_count })?
