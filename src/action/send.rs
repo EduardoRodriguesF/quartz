@@ -1,19 +1,17 @@
 use crate::{
     cookie::CookieJar,
-    endpoint::{EndpointInput, Headers},
-    history::{self, HistoryEntry},
+    endpoint::EndpointInput,
+    history::{self, History},
     Ctx, PairMap, QuartzResult,
 };
+use chrono::Utc;
 use hyper::{
     body::{Bytes, HttpBody},
     Body, Client, Uri,
 };
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use tokio::{
-    io::{stdout, AsyncWriteExt as _},
-    time::Instant,
-};
+use tokio::io::{stdout, AsyncWriteExt as _};
 
 #[derive(Default)]
 pub struct Args {
@@ -84,9 +82,12 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
     endpoint.apply_env(&env);
 
     let raw_body = args.data.unwrap_or(endpoint.body());
-    let mut start: Instant;
     let mut res: hyper::Response<Body>;
-    let mut duration: u64;
+    let mut entry = history::Entry::builder();
+    entry
+        .handle(handle.handle())
+        .timestemp(Utc::now().timestamp_micros());
+
     loop {
         let req = endpoint
             // TODO: Find a way around this clone
@@ -94,14 +95,16 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
             .into_request(raw_body.clone())
             .unwrap_or_else(|_| panic!("malformed request"));
 
+        entry.message(&req);
+
         let client = {
             let https = hyper_tls::HttpsConnector::new();
             Client::builder().build(https)
         };
 
-        start = Instant::now();
         res = client.request(req).await?;
-        duration = start.elapsed().as_millis() as u64;
+
+        entry.message(&res);
 
         if let Some(cookie_header) = res.headers().get("Set-Cookie") {
             let url = endpoint.full_url()?;
@@ -150,32 +153,8 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
         }
     }
 
-    let entry: HistoryEntry = {
-        let mut headers = Headers::default();
-        for (key, value) in res.headers() {
-            headers.insert(key.to_string(), String::from(value.to_str().unwrap_or("")));
-        }
-
-        let req_body_bytes = hyper::body::to_bytes(raw_body).await?;
-
-        let request = history::Request {
-            endpoint,
-            env,
-            duration,
-            body: String::from_utf8_lossy(&req_body_bytes).to_string(),
-        };
-        let response = history::Response {
-            status,
-            size,
-            body: String::from_utf8_lossy(&bytes).to_string(),
-            headers,
-        };
-
-        HistoryEntry::new(handle.handle(), request, response)
-    };
-
     let _ = stdout().write_all(&bytes).await;
-    let _ = entry.write();
+    History::write(ctx, entry.build()?);
 
     Ok(())
 }

@@ -1,48 +1,26 @@
-use crate::{
-    history::{self, History},
-    QuartzResult,
-};
-use colored::Colorize;
+use crate::{history::History, Ctx, QuartzResult};
 
-pub fn cmd(
-    max_count: Option<usize>,
-    date: Option<String>,
-    show_fields: Vec<String>,
-) -> QuartzResult {
-    let history = History::new()?;
+pub struct Args {
+    pub max_count: Option<usize>,
+}
+
+pub fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
+    let history = History::new(ctx)?;
     let mut count = 0;
-    let max_count = max_count.unwrap_or(usize::MAX);
-    let format = date.unwrap_or(history::DEFAULT_DATE_FORMAT.into());
+    let max_count = args.max_count.unwrap_or(usize::MAX);
 
-    for mut entry in history {
-        entry.date_format(format.clone());
-
+    for entry in history.entries(ctx) {
         if count >= max_count {
             break;
         }
 
         count += 1;
         if count != 1 {
+            // Separation between two entries
             println!();
         }
 
-        if show_fields.is_empty() {
-            println!("{entry}");
-            continue;
-        }
-
-        let mut outputs: Vec<String> = Vec::new();
-        for key in &show_fields {
-            let value = entry
-                .field_as_string(key)
-                .unwrap_or_else(|_| panic!("invalid field: {}", key.red()));
-
-            outputs.push(value);
-        }
-
-        for value in outputs {
-            println!("{}", value);
-        }
+        println!("{entry}")
     }
 
     Ok(())

@@ -172,13 +172,6 @@ pub enum Cmd {
         /// Maximum number of requests to be listed
         #[arg(short = 'n', long, value_name = "N")]
         max_count: Option<usize>,
-        /// Format date time output
-        #[arg(long, value_name = "FORMAT")]
-        date: Option<String>,
-
-        /// Which fields to show, separated by comma (,). See manual page for a list of valid fields
-        #[arg(long, short, value_delimiter = ',', value_name = "FIELDS")]
-        show: Vec<String>,
     },
     /// Manage project's environments
     #[command(name = "env", alias = "environment")]
@@ -204,15 +197,14 @@ pub enum LastCmd {
     /// Print most recent handle used
     Handle,
 
-    /// Print most recent request date
-    Date,
-
     /// Print last request information
+    #[command(name = "req", alias = "request")]
     Req {
         #[command(subcommand)]
         command: LastReqCmd,
     },
     /// Print last response information
+    #[command(name = "res", alias = "response")]
     Res {
         #[command(subcommand)]
         command: LastResCmd,

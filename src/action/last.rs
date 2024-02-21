@@ -5,19 +5,15 @@ use crate::{
     cli::LastReqCmd as ReqCmd,
     cli::LastResCmd as ResCmd,
     history::{self, History},
-    QuartzResult,
+    Ctx, QuartzResult,
 };
 
 pub struct Args {
     pub date_format: Option<String>,
 }
 
-pub fn cmd(maybe_command: Option<Cmd>, args: Args) -> QuartzResult<(), Infallible> {
-    let mut entry = History::last().expect("no history found");
-
-    if let Some(format) = args.date_format {
-        entry.date_format(format);
-    }
+pub fn cmd(ctx: &Ctx, maybe_command: Option<Cmd>, args: Args) -> QuartzResult<(), Infallible> {
+    let mut entry = History::last(ctx).expect("no history found");
 
     if maybe_command.is_none() {
         println!("{entry}");
@@ -26,32 +22,15 @@ pub fn cmd(maybe_command: Option<Cmd>, args: Args) -> QuartzResult<(), Infallibl
 
     if let Some(command) = maybe_command {
         match command {
-            Cmd::Handle => println!("{}", entry.handle),
-            Cmd::Date => println!("{}", entry.date().unwrap_or("Unknown".into())),
-            Cmd::Req { command } => req(command, &entry.request),
-            Cmd::Res { command } => res(command, &entry.response),
+            Cmd::Handle => println!("{}", entry.handle()),
+            Cmd::Req { command } => req(command, &entry),
+            Cmd::Res { command } => res(command, &entry),
         }
     };
 
     Ok(())
 }
 
-pub fn req(command: ReqCmd, request: &history::Request) {
-    match command {
-        ReqCmd::Url => println!("{}", request.endpoint.url),
-        ReqCmd::Query => print!("{}", request.endpoint.query),
-        ReqCmd::Headers => print!("{}", request.endpoint.headers),
-        ReqCmd::Method => println!("{}", request.endpoint.method),
-        ReqCmd::Body => print!("{}", request.body),
-        ReqCmd::Env => println!("{}", request.env.name),
-    }
-}
+pub fn req(command: ReqCmd, entry: &history::Entry) {}
 
-pub fn res(command: ResCmd, response: &history::Response) {
-    match command {
-        ResCmd::Status => println!("{}", response.status),
-        ResCmd::Headers => print!("{}", response.headers),
-        ResCmd::Body => print!("{}", response.body),
-        ResCmd::Size => println!("{}", response.size),
-    }
-}
+pub fn res(command: ResCmd, entry: &history::Entry) {}

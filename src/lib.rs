@@ -9,6 +9,8 @@ pub mod snippet;
 pub mod state;
 pub mod validator;
 
+use std::error::Error;
+use std::fmt::Display;
 use std::hash::Hash;
 use std::path::{Path, PathBuf};
 use std::{collections::HashMap, ffi::OsString};
@@ -26,6 +28,21 @@ pub enum QuartzExitCode {
     Success,
     Error,
 }
+
+#[derive(Debug)]
+pub enum QuartzError {
+    Internal,
+}
+
+impl Display for QuartzError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            QuartzError::Internal => writeln!(f, "internal failure"),
+        }
+    }
+}
+
+impl Error for QuartzError {}
 
 pub trait PairMap<'a, K = String, V = String>
 where
