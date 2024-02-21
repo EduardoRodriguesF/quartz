@@ -42,6 +42,7 @@ impl History {
         }
 
         timestemps.sort();
+        timestemps.reverse();
 
         Ok(Self {
             entries: timestemps.clone(),
@@ -97,6 +98,11 @@ impl EntryBuilder {
     {
         let m: snippet::Http = value.into();
         self.messages.push(m.to_string());
+        self
+    }
+
+    pub fn message_raw(&mut self, value: String) -> &mut Self {
+        self.messages.push(value);
         self
     }
 

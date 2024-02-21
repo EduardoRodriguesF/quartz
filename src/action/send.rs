@@ -96,6 +96,9 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
             .unwrap_or_else(|_| panic!("malformed request"));
 
         entry.message(&req);
+        if !raw_body.is_empty() {
+            entry.message_raw(raw_body.clone());
+        }
 
         let client = {
             let https = hyper_tls::HttpsConnector::new();
@@ -141,20 +144,18 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
         None => cookie_jar.write()?,
     };
 
-    let status = res.status().as_u16();
-
     let mut bytes = Bytes::new();
-    let mut size = 0;
 
     while let Some(chunk) = res.data().await {
         if let Ok(chunk) = chunk {
-            size += chunk.len();
             bytes = [bytes, chunk].concat().into();
         }
     }
 
+    entry.message_raw(String::from_utf8(bytes.to_vec())?);
+
     let _ = stdout().write_all(&bytes).await;
-    History::write(ctx, entry.build()?);
+    History::write(ctx, entry.build()?)?;
 
     Ok(())
 }
