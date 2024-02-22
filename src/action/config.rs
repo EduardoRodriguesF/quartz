@@ -1,4 +1,4 @@
-use crate::{cli::ConfigCmd as Cmd, validator, Config, Ctx, QuartzResult};
+use crate::{cli::ConfigCmd as Cmd, config::ConfigBuilder, validator, Config, Ctx, QuartzResult};
 
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
@@ -14,6 +14,7 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
 pub fn get(ctx: &Ctx, key: String) {
     let value: String = match key.as_str() {
         "preferences.editor" => ctx.config.preferences.editor.clone(),
+        "preferences.pager" => ctx.config.preferences.pager.clone(),
         "ui.colors" => ctx.config.ui.colors.to_string(),
         _ => panic!("invalid key"),
     };
@@ -22,7 +23,7 @@ pub fn get(ctx: &Ctx, key: String) {
 }
 
 pub fn edit(ctx: &Ctx) -> QuartzResult {
-    ctx.edit(&Config::filepath(), validator::toml_as::<Config>)?;
+    ctx.edit(&Config::filepath(), validator::toml_as::<ConfigBuilder>)?;
 
     Ok(())
 }
@@ -30,6 +31,7 @@ pub fn edit(ctx: &Ctx) -> QuartzResult {
 pub fn set(ctx: &mut Ctx, key: String, value: String) {
     match key.as_str() {
         "preferences.editor" => ctx.config.preferences.editor = value,
+        "preferences.pager" => ctx.config.preferences.pager = value,
         "ui.colors" => ctx.config.ui.colors = matches!(value.as_str(), "true"),
         _ => panic!("invalid key"),
     };

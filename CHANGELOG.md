@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - After receiving response, quartz would only print and save the last chunk of response bytes instead of the entire body.
 - `ls` command's `--depth` option was behaving inconsistently.
+- Broken configuration file would break entire quartz usage.
 
 ### Removed
 
