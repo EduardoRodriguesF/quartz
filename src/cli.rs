@@ -195,34 +195,19 @@ pub enum LastCmd {
 
     /// Print last request information
     #[command(name = "req", alias = "request")]
-    Req {
-        #[command(subcommand)]
-        command: LastReqCmd,
-    },
+    Req,
     /// Print last response information
     #[command(name = "res", alias = "response")]
     Res {
         #[command(subcommand)]
-        command: LastResCmd,
+        command: Option<LastResCmd>,
     },
 }
 
 #[derive(Debug, Subcommand)]
-pub enum LastReqCmd {
-    Url,
-    Query,
-    Method,
-    Headers,
-    Body,
-    Env,
-}
-
-#[derive(Debug, Subcommand)]
 pub enum LastResCmd {
-    Status,
-    Headers,
+    Head,
     Body,
-    Size,
 }
 
 #[derive(Debug, Subcommand)]
