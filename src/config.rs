@@ -52,6 +52,7 @@ impl Config {
 #[derive(Serialize, Deserialize)]
 pub struct Preferences {
     pub editor: String,
+    pub pager: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -69,6 +70,7 @@ impl Default for Preferences {
     fn default() -> Self {
         Self {
             editor: "vim".to_string(),
+            pager: "less".to_string(),
         }
     }
 }

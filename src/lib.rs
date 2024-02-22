@@ -12,7 +12,9 @@ pub mod validator;
 use std::error::Error;
 use std::fmt::Display;
 use std::hash::Hash;
+use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::process::Stdio;
 use std::{collections::HashMap, ffi::OsString};
 
 use colored::Colorize;
@@ -255,6 +257,24 @@ impl Ctx {
         }
 
         std::fs::rename(&temp_path, path)?;
+        Ok(())
+    }
+
+    /// Open user's preferred pager with content.
+    pub fn paginate(&self, input: &[u8]) -> QuartzResult {
+        let mut child = std::process::Command::new(&self.config.preferences.pager)
+            .stdin(Stdio::piped())
+            .spawn()
+            .unwrap_or_else(|err| {
+                panic!(
+                    "failed to open pager: {}\n\n{}",
+                    &self.config.preferences.pager, err
+                );
+            });
+
+        child.stdin.as_mut().unwrap().write_all(input.into())?;
+        child.wait()?;
+
         Ok(())
     }
 
