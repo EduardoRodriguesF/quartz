@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `use` command can now edit the current or to-be-used endpoint.
 - You can now make a handle empty again with `use`'s `--empty` option.
 - When sending the request, it fills URL with HTTP scheme if none is present.
+- New built-in cookie engine.
+- `preferences.pager` configuration.
 
 ### Changed
 
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `create` options were revisited for better semantics with **curl** and other `send` and `use` options.
 - Variables are now edited in a plain-text file instead of TOML. (#41)
 - `rm` requires `-r` option to remove handles recursively. (#38)
+- History simplified. HTTP messages are displayed instead.
 
 ### Fixed
 
