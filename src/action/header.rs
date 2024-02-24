@@ -1,4 +1,5 @@
-use crate::{cli::HeaderCmd as Cmd, Ctx, PairMap, QuartzCode, QuartzResult};
+use crate::{cli::HeaderCmd as Cmd, Ctx, PairMap, QuartzResult};
+use std::process::ExitCode;
 
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
@@ -39,7 +40,7 @@ pub fn rm(ctx: &mut Ctx, keys: Vec<String>) -> QuartzResult {
             endpoint.headers.remove(&k);
             println!("Removed header: {}", k);
         } else {
-            ctx.code(QuartzCode::Error);
+            ctx.code(ExitCode::FAILURE);
             eprintln!("{}: No such header", k);
         }
     }

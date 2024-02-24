@@ -1,8 +1,9 @@
 use std::collections::VecDeque;
+use std::process::ExitCode;
 
 use crate::{
     endpoint::{Endpoint, EndpointHandle, EndpointInput},
-    validator, Ctx, QuartzCode, QuartzResult, StateField,
+    validator, Ctx, QuartzResult, StateField,
 };
 use colored::Colorize;
 
@@ -138,13 +139,13 @@ pub fn rm(ctx: &mut Ctx, args: RmArgs) -> QuartzResult {
         let handle = EndpointHandle::from(&name);
 
         if !handle.exists(ctx) {
-            ctx.code(QuartzCode::Error);
+            ctx.code(ExitCode::FAILURE);
             eprintln!("no such handle: {name}");
             continue;
         }
 
         if handle.children(ctx).len() > 0 && !args.recursive {
-            ctx.code(QuartzCode::Error);
+            ctx.code(ExitCode::FAILURE);
             eprintln!(
                 "{} has child handles. Use -r option to confirm",
                 handle.handle(),
@@ -155,7 +156,7 @@ pub fn rm(ctx: &mut Ctx, args: RmArgs) -> QuartzResult {
         if std::fs::remove_dir_all(handle.dir(ctx)).is_ok() {
             println!("Deleted endpoint {}", handle.handle());
         } else {
-            ctx.code(QuartzCode::Error);
+            ctx.code(ExitCode::FAILURE);
             eprintln!("failed to delete endpoint {}", handle.handle());
         }
     }
@@ -179,7 +180,7 @@ pub fn mv(ctx: &mut Ctx, mut args: MvArgs) -> QuartzResult {
     for arg in &args.handles {
         let handle = EndpointHandle::from(arg);
         if !handle.exists(ctx) {
-            ctx.code(QuartzCode::Error);
+            ctx.code(ExitCode::FAILURE);
             eprintln!("no such handle: {arg}");
             continue;
         }

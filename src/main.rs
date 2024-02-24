@@ -1,4 +1,4 @@
-use std::process::exit;
+use std::process::{exit, ExitCode};
 
 use clap::Parser;
 use colored::Colorize;
@@ -10,7 +10,7 @@ use quartz_cli::{
 };
 
 #[tokio::main]
-async fn main() -> QuartzResult {
+async fn main() -> QuartzResult<ExitCode> {
     std::panic::set_hook(Box::new(|info| {
         let payload = if let Some(s) = info.payload().downcast_ref::<String>() {
             s.clone()
@@ -41,6 +41,5 @@ async fn main() -> QuartzResult {
 
     action::cmd(&mut ctx, args.command).await?;
 
-    ctx.exit();
-    Ok(())
+    Ok(*ctx.exit_code())
 }

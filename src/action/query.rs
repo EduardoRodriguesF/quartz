@@ -1,5 +1,6 @@
-use crate::{cli::QueryCmd as Cmd, Ctx, PairMap, QuartzCode, QuartzResult};
+use crate::{cli::QueryCmd as Cmd, Ctx, PairMap, QuartzResult};
 use colored::Colorize;
+use std::process::ExitCode;
 
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
@@ -41,7 +42,7 @@ pub fn rm(ctx: &mut Ctx, keys: Vec<String>) -> QuartzResult {
             endpoint.query.remove(&k);
             println!("Removed query param: {}", k);
         } else {
-            ctx.code(QuartzCode::Error);
+            ctx.code(ExitCode::FAILURE);
             eprintln!("{}: No such query param", k);
         }
     }

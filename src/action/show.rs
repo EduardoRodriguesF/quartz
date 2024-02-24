@@ -11,9 +11,9 @@ pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
         }
         Cmd::Headers { key } => {
             if let Some(key) = key {
-                action::header::get(ctx, key);
+                action::header::get(ctx, key)?;
             } else {
-                action::header::ls(ctx);
+                action::header::ls(ctx)?;
             }
         }
         Cmd::Url => url(ctx),

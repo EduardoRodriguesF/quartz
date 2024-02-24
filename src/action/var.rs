@@ -1,4 +1,5 @@
-use crate::{cli::VarCmd as Cmd, env::Variables, Ctx, PairMap, QuartzCode, QuartzResult};
+use crate::{cli::VarCmd as Cmd, env::Variables, Ctx, PairMap, QuartzResult};
+use std::process::ExitCode;
 
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
@@ -52,7 +53,7 @@ pub fn rm(ctx: &mut Ctx, keys: Vec<String>) -> QuartzResult {
 
     for key in keys {
         env.variables.remove(&key).unwrap_or_else(|| {
-            ctx.code(QuartzCode::Error);
+            ctx.code(ExitCode::FAILURE);
             eprintln!("{}: No such variable", key);
             "".to_string()
         });
