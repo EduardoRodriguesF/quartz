@@ -247,6 +247,11 @@ impl EndpointHandle {
     pub fn endpoint(&self, ctx: &Ctx) -> Option<Endpoint> {
         Endpoint::from_dir(&self.dir(ctx)).ok()
     }
+
+    pub fn replace(&mut self, from: &str, to: &str) {
+        let handle = self.handle().replace(from, to);
+        self.path = EndpointHandle::from_handle(handle).path;
+    }
 }
 
 impl From<&mut EndpointInput> for Endpoint {

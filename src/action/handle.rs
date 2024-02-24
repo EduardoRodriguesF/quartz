@@ -1,4 +1,4 @@
-use std::process::exit;
+use std::{collections::VecDeque, process::exit};
 
 use crate::{
     endpoint::{Endpoint, EndpointHandle, EndpointInput},
@@ -21,6 +21,7 @@ pub struct SwitchArgs {
 }
 
 pub struct CpArgs {
+    pub recursive: bool,
     pub src: String,
     pub dest: String,
 }
@@ -100,18 +101,30 @@ pub fn switch(ctx: &Ctx, mut args: SwitchArgs) {
 
 pub fn cp(ctx: &Ctx, args: CpArgs) {
     let src = ctx.require_input_handle(&args.src);
-    let dest = EndpointHandle::from_handle(args.dest);
-
-    let mut endpoint = src
-        .endpoint(ctx)
-        .unwrap_or_else(|| panic!("no endpoint at {}", src.handle().red()));
-
-    if !dest.exists(ctx) {
-        dest.write(ctx);
+    if !src.exists(ctx) {
+        panic!("no such handle: {}", src.handle());
     }
 
-    endpoint.set_handle(ctx, &dest);
-    endpoint.write();
+    let mut queue = VecDeque::<EndpointHandle>::new();
+    queue.push_back(src);
+
+    while let Some(mut src) = queue.pop_front() {
+        let endpoint = src.endpoint(ctx);
+
+        if args.recursive {
+            for child in src.children(ctx) {
+                queue.push_back(child);
+            }
+        }
+
+        src.replace(&args.src, &args.dest);
+        src.write(ctx);
+
+        if let Some(mut endpoint) = endpoint {
+            endpoint.set_handle(ctx, &src);
+            endpoint.write();
+        }
+    }
 }
 
 pub fn rm(ctx: &Ctx, args: RmArgs) {

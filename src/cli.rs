@@ -115,7 +115,13 @@ pub enum Cmd {
     },
     /// Copy an endpoint from one handle to another
     #[command(name = "cp", alias = "copy")]
-    Cp { src: String, dest: String },
+    Cp {
+        #[arg(long, short = 'r')]
+        recursive: bool,
+
+        src: String,
+        dest: String,
+    },
 
     /// Delete handles
     #[command(name = "rm", alias = "remove")]

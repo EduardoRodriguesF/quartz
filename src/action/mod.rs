@@ -95,7 +95,18 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Ls { depth } => action::ls::cmd(&ctx, depth),
         Cmd::Show { command } => action::show::cmd(&ctx, command)?,
         Cmd::Edit { editor } => action::handle::edit(ctx, action::handle::EditArgs { editor })?,
-        Cmd::Cp { src, dest } => action::handle::cp(ctx, action::handle::CpArgs { src, dest }),
+        Cmd::Cp {
+            recursive,
+            src,
+            dest,
+        } => action::handle::cp(
+            ctx,
+            action::handle::CpArgs {
+                recursive,
+                src,
+                dest,
+            },
+        ),
 
         Cmd::Rm { handle, recursive } => action::handle::rm(
             ctx,
