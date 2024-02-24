@@ -106,9 +106,9 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
                 src,
                 dest,
             },
-        ),
+        )?,
 
-        Cmd::Mv { handles } => action::handle::mv(ctx, action::handle::MvArgs { handles }),
+        Cmd::Mv { handles } => action::handle::mv(ctx, action::handle::MvArgs { handles })?,
 
         Cmd::Rm { handle, recursive } => action::handle::rm(
             ctx,
@@ -116,10 +116,10 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
                 handles: handle,
                 recursive,
             },
-        ),
+        )?,
 
-        Cmd::Query { command } => action::query::cmd(&ctx, command)?,
-        Cmd::Header { command } => action::header::cmd(&ctx, command)?,
+        Cmd::Query { command } => action::query::cmd(ctx, command)?,
+        Cmd::Header { command } => action::header::cmd(ctx, command)?,
 
         Cmd::Body { format, command } => {
             action::body::cmd(ctx, command, action::body::BodyArgs { format })?

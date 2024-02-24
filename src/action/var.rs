@@ -1,8 +1,6 @@
-use std::process::exit;
+use crate::{cli::VarCmd as Cmd, env::Variables, Ctx, PairMap, QuartzCode, QuartzResult};
 
-use crate::{cli::VarCmd as Cmd, env::Variables, Ctx, PairMap, QuartzResult};
-
-pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
+pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Edit => edit(ctx)?,
         Cmd::Get { key } => get(ctx, key),
@@ -49,18 +47,17 @@ pub fn edit(ctx: &Ctx) -> QuartzResult {
     Ok(())
 }
 
-pub fn rm(ctx: &Ctx, keys: Vec<String>) -> QuartzResult {
-    let mut exit_code = 0;
+pub fn rm(ctx: &mut Ctx, keys: Vec<String>) -> QuartzResult {
     let mut env = ctx.require_env();
 
     for key in keys {
         env.variables.remove(&key).unwrap_or_else(|| {
-            exit_code = 1;
+            ctx.code(QuartzCode::Error);
             eprintln!("{}: No such variable", key);
             "".to_string()
         });
     }
 
     env.update(ctx)?;
-    exit(exit_code);
+    Ok(())
 }

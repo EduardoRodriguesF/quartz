@@ -40,5 +40,7 @@ async fn main() -> QuartzResult {
     colored::control::set_override(ctx.config.ui.colors);
 
     action::cmd(&mut ctx, args.command).await?;
+
+    ctx.exit();
     Ok(())
 }

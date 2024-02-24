@@ -1,12 +1,11 @@
-use crate::{cli::QueryCmd as Cmd, Ctx, PairMap, QuartzExitCode, QuartzResult};
+use crate::{cli::QueryCmd as Cmd, Ctx, PairMap, QuartzCode, QuartzResult};
 use colored::Colorize;
-use std::{convert::Infallible, process::exit};
 
-pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult<(), Infallible> {
+pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Get { key } => get(ctx, key),
         Cmd::Set { query } => set(ctx, query),
-        Cmd::Rm { key } => rm(ctx, key),
+        Cmd::Rm { key } => rm(ctx, key)?,
         Cmd::Ls => ls(ctx),
     };
 
@@ -34,8 +33,7 @@ pub fn set(ctx: &Ctx, queries: Vec<String>) {
     endpoint.write();
 }
 
-pub fn rm(ctx: &Ctx, keys: Vec<String>) {
-    let mut code = QuartzExitCode::Success;
+pub fn rm(ctx: &mut Ctx, keys: Vec<String>) -> QuartzResult {
     let (_, mut endpoint) = ctx.require_endpoint();
 
     for k in keys {
@@ -43,13 +41,13 @@ pub fn rm(ctx: &Ctx, keys: Vec<String>) {
             endpoint.query.remove(&k);
             println!("Removed query param: {}", k);
         } else {
-            code = QuartzExitCode::Error;
+            ctx.code(QuartzCode::Error);
             eprintln!("{}: No such query param", k);
         }
     }
 
     endpoint.write();
-    exit(code as i32);
+    Ok(())
 }
 
 pub fn ls(ctx: &Ctx) {

@@ -1,28 +1,26 @@
-use std::{convert::Infallible, process::exit};
+use crate::{cli::HeaderCmd as Cmd, Ctx, PairMap, QuartzCode, QuartzResult};
 
-use crate::{cli::HeaderCmd as Cmd, Ctx, PairMap, QuartzExitCode, QuartzResult};
-
-pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult<(), Infallible> {
+pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Get { key } => get(ctx, key),
         Cmd::Set { header } => set(ctx, header),
         Cmd::Rm { key } => rm(ctx, key),
         Cmd::Ls => ls(ctx),
     }
-
-    Ok(())
 }
 
-pub fn get(ctx: &Ctx, key: String) {
+pub fn get(ctx: &Ctx, key: String) -> QuartzResult {
     let (_, endpoint) = ctx.require_endpoint();
     if let Some(header) = endpoint.headers.get(&key) {
         println!("{}", header);
     } else {
         panic!("no header named {} found", key);
     }
+
+    Ok(())
 }
 
-pub fn set(ctx: &Ctx, headers: Vec<String>) {
+pub fn set(ctx: &Ctx, headers: Vec<String>) -> QuartzResult {
     let (_, mut endpoint) = ctx.require_endpoint();
 
     for input in headers {
@@ -30,10 +28,10 @@ pub fn set(ctx: &Ctx, headers: Vec<String>) {
     }
 
     endpoint.write();
+    Ok(())
 }
 
-pub fn rm(ctx: &Ctx, keys: Vec<String>) {
-    let mut code = QuartzExitCode::Success;
+pub fn rm(ctx: &mut Ctx, keys: Vec<String>) -> QuartzResult {
     let (_, mut endpoint) = ctx.require_endpoint();
 
     for k in keys {
@@ -41,17 +39,18 @@ pub fn rm(ctx: &Ctx, keys: Vec<String>) {
             endpoint.headers.remove(&k);
             println!("Removed header: {}", k);
         } else {
-            code = QuartzExitCode::Error;
+            ctx.code(QuartzCode::Error);
             eprintln!("{}: No such header", k);
         }
     }
 
     endpoint.write();
-    exit(code as i32);
+    Ok(())
 }
 
-pub fn ls(ctx: &Ctx) {
+pub fn ls(ctx: &Ctx) -> QuartzResult {
     let (_, endpoint) = ctx.require_endpoint();
 
     print!("{}", endpoint.headers);
+    Ok(())
 }

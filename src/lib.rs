@@ -14,7 +14,7 @@ use std::fmt::Display;
 use std::hash::Hash;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::process::Stdio;
+use std::process::{exit, Stdio};
 use std::{collections::HashMap, ffi::OsString};
 
 use colored::Colorize;
@@ -26,7 +26,7 @@ use state::{State, StateField};
 
 pub type QuartzResult<T = (), E = Box<dyn std::error::Error>> = Result<T, E>;
 
-pub enum QuartzExitCode {
+pub enum QuartzCode {
     Success,
     Error,
 }
@@ -84,6 +84,7 @@ pub struct Ctx {
     pub config: Config,
     pub state: State,
     path: PathBuf,
+    code: QuartzCode,
 }
 
 impl Ctx {
@@ -111,6 +112,7 @@ impl Ctx {
             config,
             state,
             path: path.join(".quartz"),
+            code: QuartzCode::Success,
         })
     }
 
@@ -287,5 +289,13 @@ impl Ctx {
 
     pub fn path(&self) -> &Path {
         self.path.as_ref()
+    }
+
+    pub fn code(&mut self, value: QuartzCode) {
+        self.code = value;
+    }
+
+    pub fn exit(self) {
+        exit(self.code as i32);
     }
 }
