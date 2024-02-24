@@ -104,7 +104,7 @@ pub fn rm_r() -> TestResult {
     let quartz = Quartz::preset_httpbin()?;
 
     let output = quartz.cmd(&["rm", "-r", "httpbin/redirect"])?;
-    assert!(!output.status.success(), "{}", output.stdout);
+    assert!(output.status.success(), "{}", output.stdout);
 
     let stdout = quartz.cmd(&["ls"])?.stdout;
     assert!(!stdout.contains("httpbin/redirect"), "{}", stdout);
