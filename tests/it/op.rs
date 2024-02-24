@@ -148,6 +148,7 @@ pub fn rm_multiple_continues_on_err() -> TestResult {
         "httpbin/get",
         "idontexist",
         "httpbin/post",
+        "httpbin", // error, no -r set
         "httpbin/redirect/absolute",
     ])?;
     assert!(!output.status.success(), "{}", output.stdout);

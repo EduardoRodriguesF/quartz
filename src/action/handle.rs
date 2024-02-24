@@ -131,14 +131,21 @@ pub fn rm(ctx: &Ctx, args: RmArgs) {
     let mut exit_code = 0;
 
     for name in args.handles {
-        let handle = ctx.require_input_handle(&name);
+        let handle = EndpointHandle::from_handle(&name);
+
+        if !handle.exists(ctx) {
+            exit_code = 1;
+            eprintln!("no such handle: {name}");
+            continue;
+        }
 
         if handle.children(ctx).len() > 0 && !args.recursive {
-            panic!(
-                "{} has child handles. Use {} option to confirm",
+            exit_code = 1;
+            eprintln!(
+                "{} has child handles. Use -r option to confirm",
                 handle.handle(),
-                "-r".red()
-            )
+            );
+            continue;
         }
 
         if std::fs::remove_dir_all(handle.dir(ctx)).is_ok() {
