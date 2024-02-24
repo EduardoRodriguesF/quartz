@@ -2,7 +2,7 @@ use std::{collections::VecDeque, process::exit};
 
 use crate::{
     endpoint::{Endpoint, EndpointHandle, EndpointInput},
-    validator, Ctx, QuartzResult, StateField,
+    validator, Ctx, QuartzExitCode, QuartzResult, StateField,
 };
 use colored::Colorize;
 
@@ -24,6 +24,10 @@ pub struct CpArgs {
     pub recursive: bool,
     pub src: String,
     pub dest: String,
+}
+
+pub struct MvArgs {
+    pub handles: Vec<String>,
 }
 
 pub struct RmArgs {
@@ -157,6 +161,61 @@ pub fn rm(ctx: &Ctx, args: RmArgs) {
     }
 
     exit(exit_code);
+}
+
+pub fn mv(ctx: &Ctx, mut args: MvArgs) {
+    let mut exit_code = QuartzExitCode::Success;
+
+    if args.handles.is_empty() {
+        panic!("no handles specified");
+    }
+
+    if args.handles.len() == 1 {
+        panic!("missing target handle");
+    }
+
+    let dest = EndpointHandle::from(args.handles.pop().unwrap());
+    let mut original_handles = Vec::<EndpointHandle>::new();
+    let mut queue = VecDeque::<(&str, EndpointHandle)>::new();
+
+    for arg in &args.handles {
+        let handle = EndpointHandle::from(arg);
+        if !handle.exists(ctx) {
+            exit_code = QuartzExitCode::Error;
+            eprintln!("no such handle: {arg}");
+            continue;
+        }
+
+        original_handles.push(handle);
+        queue.push_back((arg, EndpointHandle::from(arg)));
+    }
+
+    while let Some((src, mut handle)) = queue.pop_front() {
+        let mut dest = EndpointHandle::from(dest.handle()); // copy
+        for child in handle.children(ctx) {
+            queue.push_back((src, child));
+        }
+
+        let maybe_endpoint = handle.endpoint(ctx);
+
+        if args.handles.len() >= 2 {
+            dest.path.push(handle.path.last().unwrap().to_string());
+        }
+
+        handle.replace(src, &dest.handle());
+        handle.write(ctx);
+
+        if let Some(mut endpoint) = maybe_endpoint {
+            endpoint.set_handle(ctx, &handle);
+            endpoint.write();
+        }
+    }
+
+    for handle in original_handles {
+        let _ = std::fs::remove_dir_all(handle.dir(ctx));
+    }
+
+    exit(exit_code as i32);
 }
 
 pub fn edit(ctx: &mut Ctx, args: EditArgs) -> QuartzResult {

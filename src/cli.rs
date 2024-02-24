@@ -122,7 +122,9 @@ pub enum Cmd {
         src: String,
         dest: String,
     },
-
+    /// Move handles
+    #[command(name = "mv", alias = "move")]
+    Mv { handles: Vec<String> },
     /// Delete handles
     #[command(name = "rm", alias = "remove")]
     Rm {

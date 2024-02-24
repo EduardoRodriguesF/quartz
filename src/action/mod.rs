@@ -108,6 +108,8 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
             },
         ),
 
+        Cmd::Mv { handles } => action::handle::mv(ctx, action::handle::MvArgs { handles }),
+
         Cmd::Rm { handle, recursive } => action::handle::rm(
             ctx,
             action::handle::RmArgs {
