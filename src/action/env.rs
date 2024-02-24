@@ -1,35 +1,56 @@
 use crate::{cli::EnvCmd as Cmd, Ctx, Env, QuartzResult, StateField};
 use colored::Colorize;
 
+#[derive(clap::Args, Debug)]
+pub struct CreateArgs {
+    name: String,
+}
+
+#[derive(clap::Args, Debug)]
+pub struct CpArgs {
+    src: String,
+    dest: String,
+}
+
+#[derive(clap::Args, Debug)]
+pub struct SwitchArgs {
+    env: String,
+}
+
+#[derive(clap::Args, Debug)]
+pub struct RmArgs {
+    env: String,
+}
+
 pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
     match command {
-        Cmd::Create { name } => create(ctx, name),
-        Cmd::Cp { src, dest } => cp(ctx, src, dest)?,
-        Cmd::Use { env } => switch(ctx, env)?,
+        Cmd::Create(args) => create(ctx, args),
+        Cmd::Cp(args) => cp(ctx, args)?,
+        Cmd::Use(args) => switch(ctx, args)?,
         Cmd::Ls => ls(ctx),
-        Cmd::Rm { env } => rm(ctx, env),
+        Cmd::Rm(args) => rm(ctx, args),
     };
 
     Ok(())
 }
 
-pub fn create(ctx: &Ctx, name: String) {
-    let env = Env::new(&name);
+pub fn create(ctx: &Ctx, args: CreateArgs) {
+    let env = Env::new(&args.name);
 
     if env.exists(ctx) {
-        panic!("a environment named {} already exists", name.red());
+        panic!("a environment named {} already exists", args.name.red());
     }
 
     if env.write(ctx).is_err() {
-        panic!("failed to create {} environment", name);
+        panic!("failed to create {} environment", args.name);
     }
 }
 
-pub fn cp(ctx: &Ctx, src: String, dest: String) -> QuartzResult {
-    let src = Env::parse(ctx, &src).unwrap_or_else(|_| {
-        panic!("no {} environment found", &src);
+pub fn cp(ctx: &Ctx, args: CpArgs) -> QuartzResult {
+    let src = Env::parse(ctx, &args.src).unwrap_or_else(|_| {
+        panic!("no {} environment found", &args.src);
     });
-    let mut dest = Env::parse(ctx, &dest).unwrap_or(Env::new(&dest));
+    let mut dest = Env::parse(ctx, &args.dest).unwrap_or(Env::new(&args.dest));
 
     for (key, value) in src.variables.iter() {
         dest.variables.insert(key.to_string(), value.to_string());
@@ -44,8 +65,8 @@ pub fn cp(ctx: &Ctx, src: String, dest: String) -> QuartzResult {
     Ok(())
 }
 
-pub fn switch(ctx: &Ctx, env: String) -> QuartzResult {
-    let env = Env::new(&env);
+pub fn switch(ctx: &Ctx, args: SwitchArgs) -> QuartzResult {
+    let env = Env::new(&args.env);
 
     if !env.exists(ctx) {
         panic!("environment {} does not exist", env.name.red());
@@ -80,8 +101,8 @@ pub fn ls(ctx: &Ctx) {
     }
 }
 
-pub fn rm(ctx: &Ctx, env: String) {
-    let env = Env::new(&env);
+pub fn rm(ctx: &Ctx, args: RmArgs) {
+    let env = Env::new(&args.env);
 
     if !env.exists(ctx) {
         panic!("environment {} does not exist", env.name.red());

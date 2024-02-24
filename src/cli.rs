@@ -2,6 +2,8 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
+use crate::action;
+
 #[derive(Debug, Parser)]
 #[command(name = "quartz")]
 #[command(author = "Eduardo R. <contato@edurodrigues.dev>")]
@@ -25,39 +27,7 @@ pub enum Cmd {
     /// Initialize quartz
     Init { directory: Option<PathBuf> },
     /// Send request using the current handle's endpoint and outputs the response
-    Send {
-        /// Change a variable when sending the request.
-        #[arg(long, short = 'v', value_name = "KEY=VALUE")]
-        var: Vec<String>,
-
-        /// Change or include an extra header
-        #[arg(long, short = 'H')]
-        header: Vec<String>,
-
-        /// Change or include an extra query param
-        #[arg(long, short = 'q')]
-        query: Vec<String>,
-
-        /// Change request method
-        #[arg(long, short = 'X', value_name = "METHOD")]
-        request: Option<String>,
-
-        /// Sends data in request body
-        #[arg(long, short = 'd')]
-        data: Option<String>,
-
-        /// Prevent quartz from following redirects
-        #[arg(long)]
-        no_follow: bool,
-
-        /// Pass cookie data to request header
-        #[arg(long, short = 'b', value_name = "DATA|FILENAME")]
-        cookie: Vec<String>,
-
-        /// Which file to write all cookies after a completed request
-        #[arg(long, short = 'c', value_name = "FILE")]
-        cookie_jar: Option<PathBuf>,
-    },
+    Send(action::send::Args),
     /// Create a new handle
     Create {
         handle: String,
@@ -106,46 +76,32 @@ pub enum Cmd {
         #[arg(long)]
         empty: bool,
     },
+
     /// Lists available handles
     #[command(name = "ls", alias = "list")]
-    Ls {
-        /// Set a limit for how deep the listing goes in sub-handles
-        #[arg(long, value_name = "N")]
-        depth: Option<usize>,
-    },
+    Ls(action::ls::Args),
+
     /// Copy an endpoint from one handle to another
     #[command(name = "cp", alias = "copy")]
-    Cp {
-        #[arg(long, short = 'r')]
-        recursive: bool,
+    Cp(action::handle::CpArgs),
 
-        src: String,
-        dest: String,
-    },
     /// Move handles
     #[command(name = "mv", alias = "move")]
-    Mv { handles: Vec<String> },
+    Mv(action::handle::MvArgs),
+
     /// Delete handles
     #[command(name = "rm", alias = "remove")]
-    Rm {
-        /// Delete child handles recursively
-        #[arg(long, short = 'r')]
-        recursive: bool,
+    Rm(action::handle::RmArgs),
 
-        /// Handles to be removed
-        handle: Vec<String>,
-    },
     /// Print out endpoint informations
     Show {
         #[command(subcommand)]
         command: ShowCmd,
     },
+
     /// Open an editor to modify endpoint in use
-    Edit {
-        #[arg(long)]
-        /// Defines the editor to be used for that run, overriding the quartz settings.
-        editor: Option<String>,
-    },
+    Edit(action::handle::EditArgs),
+
     /// Manage current endpoint's query params
     Query {
         #[command(subcommand)]
@@ -221,14 +177,14 @@ pub enum LastResCmd {
 #[derive(Debug, Subcommand)]
 pub enum QueryCmd {
     /// Print query param value
-    Get { key: String },
+    Get(action::query::GetArgs),
 
     /// Set query param value
-    Set { query: Vec<String> },
+    Set(action::query::SetArgs),
 
     /// Remove query param
     #[command(name = "rm", alias = "remove")]
-    Rm { key: Vec<String> },
+    Rm(action::query::RmArgs),
 
     /// List all query params
     #[command(name = "ls", alias = "list")]
@@ -273,37 +229,16 @@ pub enum ShowCmd {
     Env,
 
     /// Display environment cookies
-    Cookies {
-        key: Option<String>,
-
-        /// Filter cookies that match this domain
-        #[arg(long, short = 'd')]
-        domain: Option<String>,
-    },
+    Cookies(action::cookie::PrintArgs),
     /// Generate code snippet for endpoint
-    Snippet {
-        /// Use a new or overwritten variable
-        #[arg(long, short = 'v', value_name = "KEY=VALUE")]
-        var: Vec<String>,
-
-        #[command(subcommand)]
-        command: SnippetCmd,
-    },
+    Snippet(action::snippet::Args),
     /// Display endpoint configuration file
     Endpoint,
 }
 
 #[derive(Debug, Subcommand)]
 pub enum SnippetCmd {
-    Curl {
-        /// Use long form cURL options (--header instead of -H)
-        #[arg(long)]
-        long: bool,
-
-        /// Split output across multiple lines
-        #[arg(long)]
-        multiline: bool,
-    },
+    Curl(crate::snippet::Curl),
     Http,
 }
 
@@ -313,10 +248,10 @@ pub enum ConfigCmd {
     Edit,
 
     /// Print configuration value
-    Get { key: String },
+    Get(action::config::GetArgs),
 
     /// Set a configuration
-    Set { key: String, value: String },
+    Set(action::config::SetArgs),
 
     /// Print ~/.quartz.toml
     #[command(name = "ls", alias = "list")]
@@ -338,10 +273,10 @@ pub enum BodyCmd {
 #[derive(Debug, Subcommand)]
 pub enum EnvCmd {
     /// Create a new environment
-    Create { name: String },
+    Create(action::env::CreateArgs),
 
     /// Switch to another environment
-    Use { env: String },
+    Use(action::env::SwitchArgs),
 
     /// Print all available environments
     #[command(name = "ls", alias = "list")]
@@ -349,11 +284,11 @@ pub enum EnvCmd {
 
     /// Copy variables from a environment to a new or existing one
     #[command(name = "cp", alias = "copy")]
-    Cp { src: String, dest: String },
+    Cp(action::env::CpArgs),
 
     /// Delete a environment
     #[command(name = "rm", alias = "remove")]
-    Rm { env: String },
+    Rm(action::env::RmArgs),
 }
 
 #[derive(Debug, Subcommand)]
@@ -362,13 +297,13 @@ pub enum VarCmd {
     Edit,
 
     /// Display variable value
-    Get { key: String },
+    Get(action::var::GetArgs),
 
     /// Add a new or existent variable value
-    Set { variable: Vec<String> },
+    Set(action::var::SetArgs),
 
     /// Remove variables
-    Rm { key: Vec<String> },
+    Rm(action::var::RmArgs),
 
     /// Display the list of variables
     #[command(name = "ls", alias = "list")]

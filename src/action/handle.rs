@@ -21,23 +21,36 @@ pub struct SwitchArgs {
     pub empty: bool,
 }
 
+#[derive(clap::Args, Debug)]
 pub struct CpArgs {
-    pub recursive: bool,
-    pub src: String,
-    pub dest: String,
+    #[arg(long, short = 'r')]
+    recursive: bool,
+
+    src: String,
+    dest: String,
 }
 
+#[derive(clap::Args, Debug)]
 pub struct MvArgs {
-    pub handles: Vec<String>,
+    handles: Vec<String>,
 }
 
+#[derive(clap::Args, Debug)]
 pub struct RmArgs {
-    pub handles: Vec<String>,
-    pub recursive: bool,
+    /// Delete child handles recursively
+    #[arg(long, short = 'r')]
+    recursive: bool,
+
+    /// Handles to be removed
+    #[arg(name = "HANDLE", required = true)]
+    handles: Vec<String>,
 }
 
+#[derive(clap::Args, Debug)]
 pub struct EditArgs {
-    pub editor: Option<String>,
+    /// Defines the editor to be used for that run, overriding the quartz settings.
+    #[arg(long)]
+    editor: Option<String>,
 }
 
 pub fn create(ctx: &Ctx, mut args: CreateArgs) {

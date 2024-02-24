@@ -10,10 +10,15 @@ enum CurlOption {
     Data,
 }
 
-#[derive(Default)]
+#[derive(clap::Args, Debug)]
 pub struct Curl {
-    pub long: bool,
-    pub multiline: bool,
+    /// Use long form cURL options (--header instead of -H)
+    #[arg(long)]
+    long: bool,
+
+    /// Split output across multiple lines
+    #[arg(long)]
+    multiline: bool,
 }
 
 impl Curl {

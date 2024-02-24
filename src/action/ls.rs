@@ -2,8 +2,15 @@ use crate::{Ctx, EndpointHandle};
 use colored::Colorize;
 use std::path::PathBuf;
 
-pub fn cmd(ctx: &Ctx, max_depth: Option<usize>) {
-    let max_depth = max_depth.unwrap_or(usize::MAX).max(1);
+#[derive(clap::Args, Debug)]
+pub struct Args {
+    /// Set a limit for how deep the listing goes in sub-handles
+    #[arg(long, value_name = "N")]
+    depth: Option<usize>,
+}
+
+pub fn cmd(ctx: &Ctx, args: Args) {
+    let max_depth = args.depth.unwrap_or(usize::MAX).max(1);
     let mut current = PathBuf::new();
 
     if let Some(handle) = EndpointHandle::from_state(ctx) {

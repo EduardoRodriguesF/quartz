@@ -22,31 +22,7 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Init { directory } => action::init::cmd(directory)?,
 
-        Cmd::Send {
-            header,
-            query,
-            var,
-            request,
-            data,
-            no_follow,
-            cookie,
-            cookie_jar,
-        } => {
-            action::send::cmd(
-                ctx,
-                action::send::Args {
-                    headers: header,
-                    query,
-                    variables: var,
-                    request,
-                    data,
-                    no_follow,
-                    cookies: cookie,
-                    cookie_jar,
-                },
-            )
-            .await?
-        }
+        Cmd::Send(args) => action::send::cmd(ctx, args).await?,
 
         Cmd::Create {
             handle,
@@ -92,31 +68,12 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
             },
         ),
 
-        Cmd::Ls { depth } => action::ls::cmd(&ctx, depth),
+        Cmd::Ls(args) => action::ls::cmd(&ctx, args),
         Cmd::Show { command } => action::show::cmd(&ctx, command)?,
-        Cmd::Edit { editor } => action::handle::edit(ctx, action::handle::EditArgs { editor })?,
-        Cmd::Cp {
-            recursive,
-            src,
-            dest,
-        } => action::handle::cp(
-            ctx,
-            action::handle::CpArgs {
-                recursive,
-                src,
-                dest,
-            },
-        )?,
-
-        Cmd::Mv { handles } => action::handle::mv(ctx, action::handle::MvArgs { handles })?,
-
-        Cmd::Rm { handle, recursive } => action::handle::rm(
-            ctx,
-            action::handle::RmArgs {
-                handles: handle,
-                recursive,
-            },
-        )?,
+        Cmd::Edit(args) => action::handle::edit(ctx, args)?,
+        Cmd::Cp(args) => action::handle::cp(ctx, args)?,
+        Cmd::Mv(args) => action::handle::mv(ctx, args)?,
+        Cmd::Rm(args) => action::handle::rm(ctx, args)?,
 
         Cmd::Query { command } => action::query::cmd(ctx, command)?,
         Cmd::Header { command } => action::header::cmd(ctx, command)?,

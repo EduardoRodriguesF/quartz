@@ -13,16 +13,39 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use tokio::io::{stdout, AsyncWriteExt as _};
 
-#[derive(Default)]
+#[derive(clap::Args, Debug)]
 pub struct Args {
-    pub headers: Vec<String>,
-    pub query: Vec<String>,
-    pub variables: Vec<String>,
-    pub request: Option<String>,
-    pub data: Option<String>,
-    pub no_follow: bool,
-    pub cookies: Vec<String>,
-    pub cookie_jar: Option<PathBuf>,
+    /// Change a variable when sending the request.
+    #[arg(long = "var", short = 'v', value_name = "KEY=VALUE")]
+    variables: Vec<String>,
+
+    /// Change or include an extra header
+    #[arg(long = "header", short = 'H')]
+    headers: Vec<String>,
+
+    /// Change or include an extra query param
+    #[arg(long, short = 'q')]
+    query: Vec<String>,
+
+    /// Change request method
+    #[arg(long, short = 'X', value_name = "METHOD")]
+    request: Option<String>,
+
+    /// Sends data in request body
+    #[arg(long, short = 'd')]
+    data: Option<String>,
+
+    /// Prevent quartz from following redirects
+    #[arg(long)]
+    no_follow: bool,
+
+    /// Pass cookie data to request header
+    #[arg(long = "cookie", short = 'b', value_name = "DATA|FILENAME")]
+    cookies: Vec<String>,
+
+    /// Which file to write all cookies after a completed request
+    #[arg(long, short = 'c', value_name = "FILE")]
+    cookie_jar: Option<PathBuf>,
 }
 
 pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {

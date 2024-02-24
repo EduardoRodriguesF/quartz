@@ -2,11 +2,28 @@ use crate::{cli::QueryCmd as Cmd, Ctx, PairMap, QuartzResult};
 use colored::Colorize;
 use std::process::ExitCode;
 
+#[derive(clap::Args, Debug)]
+pub struct GetArgs {
+    key: String,
+}
+
+#[derive(clap::Args, Debug)]
+pub struct SetArgs {
+    #[arg(name = "QUERY", required = true)]
+    queries: Vec<String>,
+}
+
+#[derive(clap::Args, Debug)]
+pub struct RmArgs {
+    #[arg(name = "QUERY", required = true)]
+    keys: Vec<String>,
+}
+
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
-        Cmd::Get { key } => get(ctx, key),
-        Cmd::Set { query } => set(ctx, query),
-        Cmd::Rm { key } => rm(ctx, key)?,
+        Cmd::Get(args) => get(ctx, args.key),
+        Cmd::Set(args) => set(ctx, args.queries),
+        Cmd::Rm(args) => rm(ctx, args.keys)?,
         Cmd::Ls => ls(ctx),
     };
 
