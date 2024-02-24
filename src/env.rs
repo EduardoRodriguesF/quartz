@@ -124,6 +124,11 @@ impl Env {
     }
 
     pub fn cookie_jar(&self, ctx: &Ctx) -> CookieJar {
-        CookieJar::read(&self.dir(ctx).join(CookieJar::FILENAME)).unwrap_or_default()
+        let path = self.dir(ctx).join(CookieJar::FILENAME);
+        let mut jar = CookieJar::read(&path).unwrap_or_default();
+
+        jar.path = path;
+
+        jar
     }
 }
