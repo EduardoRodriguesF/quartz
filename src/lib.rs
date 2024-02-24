@@ -115,7 +115,7 @@ impl Ctx {
     }
 
     pub fn require_input_handle(&self, handle: &str) -> EndpointHandle {
-        let result = EndpointHandle::from_handle(handle);
+        let result = EndpointHandle::from(handle);
 
         if !result.exists(self) {
             panic!("could not find {} handle", handle.red());
@@ -127,13 +127,13 @@ impl Ctx {
     pub fn require_handle(&self) -> EndpointHandle {
         if let Some(handle) = &self.args.from_handle {
             // Overwritten by argument
-            return EndpointHandle::from_handle(handle);
+            return EndpointHandle::from(handle);
         }
 
         let mut result = None;
         if let Ok(handle) = self.state.get(self, StateField::Endpoint) {
             if !handle.is_empty() {
-                result = Some(EndpointHandle::from_handle(handle));
+                result = Some(EndpointHandle::from(handle));
             }
         }
 

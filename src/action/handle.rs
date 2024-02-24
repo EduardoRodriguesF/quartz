@@ -40,7 +40,7 @@ pub fn create(ctx: &Ctx, mut args: CreateArgs) {
         panic!("missing endpoint handle");
     }
 
-    let handle = EndpointHandle::from_handle(args.handle);
+    let handle = EndpointHandle::from(args.handle);
 
     if handle.exists(ctx) {
         panic!("endpoint already exists");
@@ -131,7 +131,7 @@ pub fn rm(ctx: &Ctx, args: RmArgs) {
     let mut exit_code = 0;
 
     for name in args.handles {
-        let handle = EndpointHandle::from_handle(&name);
+        let handle = EndpointHandle::from(&name);
 
         if !handle.exists(ctx) {
             exit_code = 1;

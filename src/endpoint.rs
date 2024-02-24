@@ -134,6 +134,17 @@ impl EndpointInput {
     }
 }
 
+impl<T> From<T> for EndpointHandle
+where
+    T: AsRef<str>,
+{
+    fn from(value: T) -> Self {
+        let path: Vec<String> = value.as_ref().split('/').map(|s| s.to_string()).collect();
+
+        Self { path }
+    }
+}
+
 impl EndpointHandle {
     /// Points to top-level quartz folder.
     ///
@@ -141,22 +152,13 @@ impl EndpointHandle {
     /// from the top one.
     pub const QUARTZ: Self = Self { path: vec![] };
 
-    pub fn from_handle<S>(handle: S) -> Self
-    where
-        S: AsRef<str>,
-    {
-        let path: Vec<String> = handle.as_ref().split('/').map(|s| s.to_string()).collect();
-
-        Self { path }
-    }
-
     pub fn from_state(ctx: &Ctx) -> Option<Self> {
         if let Ok(handle) = ctx.state.get(ctx, StateField::Endpoint) {
             if handle.is_empty() {
                 return None;
             }
 
-            return Some(EndpointHandle::from_handle(handle));
+            return Some(EndpointHandle::from(handle));
         }
 
         None
@@ -250,7 +252,7 @@ impl EndpointHandle {
 
     pub fn replace(&mut self, from: &str, to: &str) {
         let handle = self.handle().replace(from, to);
-        self.path = EndpointHandle::from_handle(handle).path;
+        self.path = EndpointHandle::from(handle).path;
     }
 }
 
