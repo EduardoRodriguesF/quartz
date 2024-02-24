@@ -68,9 +68,11 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
         .collect::<Vec<String>>()
         .join("; ");
 
-    endpoint
-        .headers
-        .insert(String::from("Cookie"), cookie_value);
+    if !cookie_value.is_empty() {
+        endpoint
+            .headers
+            .insert(String::from("Cookie"), cookie_value);
+    }
 
     endpoint.update(&mut EndpointInput {
         headers: args.headers,
