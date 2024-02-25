@@ -67,25 +67,14 @@ pub enum Cmd {
         command: HeaderCmd,
     },
     /// Manage current handle's endpoint request body
-    Body {
-        /// Which extension to read body as. E.g.: quartz body --format json edit
-        #[arg(long, value_name = "EXT")]
-        format: Option<String>,
-
-        #[command(subcommand)]
-        command: BodyCmd,
-    },
+    Body(action::body::Args),
     /// Print information about last request or response
     Last {
         #[command(subcommand)]
         command: Option<LastCmd>,
     },
     /// Print request history
-    History {
-        /// Maximum number of requests to be listed
-        #[arg(short = 'n', long, value_name = "N")]
-        max_count: Option<usize>,
-    },
+    History(action::history::Args),
     /// Manage project's environments
     #[command(name = "env", alias = "environment")]
     Env {

@@ -1,12 +1,18 @@
 use crate::{cli::BodyCmd as Cmd, validator, Ctx, QuartzResult};
 use std::io::Write;
 
-pub struct BodyArgs {
-    pub format: Option<String>,
+#[derive(clap::Args, Debug)]
+pub struct Args {
+    /// Which extension to read body as. E.g.: quartz body --format json edit
+    #[arg(long, value_name = "EXT")]
+    format: Option<String>,
+
+    #[command(subcommand)]
+    command: crate::cli::BodyCmd,
 }
 
-pub fn cmd(ctx: &Ctx, command: Cmd, args: BodyArgs) -> QuartzResult {
-    match command {
+pub fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
+    match args.command {
         Cmd::Show => print(ctx),
         Cmd::Stdin => stdin(ctx),
         Cmd::Edit => edit(ctx, args.format)?,

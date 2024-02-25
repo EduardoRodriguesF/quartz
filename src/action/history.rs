@@ -1,7 +1,10 @@
 use crate::{history::History, Ctx, QuartzResult};
 
+#[derive(clap::Args, Debug)]
 pub struct Args {
-    pub max_count: Option<usize>,
+    /// Maximum number of requests to be listed
+    #[arg(short = 'n', long, value_name = "N")]
+    max_count: Option<usize>,
 }
 
 pub fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {

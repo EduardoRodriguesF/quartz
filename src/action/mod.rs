@@ -31,20 +31,11 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Cp(args) => action::handle::cp(ctx, args)?,
         Cmd::Mv(args) => action::handle::mv(ctx, args)?,
         Cmd::Rm(args) => action::handle::rm(ctx, args)?,
-
         Cmd::Query { command } => action::query::cmd(ctx, command)?,
         Cmd::Header { command } => action::header::cmd(ctx, command)?,
-
-        Cmd::Body { format, command } => {
-            action::body::cmd(ctx, command, action::body::BodyArgs { format })?
-        }
-
+        Cmd::Body(args) => action::body::cmd(ctx, args)?,
+        Cmd::History(args) => action::history::cmd(ctx, args)?,
         Cmd::Last { command } => action::last::cmd(ctx, command)?,
-
-        Cmd::History { max_count } => {
-            action::history::cmd(ctx, action::history::Args { max_count })?
-        }
-
         Cmd::Var { command } => action::var::cmd(ctx, command)?,
         Cmd::Env { command } => action::env::cmd(ctx, command)?,
         Cmd::Config { command } => action::config::cmd(ctx, command)?,

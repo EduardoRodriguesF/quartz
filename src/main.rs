@@ -1,4 +1,4 @@
-use std::process::{exit, ExitCode};
+use std::process::ExitCode;
 
 use clap::Parser;
 use colored::Colorize;
