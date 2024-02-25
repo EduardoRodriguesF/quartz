@@ -1,6 +1,6 @@
 use crate::action;
+use crate::QuartzResult;
 use crate::{cli::Cmd, Ctx};
-use crate::{endpoint::EndpointInput, QuartzResult};
 
 pub mod body;
 pub mod config;
@@ -23,51 +23,8 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Init { directory } => action::init::cmd(directory)?,
 
         Cmd::Send(args) => action::send::cmd(ctx, args).await?,
-
-        Cmd::Create {
-            handle,
-            url,
-            method,
-            query,
-            header: headers,
-            switch,
-        } => action::handle::create(
-            ctx,
-            action::handle::CreateArgs {
-                handle,
-                config: EndpointInput {
-                    url,
-                    method,
-                    query,
-                    headers,
-                    ..Default::default()
-                },
-                switch,
-            },
-        ),
-
-        Cmd::Use {
-            handle,
-            url,
-            method,
-            query,
-            header: headers,
-            empty,
-        } => action::handle::switch(
-            ctx,
-            handle::SwitchArgs {
-                handle,
-                config: EndpointInput {
-                    url,
-                    method,
-                    query,
-                    headers,
-                    ..Default::default()
-                },
-                empty,
-            },
-        ),
-
+        Cmd::Create(args) => action::handle::create(ctx, args),
+        Cmd::Use(args) => action::handle::switch(ctx, args),
         Cmd::Ls(args) => action::ls::cmd(&ctx, args),
         Cmd::Show { command } => action::show::cmd(&ctx, command)?,
         Cmd::Edit(args) => action::handle::edit(ctx, args)?,

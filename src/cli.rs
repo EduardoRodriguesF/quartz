@@ -29,53 +29,9 @@ pub enum Cmd {
     /// Send request using the current handle's endpoint and outputs the response
     Send(action::send::Args),
     /// Create a new handle
-    Create {
-        handle: String,
-
-        /// Set handle's endpoint URL
-        #[arg(long)]
-        url: Option<String>,
-
-        /// Set handle's endpoint method value
-        #[arg(short = 'X', long = "request")]
-        method: Option<String>,
-
-        /// Add a key-value pair to the URL query.
-        #[arg(short, long, value_name = "KEY=VALUE")]
-        query: Vec<String>,
-
-        /// Set a header entry in "<key>: <value>" format. This argument can be passed multiple times
-        #[arg(short = 'H', long)]
-        header: Vec<String>,
-
-        /// Immediatly switches to this handle after creating it
-        #[arg(name = "use", long)]
-        switch: bool,
-    },
+    Create(action::handle::CreateArgs),
     /// Switch handle or edit its endpoint
-    Use {
-        handle: Option<String>,
-
-        #[arg(long)]
-        url: Option<String>,
-
-        /// HTTP request method
-        #[arg(short = 'X', long = "request")]
-        method: Option<String>,
-
-        /// Add a parameter the URL query
-        #[arg(short, long, value_name = "PARAM")]
-        query: Vec<String>,
-
-        /// Add a header entry in "<key>: <value>" format. This argument can be passed multiple times
-        #[arg(short = 'H', long)]
-        header: Vec<String>,
-
-        /// Make handle empty. Using it with other editing options will write a new endpoint in
-        /// place of the old one
-        #[arg(long)]
-        empty: bool,
-    },
+    Use(action::handle::SwitchArgs),
 
     /// Lists available handles
     #[command(name = "ls", alias = "list")]

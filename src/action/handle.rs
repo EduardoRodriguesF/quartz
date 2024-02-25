@@ -2,23 +2,34 @@ use std::collections::VecDeque;
 use std::process::ExitCode;
 
 use crate::{
-    endpoint::{Endpoint, EndpointHandle, EndpointInput},
+    endpoint::{Endpoint, EndpointHandle, EndpointPatch},
     validator, Ctx, QuartzResult, StateField,
 };
 use colored::Colorize;
 
-#[derive(Default)]
+#[derive(clap::Args, Debug)]
 pub struct CreateArgs {
-    pub handle: String,
-    pub config: EndpointInput,
-    pub switch: bool,
+    handle: String,
+
+    #[command(flatten)]
+    patch: EndpointPatch,
+
+    /// Immediatly switches to this handle after creating it
+    #[arg(name = "use", long)]
+    switch: bool,
 }
 
-#[derive(Default)]
+#[derive(clap::Args, Debug)]
 pub struct SwitchArgs {
-    pub handle: Option<String>,
-    pub config: EndpointInput,
-    pub empty: bool,
+    handle: Option<String>,
+
+    #[command(flatten)]
+    patch: EndpointPatch,
+
+    /// Make handle empty. Using it with other editing options will write a new endpoint in
+    /// place of the old one
+    #[arg(long)]
+    empty: bool,
 }
 
 #[derive(clap::Args, Debug)]
@@ -64,7 +75,7 @@ pub fn create(ctx: &Ctx, mut args: CreateArgs) {
         panic!("endpoint already exists");
     }
 
-    let mut endpoint = Endpoint::from(&mut args.config);
+    let mut endpoint = Endpoint::from(&mut args.patch);
     endpoint.set_handle(ctx, &handle);
 
     if args.switch {
@@ -105,7 +116,7 @@ pub fn switch(ctx: &Ctx, mut args: SwitchArgs) {
         handle.make_empty(ctx);
     }
 
-    if !args.config.has_changes() {
+    if !args.patch.has_changes() {
         return;
     }
 
@@ -113,7 +124,7 @@ pub fn switch(ctx: &Ctx, mut args: SwitchArgs) {
         .endpoint(ctx)
         .unwrap_or(Endpoint::new(handle.dir(ctx)));
 
-    endpoint.update(&mut args.config);
+    endpoint.update(&mut args.patch);
     endpoint.write();
 }
 

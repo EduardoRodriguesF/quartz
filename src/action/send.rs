@@ -1,6 +1,6 @@
 use crate::{
     cookie::CookieJar,
-    endpoint::EndpointInput,
+    endpoint::EndpointPatch,
     history::{self, History},
     Ctx, PairMap, QuartzResult,
 };
@@ -97,7 +97,7 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
             .insert(String::from("Cookie"), cookie_value);
     }
 
-    endpoint.update(&mut EndpointInput {
+    endpoint.update(&mut EndpointPatch {
         headers: args.headers,
         query: args.query,
         method: args.request,

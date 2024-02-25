@@ -116,16 +116,26 @@ pub struct Endpoint {
     pub path: PathBuf,
 }
 
-#[derive(Default)]
-pub struct EndpointInput {
+#[derive(Default, Debug, clap::Args)]
+pub struct EndpointPatch {
+    /// Request URL
+    #[arg(long)]
     pub url: Option<String>,
+
+    /// HTTP request method
+    #[arg(short = 'X', long = "request")]
     pub method: Option<String>,
+
+    /// Add a parameter the URL query
+    #[arg(short, long, value_name = "PARAM")]
     pub query: Vec<String>,
+
+    /// Add a header entry in "<key>: <value>" format. This argument can be passed multiple times
+    #[arg(short = 'H', long = "header")]
     pub headers: Vec<String>,
-    pub variables: Vec<String>,
 }
 
-impl EndpointInput {
+impl EndpointPatch {
     pub fn has_changes(&self) -> bool {
         self.url.is_some()
             || self.method.is_some()
@@ -256,8 +266,8 @@ impl EndpointHandle {
     }
 }
 
-impl From<&mut EndpointInput> for Endpoint {
-    fn from(value: &mut EndpointInput) -> Self {
+impl From<&mut EndpointPatch> for Endpoint {
+    fn from(value: &mut EndpointPatch) -> Self {
         let mut endpoint = Self::default();
         endpoint.update(value);
 
@@ -288,7 +298,7 @@ impl Endpoint {
         Ok(endpoint)
     }
 
-    pub fn update(&mut self, src: &mut EndpointInput) {
+    pub fn update(&mut self, src: &mut EndpointPatch) {
         if let Some(method) = &mut src.method {
             std::mem::swap(&mut self.method, method);
         }
