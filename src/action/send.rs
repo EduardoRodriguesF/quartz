@@ -19,17 +19,8 @@ pub struct Args {
     #[arg(long = "var", short = 'v', value_name = "KEY=VALUE")]
     variables: Vec<String>,
 
-    /// Change or include an extra header
-    #[arg(long = "header", short = 'H')]
-    headers: Vec<String>,
-
-    /// Change or include an extra query param
-    #[arg(long, short = 'q')]
-    query: Vec<String>,
-
-    /// Change request method
-    #[arg(long, short = 'X', value_name = "METHOD")]
-    request: Option<String>,
+    #[command(flatten)]
+    patch: EndpointPatch,
 
     /// Sends data in request body
     #[arg(long, short = 'd')]
@@ -48,7 +39,7 @@ pub struct Args {
     cookie_jar: Option<PathBuf>,
 }
 
-pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
+pub async fn cmd(ctx: &Ctx, mut args: Args) -> QuartzResult {
     let (handle, mut endpoint) = ctx.require_endpoint();
     let mut env = ctx.require_env();
     for var in args.variables {
@@ -97,12 +88,7 @@ pub async fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
             .insert(String::from("Cookie"), cookie_value);
     }
 
-    endpoint.update(&mut EndpointPatch {
-        headers: args.headers,
-        query: args.query,
-        method: args.request,
-        ..Default::default()
-    });
+    endpoint.update(&mut args.patch);
 
     endpoint.apply_env(&env);
 
