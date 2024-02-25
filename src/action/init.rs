@@ -5,8 +5,13 @@ use std::str::FromStr;
 
 use colored::Colorize;
 
-pub fn cmd(dir: Option<PathBuf>) -> QuartzResult {
-    let directory = dir.unwrap_or(Path::new(".").to_path_buf());
+#[derive(clap::Args, Debug)]
+pub struct Args {
+    directory: Option<PathBuf>,
+}
+
+pub fn cmd(args: Args) -> QuartzResult {
+    let directory = args.directory.unwrap_or(Path::new(".").to_path_buf());
     let quartz_dir = directory.join(".quartz");
 
     if quartz_dir.exists() {

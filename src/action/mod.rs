@@ -20,7 +20,7 @@ pub mod var;
 
 pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
-        Cmd::Init { directory } => action::init::cmd(directory)?,
+        Cmd::Init(_) => (), // Init is only run on main, before ctx is resolved
 
         Cmd::Send(args) => action::send::cmd(ctx, args).await?,
         Cmd::Create(args) => action::handle::create(ctx, args),

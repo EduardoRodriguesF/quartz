@@ -1,8 +1,5 @@
-use std::path::PathBuf;
-
-use clap::{Parser, Subcommand};
-
 use crate::action;
+use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
 #[command(name = "quartz")]
@@ -25,7 +22,7 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 pub enum Cmd {
     /// Initialize quartz
-    Init { directory: Option<PathBuf> },
+    Init(action::init::Args),
     /// Send request using the current handle's endpoint and outputs the response
     Send(action::send::Args),
     /// Create a new handle

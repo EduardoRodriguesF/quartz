@@ -25,10 +25,10 @@ async fn main() -> QuartzResult<ExitCode> {
 
     let args = Cli::parse();
 
-    // Pre CTX commands
-    if let Cmd::Init { ref directory } = args.command {
-        action::init::cmd(directory.clone())?;
-        exit(0);
+    // Has to run outside action flow because it cannot resolve `ctx`.
+    if let Cmd::Init(args) = args.command {
+        action::init::cmd(args)?;
+        return Ok(ExitCode::SUCCESS);
     }
 
     let mut ctx = Ctx::new(CtxArgs {
