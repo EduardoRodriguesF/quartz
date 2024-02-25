@@ -114,6 +114,21 @@ pub struct Endpoint {
 
     #[serde(skip_serializing, skip_deserializing)]
     pub path: PathBuf,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    pub body: Option<String>,
+}
+
+#[derive(Debug, clap::Args)]
+#[group(multiple = false)]
+pub struct ContentTypeGroup {
+    /// Use JSON data in request body with the appropriate content-type header
+    #[arg(long, value_name = "DATA")]
+    pub json: Option<Option<String>>,
+
+    /// Use raw data in request body
+    #[arg(long = "data", short = 'd', value_name = "DATA")]
+    pub raw: Option<String>,
 }
 
 #[derive(Default, Debug, clap::Args)]
@@ -133,6 +148,9 @@ pub struct EndpointPatch {
     /// Add or patch a header. This argument can be passed multiple times
     #[arg(short = 'H', long = "header")]
     pub headers: Vec<String>,
+
+    #[command(flatten)]
+    pub data: Option<ContentTypeGroup>,
 }
 
 impl EndpointPatch {
@@ -318,17 +336,26 @@ impl Endpoint {
         for input in &src.query {
             self.query.set(input);
         }
+
+        if let Some(data) = &src.data {
+            if let Some(maybe_json) = &data.json {
+                self.headers
+                    .insert("Content-type".into(), "application/json".into());
+
+                if let Some(json) = maybe_json {
+                    self.body = Some(json.to_owned());
+                }
+            } else if let Some(raw) = &data.raw {
+                self.body = Some(raw.to_owned());
+            }
+        }
     }
 
     pub fn to_toml(&self) -> Result<String, toml::ser::Error> {
         toml::to_string(&self)
     }
 
-    pub fn has_body(&self) -> bool {
-        self.path.join("body").exists()
-    }
-
-    pub fn body(&self) -> String {
+    pub fn load_body(&mut self) -> Option<&String> {
         match std::fs::read_to_string(self.path.join("body")) {
             Ok(mut content) => {
                 for (key, value) in self.variables.iter() {
@@ -337,9 +364,22 @@ impl Endpoint {
                     content = content.replace(&key_match, value);
                 }
 
-                content.into()
+                if content.trim().is_empty() {
+                    return None;
+                }
+
+                self.body = Some(content.to_owned());
+                self.body.as_ref()
             }
-            Err(_) => "".to_string(),
+            Err(_) => None,
+        }
+    }
+
+    pub fn body(&mut self) -> Option<&String> {
+        if self.body.is_some() {
+            self.body.as_ref()
+        } else {
+            self.load_body()
         }
     }
 
@@ -406,10 +446,7 @@ impl Endpoint {
     }
 
     /// Returns the a [`Request`] consuming struct.
-    pub fn into_request<T>(self, body: T) -> Result<Request<Body>, hyper::http::Error>
-    where
-        T: Into<Body>,
-    {
+    pub fn into_request(mut self) -> Result<Request<Body>, hyper::http::Error> {
         let mut builder = hyper::Request::builder().uri(&self.full_url()?);
 
         if let Ok(method) = hyper::Method::from_bytes(self.method.as_bytes()) {
@@ -420,7 +457,11 @@ impl Endpoint {
             builder = builder.header(key, value);
         }
 
-        builder.body(body.into())
+        if let Some(body) = self.body() {
+            builder.body(body.to_owned().into())
+        } else {
+            builder.body(Body::empty())
+        }
     }
 
     pub fn colored_method(&self) -> colored::ColoredString {
@@ -486,6 +527,7 @@ impl Default for Endpoint {
             variables: Default::default(),
             query: Default::default(),
             path: Default::default(),
+            body: Default::default(),
         }
     }
 }

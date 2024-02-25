@@ -22,9 +22,11 @@ pub fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
 }
 
 pub fn print(ctx: &Ctx) {
-    let (_, endpoint) = ctx.require_endpoint();
+    let (_, mut endpoint) = ctx.require_endpoint();
 
-    print!("{}", endpoint.body());
+    if let Some(body) = endpoint.body() {
+        print!("{body}");
+    }
 }
 
 pub fn edit(ctx: &Ctx, format: Option<String>) -> QuartzResult {

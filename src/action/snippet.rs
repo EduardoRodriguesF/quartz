@@ -21,8 +21,8 @@ pub fn cmd(ctx: &Ctx, args: Args) -> QuartzResult {
     endpoint.apply_env(&env);
 
     match args.command {
-        Cmd::Curl(curl) => curl.print(&endpoint)?,
-        Cmd::Http => snippet::Http::print(&endpoint)?,
+        Cmd::Curl(curl) => curl.print(&mut endpoint)?,
+        Cmd::Http => snippet::Http::print(&mut endpoint)?,
     };
 
     Ok(())

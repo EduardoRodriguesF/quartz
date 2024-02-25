@@ -22,7 +22,7 @@ pub struct Curl {
 }
 
 impl Curl {
-    pub fn print(&self, endpoint: &Endpoint) -> QuartzResult {
+    pub fn print(&self, endpoint: &mut Endpoint) -> QuartzResult {
         let separator = if self.multiline { " \\\n\t" } else { " " };
 
         print!(
@@ -46,8 +46,8 @@ impl Curl {
             );
         }
 
-        let mut body = endpoint.body();
-        if !body.is_empty() {
+        if let Some(body) = endpoint.body() {
+            let mut body = body.to_owned();
             print!("{}{} '", separator, self.option_string(CurlOption::Data));
 
             if body.ends_with("\n") {
@@ -156,7 +156,7 @@ impl From<&Request<Body>> for Http {
 }
 
 impl Http {
-    pub fn print(endpoint: &Endpoint) -> QuartzResult {
+    pub fn print(endpoint: &mut Endpoint) -> QuartzResult {
         let url = endpoint.full_url()?;
         let path = url.path_and_query().unwrap();
 
@@ -164,12 +164,8 @@ impl Http {
         println!("Host: {}", url.host().unwrap());
         print!("{}", endpoint.headers);
 
-        if endpoint.has_body() {
-            println!()
-        }
-
-        if endpoint.has_body() {
-            let body = endpoint.body();
+        if let Some(body) = endpoint.body() {
+            println!();
             print!("{body}");
         }
 

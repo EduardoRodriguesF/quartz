@@ -22,10 +22,6 @@ pub struct Args {
     #[command(flatten)]
     patch: EndpointPatch,
 
-    /// Sends data in request body
-    #[arg(long, short = 'd')]
-    data: Option<String>,
-
     /// Do not follow redirects
     #[arg(long)]
     no_follow: bool,
@@ -88,27 +84,32 @@ pub async fn cmd(ctx: &Ctx, mut args: Args) -> QuartzResult {
             .insert(String::from("Cookie"), cookie_value);
     }
 
-    endpoint.update(&mut args.patch);
-
-    endpoint.apply_env(&env);
-
-    let raw_body = args.data.unwrap_or(endpoint.body());
-    let mut res: hyper::Response<Body>;
     let mut entry = history::Entry::builder();
     entry
         .handle(handle.handle())
         .timestemp(Utc::now().timestamp_micros());
 
+    endpoint.update(&mut args.patch);
+    endpoint.apply_env(&env);
+
+    let body = if let Some(body) = endpoint.body() {
+        Some(body.clone())
+    } else {
+        None
+    };
+
+    let mut res: hyper::Response<Body>;
+
     loop {
         let req = endpoint
             // TODO: Find a way around this clone
             .clone()
-            .into_request(raw_body.clone())
+            .into_request()
             .unwrap_or_else(|_| panic!("malformed request"));
 
         entry.message(&req);
-        if !raw_body.is_empty() {
-            entry.message_raw(raw_body.clone());
+        if let Some(ref body) = body {
+            entry.message_raw(body.to_owned());
         }
 
         let client = {
