@@ -118,19 +118,19 @@ pub struct Endpoint {
 
 #[derive(Default, Debug, clap::Args)]
 pub struct EndpointPatch {
-    /// Request URL
+    /// Patch request URL
     #[arg(long)]
     pub url: Option<String>,
 
-    /// HTTP request method
+    /// Patch HTTP request method
     #[arg(short = 'X', long = "request")]
     pub method: Option<String>,
 
-    /// Add a parameter the URL query
+    /// Add or patch a parameter to the URL query. This argument can be passed multiple times
     #[arg(short, long, value_name = "PARAM")]
     pub query: Vec<String>,
 
-    /// Add a header entry in "<key>: <value>" format. This argument can be passed multiple times
+    /// Add or patch a header. This argument can be passed multiple times
     #[arg(short = 'H', long = "header")]
     pub headers: Vec<String>,
 }

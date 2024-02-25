@@ -26,7 +26,7 @@ pub struct Args {
     #[arg(long, short = 'd')]
     data: Option<String>,
 
-    /// Prevent quartz from following redirects
+    /// Do not follow redirects
     #[arg(long)]
     no_follow: bool,
 
