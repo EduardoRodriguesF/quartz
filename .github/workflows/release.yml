@@ -24,7 +24,7 @@ jobs:
             --output=doc/quartz.1
             doc/quartz.1.md
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: quartz.1
           path: doc/quartz.1
