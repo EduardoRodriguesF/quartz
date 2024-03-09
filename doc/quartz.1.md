@@ -120,6 +120,12 @@ All ENDPOINT PATCH options are available.
 
 Other options are as follows:
 
+**\-v, \-\-var** <*KEY=VALUE*>
+: Add or patch environment variable.
+
+**\-\-no-follow**
+: Do not follow redirects.
+
 **\-b**, **\-\-cookie** <*DATA|FILENAME*>
 : Pass cookie data to request header. If a key=value pair is given, it is used as a cookie of the request URL domain. Otherwise, it is expected to be a file containing cookies.
 
