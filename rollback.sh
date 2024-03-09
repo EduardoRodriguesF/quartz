@@ -10,4 +10,9 @@ git reset --hard HEAD~
 git push --delete origin $tag
 gh release delete
 gh release delete $tag
-git push --force
+
+read -p "Push? (y/n) " -n 1 -r reply
+
+if [[ $reply =~ ^[Yy]$ ]]; then
+    git push --force
+fi
