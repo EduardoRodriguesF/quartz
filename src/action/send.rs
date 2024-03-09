@@ -50,26 +50,22 @@ pub async fn cmd(ctx: &Ctx, mut args: Args) -> QuartzResult {
 
     let mut cookie_jar = env.cookie_jar(ctx);
 
-    let extras = args
-        .cookies
-        .iter()
-        .map(|c| {
-            if c.contains('=') {
-                return vec![c.to_owned()];
-            }
+    let extras = args.cookies.iter().flat_map(|c| {
+        if c.contains('=') {
+            return vec![c.to_owned()];
+        }
 
-            let path = Path::new(c);
-            if !path.exists() {
-                panic!("no such file: {c}");
-            }
+        let path = Path::new(c);
+        if !path.exists() {
+            panic!("no such file: {c}");
+        }
 
-            CookieJar::read(&path)
-                .unwrap()
-                .iter()
-                .map(|c| format!("{}={}", c.name(), c.value()))
-                .collect()
-        })
-        .flatten();
+        CookieJar::read(path)
+            .unwrap()
+            .iter()
+            .map(|c| format!("{}={}", c.name(), c.value()))
+            .collect()
+    });
 
     let cookie_value = cookie_jar
         .iter()
@@ -92,11 +88,7 @@ pub async fn cmd(ctx: &Ctx, mut args: Args) -> QuartzResult {
     endpoint.update(&mut args.patch);
     endpoint.apply_env(&env);
 
-    let body = if let Some(body) = endpoint.body() {
-        Some(body.clone())
-    } else {
-        None
-    };
+    let body = endpoint.body().cloned();
 
     let mut res: hyper::Response<Body>;
 
@@ -143,10 +135,8 @@ pub async fn cmd(ctx: &Ctx, mut args: Args) -> QuartzResult {
                     .path_and_query(location)
                     .build()?
                     .to_string();
-            } else {
-                if Uri::from_str(location).is_ok() {
-                    endpoint.url = location.to_string();
-                }
+            } else if Uri::from_str(location).is_ok() {
+                endpoint.url = location.to_string();
             }
         };
     }

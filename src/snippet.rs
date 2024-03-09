@@ -50,7 +50,7 @@ impl Curl {
             let mut body = body.to_owned();
             print!("{}{} '", separator, self.option_string(CurlOption::Data));
 
-            if body.ends_with("\n") {
+            if body.ends_with('\n') {
                 body.truncate(body.len() - 1);
             }
 

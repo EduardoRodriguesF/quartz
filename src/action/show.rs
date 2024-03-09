@@ -23,7 +23,7 @@ pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
         Cmd::Env => action::env::print(ctx),
         Cmd::Cookies(args) => action::cookie::print(ctx, args),
         Cmd::Endpoint => endpoint(ctx)?,
-        Cmd::Snippet(args) => action::snippet::cmd(&ctx, args)?,
+        Cmd::Snippet(args) => action::snippet::cmd(ctx, args)?,
     };
 
     Ok(())

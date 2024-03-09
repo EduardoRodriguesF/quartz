@@ -65,7 +65,7 @@ impl History {
     pub fn last(ctx: &Ctx) -> Option<Entry> {
         let history = History::new(ctx).ok()?;
 
-        let entry = Entry::read(&History::dir(ctx).join(history.entries.get(0)?.to_string()));
+        let entry = Entry::read(&History::dir(ctx).join(history.entries.first()?.to_string()));
 
         entry.ok()
     }

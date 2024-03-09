@@ -76,9 +76,9 @@ impl Domain {
 
         let mut res = String::new();
 
-        let mut chars = value.chars();
+        let chars = value.chars();
         let mut last = '*';
-        while let Some(ch) = chars.next() {
+        for ch in chars {
             if ch == '.' && last == '.' {
                 continue;
             }

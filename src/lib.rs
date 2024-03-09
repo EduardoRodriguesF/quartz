@@ -65,7 +65,7 @@ where
         let (key, value) = Self::pair(input)
             .unwrap_or_else(|| panic!("malformed {}. Expected {}", Self::NAME, Self::EXPECTED));
 
-        self.map().insert(key.into(), value.into());
+        self.map().insert(key, value);
     }
 }
 
@@ -214,15 +214,13 @@ impl Ctx {
     where
         F: FnOnce(&str) -> QuartzResult,
     {
-        let mut temp_path = self.path().join("user").join(format!("EDIT"));
+        let mut temp_path = self.path().join("user").join("EDIT");
 
         let extension: Option<OsString> = {
             if let Some(extension) = extension {
                 Some(OsString::from(extension))
-            } else if let Some(extension) = path.extension() {
-                Some(extension.to_os_string())
             } else {
-                None
+                path.extension().map(|extension| extension.to_os_string())
             }
         };
 
@@ -269,7 +267,7 @@ impl Ctx {
                 );
             });
 
-        child.stdin.as_mut().unwrap().write_all(input.into())?;
+        child.stdin.as_mut().unwrap().write_all(input)?;
         child.wait()?;
 
         Ok(())

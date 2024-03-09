@@ -168,7 +168,7 @@ pub fn rm(ctx: &mut Ctx, args: RmArgs) -> QuartzResult {
             continue;
         }
 
-        if handle.children(ctx).len() > 0 && !args.recursive {
+        if !handle.children(ctx).is_empty() && !args.recursive {
             ctx.code(ExitCode::FAILURE);
             eprintln!(
                 "{} has child handles. Use -r option to confirm",

@@ -39,7 +39,7 @@ impl Default for Quartz {
 
 impl Drop for Quartz {
     fn drop(&mut self) {
-        let _ = std::fs::remove_dir_all(self.dir()).unwrap();
+        std::fs::remove_dir_all(self.dir()).unwrap();
     }
 }
 

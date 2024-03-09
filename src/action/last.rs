@@ -34,10 +34,10 @@ pub fn req_head(entry: &history::Entry) {
     let iter = entry
         .messages()
         .iter()
-        .filter_map(|p| match p.starts_with(">") {
+        .filter_map(|p| match p.starts_with('>') {
             true => Some(
-                p.split("\n")
-                    .map(|s| s.trim_start_matches(">").trim())
+                p.split('\n')
+                    .map(|s| s.trim_start_matches('>').trim())
                     .collect::<Vec<&str>>()
                     .join("\n"),
             ),
@@ -65,10 +65,10 @@ pub fn res_head(entry: &history::Entry) {
     let iter = entry
         .messages()
         .iter()
-        .filter_map(|p| match p.starts_with("<") {
+        .filter_map(|p| match p.starts_with('<') {
             true => Some(
-                p.split("\n")
-                    .map(|s| s.trim_start_matches("<").trim())
+                p.split('\n')
+                    .map(|s| s.trim_start_matches('<').trim())
                     .collect::<Vec<&str>>()
                     .join("\n"),
             ),

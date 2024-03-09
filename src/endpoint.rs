@@ -240,7 +240,7 @@ impl EndpointHandle {
 
     /// Removes endpoint to make it an empty handle
     pub fn make_empty(&self, ctx: &Ctx) {
-        if let Some(_) = self.endpoint(ctx) {
+        if self.endpoint(ctx).is_some() {
             let _ = std::fs::remove_file(self.dir(ctx).join("endpoint.toml"));
             let _ = std::fs::remove_file(self.dir(ctx).join("body"));
         }
@@ -433,13 +433,11 @@ impl Endpoint {
 
         let result = Uri::try_from(&url);
 
-        if result.is_err() {
-            if !url.contains("://") {
-                let mut scheme = "http://".to_owned();
-                scheme.push_str(&url);
+        if result.is_err() && !url.contains("://") {
+            let mut scheme = "http://".to_owned();
+            scheme.push_str(&url);
 
-                return Uri::try_from(scheme);
-            }
+            return Uri::try_from(scheme);
         }
 
         result

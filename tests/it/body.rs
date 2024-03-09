@@ -1,12 +1,12 @@
 use crate::utils::*;
 
-const SAMPLE_BODY_1: &'static str = r#"
+const SAMPLE_BODY_1: &str = r#"
 {
     "example": 123
 }
 "#;
 
-const SAMPLE_BODY_2: &'static str = r#"
+const SAMPLE_BODY_2: &str = r#"
 {
     "prop": {
         "hello": 123
@@ -15,7 +15,7 @@ const SAMPLE_BODY_2: &'static str = r#"
 }
 "#;
 
-const SAMPLE_BODY_2_VARS: &'static str = r#"
+const SAMPLE_BODY_2_VARS: &str = r#"
 {
     "prop": {
         "hello": {{requestHello}}

@@ -102,7 +102,7 @@ impl Env {
             .open(self.dir(ctx).join("variables"))?;
 
         if !self.variables.is_empty() {
-            var_file.write_all(format!("{}", self.variables.to_string()).as_bytes())?;
+            var_file.write_all(format!("{}", self.variables).as_bytes())?;
         }
 
         Ok(())
