@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Missing some `send` options in man page.
+- Emphasise ENDPOINT PATCH options in man page
+
 ## [1.0.0] - 2024-03-09
 
 ### Added

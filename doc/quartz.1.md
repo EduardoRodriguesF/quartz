@@ -48,7 +48,7 @@ Deleting a handle also deletes its sub-handles as well.
 
 **quartz** allows as much level of nesting as you wish.
 
-# ENDPOINT PATCH
+# **ENDPOINT PATCH**
 
 Some commands allow for endpiont patching, which means they are capable of changing the endpoint's configuration on the fly.
 
@@ -106,7 +106,7 @@ The options are as follows:
 ## use <*HANDLE*>
 Switch to a handle or edit its endpoint. Using a handle with endpoint allows for operations like *send*, *edit* and other endpoint commands.
 
-All ENDPOINT PATCH options are available and will be applied to the current handle permanently.
+All **ENDPOINT PATCH** options are available and will be applied to the current handle permanently.
 
 Other options are as follows:
 
@@ -116,7 +116,7 @@ Other options are as follows:
 ## send
 Send the request using the current handle's endpoint and outputs the response.
 
-All ENDPOINT PATCH options are available.
+All **ENDPOINT PATCH** options are available.
 
 Other options are as follows:
 
@@ -249,7 +249,7 @@ Display endpoint file.
 ## show snippet [*OPTIONS*] <*COMMAND*>
 Generate code snippet for endpoint.
 
-All ENDPOINT PATCH options are available.
+All **ENDPOINT PATCH** options are available.
 
 Other options are as follows:
 
