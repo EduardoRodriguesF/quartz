@@ -146,7 +146,6 @@ impl Domain {
     /// let expected = vec!["com", "example", "www"];
     /// let result = domain.as_segments().collect::<Vec<&str>>();
     /// assert_eq!(expected, result);
-    #[must_use]
     pub fn as_segments(&self) -> impl Iterator<Item = &str> {
         self.split('.').filter(|s| !s.is_empty()).rev()
     }

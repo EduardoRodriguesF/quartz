@@ -16,7 +16,11 @@ pub struct ConfigBuilder {
 impl ConfigBuilder {
     pub fn build(self) -> Config {
         let mut config = Config::default();
-        config.ui = self.ui.unwrap_or_default();
+
+        if let Some(ui) = self.ui {
+            config.ui = ui;
+        }
+
         config.preferences = self.preferences.build();
 
         config
