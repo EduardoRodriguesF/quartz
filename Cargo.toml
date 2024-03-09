@@ -1,6 +1,6 @@
 [package]
 name = "quartz-cli"
-description = "The CLI way to build and test Rest APIs"
+description = "The command-line tool to build and test HTTP requests."
 version = "0.8.0"
 edition = "2021"
 authors = ["Eduardo Rodrigues <contato@edurodrigues.dev>"]
