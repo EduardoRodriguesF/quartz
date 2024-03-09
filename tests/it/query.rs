@@ -35,7 +35,7 @@ fn it_can_set_query_param_with_intentional_equals_sign() -> TestResult {
 }
 
 #[test]
-fn it_can_remove_query() -> TestResult {
+fn it_can_rm_query() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 
     quartz.cmd(&["query", "set", "fields=example"])?;
@@ -49,7 +49,7 @@ fn it_can_remove_query() -> TestResult {
 }
 
 #[test]
-fn it_can_remove_multiple_query() -> TestResult {
+fn it_can_rm_multiple_query() -> TestResult {
     let quartz = Quartz::preset_using_sample_endpoint()?;
 
     quartz.cmd(&[
@@ -76,6 +76,28 @@ fn it_can_remove_multiple_query() -> TestResult {
         "false",
         "removed query that shouldn't"
     );
+
+    Ok(())
+}
+
+#[test]
+fn rm_multiple_continues_on_err() -> TestResult {
+    let quartz = Quartz::preset_httpbin()?;
+
+    quartz.cmd(&[
+        "query",
+        "set",
+        "fields=example",
+        "where=email=example@email.com",
+        "value=false",
+    ])?;
+    let output = quartz.cmd(&["query", "rm", "fields", "idontexist", "where"])?;
+    assert!(!output.status.success(), "{}", output.stdout);
+
+    let output = quartz.cmd(&["query", "ls"])?;
+    assert!(!output.stdout.contains("fields"), "{}", output.stdout);
+    assert!(!output.stdout.contains("where"), "{}", output.stdout);
+    assert!(output.stdout.contains("value"), "Unproperly removed fields");
 
     Ok(())
 }
