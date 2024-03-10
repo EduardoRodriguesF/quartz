@@ -27,12 +27,12 @@ impl Curl {
 
         print!(
             "curl {} '{}'",
-            self.option_string(CurlOption::Location),
+            self.arg_str(CurlOption::Location),
             endpoint.full_url().unwrap()
         );
         print!(
             " {} {}",
-            self.option_string(CurlOption::Request),
+            self.arg_str(CurlOption::Request),
             endpoint.method
         );
 
@@ -40,7 +40,7 @@ impl Curl {
             print!(
                 "{}{} '{}: {}'",
                 separator,
-                self.option_string(CurlOption::Header),
+                self.arg_str(CurlOption::Header),
                 key,
                 value
             );
@@ -48,7 +48,7 @@ impl Curl {
 
         if let Some(body) = endpoint.body() {
             let mut body = body.to_owned();
-            print!("{}{} '", separator, self.option_string(CurlOption::Data));
+            print!("{}{} '", separator, self.arg_str(CurlOption::Data));
 
             if body.ends_with('\n') {
                 body.truncate(body.len() - 1);
@@ -63,8 +63,8 @@ impl Curl {
         Ok(())
     }
 
-    fn option_string(&self, option: CurlOption) -> String {
-        let result = match option {
+    fn arg_str(&self, option: CurlOption) -> &str {
+        match option {
             CurlOption::Location => {
                 if self.long {
                     "--location"
@@ -93,9 +93,7 @@ impl Curl {
                     "-d"
                 }
             }
-        };
-
-        result.to_string()
+        }
     }
 }
 
