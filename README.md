@@ -1,17 +1,15 @@
-# Quartz
+# quartz
 
 The command-line tool to build and test HTTP requests.
 
 ## About
 
-Quartz allows developers to create an API organization project that can be use to share, document and send requests through the terminal.
+quartz allows developers to create an API organization project that can be use to share, document and send requests through the terminal.
 
-This project is still on its early stages. Essential features are under development and existing ones might have breaking changes. Suggestions are welcome. :)
+What quartz is:
 
-What Quartz is:
-
-- API Client organization tool for developers.
-- A command-line alternative to Postman and Insomnia.
+- A tool to test and document HTTP requests aimed for developers who love to stay in the terminal.
+- A command-line alternative to API clients such as Postman and Insomnia.
 
 What Quartz is **not**:
 
