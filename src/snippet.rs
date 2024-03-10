@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use crate::{Endpoint, QuartzResult};
+use crate::{form::Form, Endpoint, QuartzResult};
 use hyper::{Body, Request, Response};
 
 enum CurlOption {
@@ -8,6 +8,7 @@ enum CurlOption {
     Request,
     Header,
     Data,
+    Form,
 }
 
 #[derive(clap::Args, Debug)]
@@ -24,19 +25,22 @@ pub struct Curl {
 impl Curl {
     pub fn print(&self, endpoint: &mut Endpoint) -> QuartzResult {
         let separator = if self.multiline { " \\\n\t" } else { " " };
+        let mut is_form_data = false;
 
         print!(
             "curl {} '{}'",
             self.arg_str(CurlOption::Location),
             endpoint.full_url().unwrap()
         );
-        print!(
-            " {} {}",
-            self.arg_str(CurlOption::Request),
-            endpoint.method
-        );
+        print!(" {} {}", self.arg_str(CurlOption::Request), endpoint.method);
 
         for (key, value) in endpoint.headers.iter() {
+            if key.to_lowercase() == "content-type" && value.starts_with("multipart/form-data") {
+                // Do not show this header
+                is_form_data = true;
+                continue;
+            }
+
             print!(
                 "{}{} '{}: {}'",
                 separator,
@@ -47,8 +51,25 @@ impl Curl {
         }
 
         if let Some(body) = endpoint.body() {
-            let mut body = body.to_owned();
-            print!("{}{} '", separator, self.arg_str(CurlOption::Data));
+            if is_form_data {
+                let form = Form::from(body.as_str());
+
+                for field in form.fields {
+                    print!(
+                        "{}{} {}={}",
+                        separator,
+                        self.arg_str(CurlOption::Form),
+                        field.name,
+                        field.value
+                    );
+                }
+            } else {
+                let mut body = body.to_owned();
+                print!("{}{} '", separator, self.arg_str(CurlOption::Data));
+
+                if body.ends_with('\n') {
+                    body.truncate(body.len() - 1);
+                }
 
             if body.ends_with('\n') {
                 body.truncate(body.len() - 1);
@@ -59,6 +80,8 @@ impl Curl {
         } else {
             println!();
         }
+
+        println!();
 
         Ok(())
     }
@@ -91,6 +114,13 @@ impl Curl {
                     "--data"
                 } else {
                     "-d"
+                }
+            }
+            CurlOption::Form => {
+                if self.long {
+                    "--form"
+                } else {
+                    "-F"
                 }
             }
         }
