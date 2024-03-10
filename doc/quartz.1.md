@@ -50,7 +50,7 @@ Deleting a handle also deletes its sub-handles as well.
 
 # **ENDPOINT PATCH**
 
-Some commands allow for endpiont patching, which means they are capable of changing the endpoint's configuration on the fly.
+Some commands allow for endpoint patching, which means they are capable of changing the endpoint's configuration on the fly.
 
 The patched data is not saved to the endpoint file unless stated otherwise.
 
@@ -93,7 +93,7 @@ Create a new handle.
 The options are as follows:
 
 **\-\-use**
-: Immediatly switches to this handle after creating it.
+: Immediately switches to this handle after creating it.
 
 ## ls, list
 List all available handles.
@@ -168,7 +168,7 @@ The options are as follows:
 ## history
 Display request and response history. It uses informations about past requests saved in *.quartz/user/history/*.
 
-Each request is displayed as HTTP messages exchanges, denotated by ">" for request and "<" for response data.
+Each request is displayed as HTTP messages exchanges, indicated by lines starting with ">" for request and "<" for response data.
 
 The options are as follows:
 
@@ -200,10 +200,10 @@ Manage endpoint's query params.
 : Add or patch a header. It expects one or more header entry in "key=value" format.
 
 ## query rm <*KEY*>...
-: Remove query params.
+: Remove query parameters.
 
 ## query ls
-: List all query params.
+: List all query parameters.
 
 ## BODY COMMAND
 Manage endpoint's request body.
@@ -282,7 +282,7 @@ Print most recent response headers.
 ## last res body
 Print most recent response body.
 
-# ENVIORNMENT COMMAND
+# ENVIRONMENT COMMAND
 **quartz** uses environment to manage variables that can be used in endpoints.
 
 By default, the **default** environment is used.
@@ -320,7 +320,7 @@ Manage current environment's variables.
 : List all variables.
 
 ## var edit
-: Open an editor to modify the envornment variables file.
+: Open an editor to modify the environment variables file.
 
 # CONFIG COMMAND
 **quartz** default configuration file is *~/.quartz.toml*.
@@ -362,7 +362,7 @@ Use this new endpoint by specifying its *handle*:
 
     $ quartz use products
 
-Create a new endpoint in a sub-handle within *products*, immediatly switching to it.
+Create a new endpoint in a sub-handle within *products*, switching to it afterwards.
 
     $ quartz create products/create --method POST --url http://localhost:8080/products/ --use
 
@@ -371,8 +371,6 @@ Set a new header to that endpoint:
     $ quartz header set 'Content-type: application/json'
 
 Considering that you have a *data.json* file, it is possible to pipe that file so that it uses the contents as a request body:
-
-    $ cat data.json | quartz body stdin
 
 Send this request:
 
