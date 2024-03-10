@@ -38,6 +38,61 @@ Warning: this method is not recommended because it lacks the **man** page. Prefe
     cargo install quartz-cli
 </details>
 
+## Usage
+
+To create a new project, run:
+
+```sh
+$ quartz init .
+```
+
+Now start creating your requests with the `create` command:
+
+```sh
+$ quartz create users/find --url https://api.example.com/users/{{id}}
+
+$ quartz create users/update -X PATCH --url https://api.example.com/users/{{id}} --json '{"name": "John Doe"}'
+
+$ quartz create users/create -X POST --url https://api.example.com/users/{{id}} --json '{"email": "foo@bar.com", "name": "John Doe"}'
+```
+
+These commands create four *handles*. A handle is like a path to an endpoint. Similarly to file paths, they are segmented
+by slash (/). We can see all handles with the `ls` command:
+
+```sh
+$ quartz ls
+     --- users
+     GET users/:id
+   PATCH users/update
+    POST users/create
+```
+
+Notice that `users` does not have any method. That's because it is an empty handle, while all others are definitive endpoints that we can
+send requests to.
+
+To send a request, make sure you are using it by running the `use` command:
+
+```sh
+$ quartz use users/find
+```
+
+Now you can send the request with the `send` command. Since we also defined a variable `id` in the URL, we need to give this variable a value.
+
+```sh
+$ quartz send --var id=123
+```
+
+This outputs the response body, but we can also see more details with the `last` command, which saves our latest request and response
+for us to fetch the data locally.
+
+```sh
+# Output the response head.
+$ quartz last res head
+```
+
+Now that you know the basics of quartz, you can start creating more requests and organizing them in your project. For more information and advanced usage
+of quartz, check the [Documentation](#documentation).
+
 ## Documentation
 
 To get started with quartz, head to the [install](#installation) and access the manual page at `man quartz`!
