@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Form data support.
+
+### Fixed
+
+- Using `--data` and `--json` patching with `use` command would not save changes.
+- Fixed documentation typos.
+
 ## [1.3.1] - 2024-06-01
 
 ### Fixed
@@ -59,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Missing some `send` options in man page.
-- Emphasise ENDPOINT PATCH options in man page
+- Emphasise ENDPOINT PATCH options in man page.
 
 ## [1.0.0] - 2024-03-09
 

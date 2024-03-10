@@ -4,6 +4,7 @@ pub mod config;
 pub mod cookie;
 pub mod endpoint;
 pub mod env;
+pub mod form;
 pub mod history;
 pub mod snippet;
 pub mod state;
@@ -67,6 +68,16 @@ where
             .unwrap_or_else(|| panic!("malformed {}. Expected {}", Self::NAME, Self::EXPECTED));
 
         self.map().insert(key, value);
+    }
+}
+
+pub struct StringPairMap {
+    map: HashMap<String, String>,
+}
+
+impl<'a> PairMap<'a> for StringPairMap {
+    fn map(&mut self) -> &mut HashMap<String, String> {
+        &mut self.map
     }
 }
 

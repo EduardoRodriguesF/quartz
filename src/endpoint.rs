@@ -9,6 +9,7 @@ use std::ops::{Deref, DerefMut};
 use std::path::{Path, PathBuf};
 
 use crate::env::{Env, Variables};
+use crate::form::Form;
 use crate::state::StateField;
 use crate::tree::Tree;
 use crate::{Ctx, PairMap};
@@ -140,6 +141,10 @@ pub struct ContentTypeGroup {
     /// Use raw data in request body
     #[arg(long = "data", short = 'd', value_name = "DATA")]
     pub raw: Option<String>,
+
+    /// Send form data using the RFC 2388 specification
+    #[arg(long, short = 'F', value_name = "NAME=CONTENT")]
+    pub form: Option<Vec<String>>,
 }
 
 #[derive(Default, Debug, clap::Args)]
@@ -170,6 +175,7 @@ impl EndpointPatch {
             || self.method.is_some()
             || !self.query.is_empty()
             || !self.headers.is_empty()
+            || self.data.is_some()
     }
 }
 
@@ -382,6 +388,19 @@ impl Endpoint {
                 }
             } else if let Some(raw) = &data.raw {
                 self.body = Some(raw.to_owned());
+            } else if let Some(data) = &data.form {
+                let mut form = Form::new();
+
+                self.headers
+                    .insert("Content-type".into(), form.content_type());
+
+                if !data.is_empty() {
+                    for input in data {
+                        form.insert(input);
+                    }
+
+                    self.body = Some(form.into_body());
+                }
             }
         }
     }
@@ -393,6 +412,12 @@ impl Endpoint {
     pub fn load_body(&mut self) -> Option<&String> {
         match std::fs::read_to_string(self.path.join("body")) {
             Ok(mut content) => {
+                if content.starts_with("\r\n--quartz") {
+                    let form = Form::from(content.as_str());
+                    self.headers
+                        .insert("content-type".to_string(), form.content_type());
+                }
+
                 for (key, value) in self.variables.iter() {
                     let key_match = format!("{{{{{}}}}}", key);
 
@@ -572,6 +597,18 @@ impl Endpoint {
 
         file.write_all(toml_content.as_bytes())
             .unwrap_or_else(|_| panic!("failed to write to config file"));
+
+        if let Some(body) = &self.body {
+            let mut file = std::fs::OpenOptions::new()
+                .write(true)
+                .create(true)
+                .truncate(true)
+                .open(self.path.join("body"))
+                .unwrap_or_else(|_| panic!("failed to open body file"));
+
+            file.write_all(body.as_bytes())
+                .unwrap_or_else(|_| panic!("failed to write to body file"));
+        }
     }
 }
 
