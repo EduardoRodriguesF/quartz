@@ -1,4 +1,5 @@
 use crate::{PairMap, StringPairMap};
+use rand::Rng;
 
 pub struct Field {
     pub name: String,
@@ -99,23 +100,42 @@ impl From<&str> for Form {
 
 impl Form {
     pub fn new() -> Form {
-        let boundary = String::from("quartz7MA4YWxkTrZu0gW");
-
         Form {
-            boundary,
+            boundary: Self::gen_boundary(),
             fields: Vec::new(),
         }
+    }
+
+    pub fn gen_boundary() -> String {
+        let mut boundary = String::from("quartz");
+
+        for _ in 0..16 {
+            let idx = rand::thread_rng().gen_range(0..=61);
+            let c = match idx {
+                0..=25 => (b'a' + idx as u8) as char,
+                26..=51 => (b'A' + (idx - 26) as u8) as char,
+                _ => (b'0' + (idx - 52) as u8) as char,
+            };
+
+            boundary.push(c);
+        }
+
+        boundary
     }
 
     pub fn insert(&mut self, input: &str) {
         let (name, value) = StringPairMap::pair(input)
             .unwrap_or_else(|| panic!("malformed key-value pair. Expected <key>=<value>"));
 
+        if name.contains(&self.boundary) || value.contains(&self.boundary) {
+            self.boundary = Self::gen_boundary();
+        }
+
         self.fields.push(Field { name, value });
     }
 
-    pub fn boundary(&self) -> String {
-        String::from("quartz7MA4YWxkTrZu0gW")
+    pub fn boundary(&self) -> &str {
+        &self.boundary
     }
 
     pub fn content_type(&self) -> String {

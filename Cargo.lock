@@ -940,6 +940,7 @@ dependencies = [
  "hyper",
  "hyper-tls",
  "openssl",
+ "rand",
  "serde",
  "serde_json",
  "tokio",
