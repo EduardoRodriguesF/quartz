@@ -45,7 +45,6 @@ pub fn cmd(args: Args) -> QuartzResult {
         println!("Adding user files to {}", ".gitignore".green());
 
         if let Ok(mut gitignore) = std::fs::OpenOptions::new()
-            .write(true)
             .create(true)
             .append(true)
             .open(directory.join(".gitignore"))
