@@ -125,7 +125,7 @@ impl Form {
 
     pub fn insert(&mut self, input: &str) {
         let (name, value) = StringPairMap::pair(input)
-            .unwrap_or_else(|| panic!("malformed key-value pair. Expected <key>=<value>"));
+            .unwrap_or_else(|| panic!("malformed key-value pair. Expected name=content"));
 
         if name.contains(&self.boundary) || value.contains(&self.boundary) {
             self.boundary = Self::gen_boundary();
