@@ -87,6 +87,9 @@ If no path is given, **quartz** initializes in the current directory.
 
 Trying to initialize quartz in a directory that already has a *.quartz* directory will result in an error.
 
+If the target path contains a *.git* directory, **quartz** will add some private .quartz files to the .gitignore file. If no .gitignore is available, it
+creates one.
+
 ## create <*HANDLE*>
 Create a new handle.
 
