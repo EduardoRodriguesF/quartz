@@ -167,7 +167,10 @@ impl Http {
         print!("{}", endpoint.headers);
 
         if let Some(body) = endpoint.body() {
-            println!();
+            if !body.starts_with("\r\n") {
+                println!();
+            }
+
             print!("{body}");
         }
 
