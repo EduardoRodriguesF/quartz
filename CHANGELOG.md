@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- When trying to `use` nonexistent handle or environment, quartz will prompt a yes/no confirmation to create it.
+
 ## [1.0.1] - 2024-03-09
 
 ### Fixed
