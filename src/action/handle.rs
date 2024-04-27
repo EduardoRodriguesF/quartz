@@ -90,12 +90,26 @@ pub fn create(ctx: &Ctx, mut args: CreateArgs) {
     endpoint.write();
 }
 
-pub fn switch(ctx: &Ctx, mut args: SwitchArgs) {
+pub fn switch(ctx: &mut Ctx, mut args: SwitchArgs) {
     let handle = if let Some(handle) = args.handle {
-        let handle = ctx.require_input_handle(&handle);
+        let handle = EndpointHandle::from(handle);
 
-        if !handle.dir(ctx).exists() {
-            panic!("endpoint does not exist");
+        if !handle.exists(ctx) {
+            eprint!("Handle {} doesn't exist", handle.handle().red(),);
+
+            if ctx.confirm("Do you wish to create it?") {
+                return create(
+                    ctx,
+                    CreateArgs {
+                        handle: handle.handle(),
+                        patch: args.patch,
+                        switch: true,
+                    },
+                );
+            } else {
+                ctx.code(ExitCode::FAILURE);
+                return;
+            }
         }
 
         if StateField::Endpoint
