@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use crate::{cli::EnvCmd as Cmd, Ctx, Env, QuartzResult, StateField};
 use colored::Colorize;
 
@@ -22,7 +24,7 @@ pub struct RmArgs {
     env: String,
 }
 
-pub fn cmd(ctx: &Ctx, command: Cmd) -> QuartzResult {
+pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Create(args) => create(ctx, args),
         Cmd::Cp(args) => cp(ctx, args)?,
@@ -65,11 +67,24 @@ pub fn cp(ctx: &Ctx, args: CpArgs) -> QuartzResult {
     Ok(())
 }
 
-pub fn switch(ctx: &Ctx, args: SwitchArgs) -> QuartzResult {
+pub fn switch(ctx: &mut Ctx, args: SwitchArgs) -> QuartzResult {
     let env = Env::new(&args.env);
 
     if !env.exists(ctx) {
-        panic!("environment {} does not exist", env.name.red());
+        println!("Environment {} doesn't exit", env.name.red());
+        if ctx.confirm("Do you wish to create it?") {
+            create(
+                ctx,
+                CreateArgs {
+                    name: env.name.clone(),
+                },
+            );
+        } else {
+            ctx.code(ExitCode::FAILURE);
+            return Ok(());
+        }
+
+        return Ok(());
     }
 
     if let Ok(()) = StateField::Env.set(ctx, &env.name) {
