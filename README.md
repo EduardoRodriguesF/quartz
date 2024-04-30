@@ -61,10 +61,10 @@ by slash (/). We can see all handles with the `ls` command:
 
 ```sh
 $ quartz ls
-     --- users
-     GET users/:id
-   PATCH users/update
-    POST users/create
+  ---     users
+  GET     users/:id
+  PATCH   users/update
+  POST    users/create
 ```
 
 Notice that `users` does not have any method. That's because it is an empty handle, while all others are definitive endpoints that we can
