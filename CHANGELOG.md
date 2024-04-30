@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `ls` command method text alignment.
+- `ls` command method text alignment and dynamically pad it.
 
 ## [1.1.0] - 2024-04-27
 

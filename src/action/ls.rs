@@ -1,6 +1,5 @@
 use crate::{Ctx, EndpointHandle};
-use colored::Colorize;
-use std::path::PathBuf;
+use colored::{ColoredString, Colorize};
 
 #[derive(clap::Args, Debug)]
 pub struct Args {
@@ -11,42 +10,34 @@ pub struct Args {
 
 pub fn cmd(ctx: &Ctx, args: Args) {
     let max_depth = args.depth.unwrap_or(usize::MAX).max(1);
-    let mut current = PathBuf::new();
 
-    if let Some(handle) = EndpointHandle::from_state(ctx) {
-        current = handle.dir(ctx)
-    }
+    let active_handle = if let Some(handle) = EndpointHandle::from_state(ctx) {
+        handle.handle()
+    } else {
+        "".into()
+    };
+
+    let mut list: Vec<(ColoredString, String)> = vec![];
 
     // This code is a mess.
     // I'm sorry.
     // It will be refactored sometime.
     struct TraverseEndpoints<'s> {
-        f: &'s dyn Fn(&TraverseEndpoints, Vec<EndpointHandle>),
+        f: &'s dyn Fn(&TraverseEndpoints, Vec<EndpointHandle>, &mut Vec<(ColoredString, String)>),
     }
     let traverse_handles = TraverseEndpoints {
-        f: &|recurse, handles| {
+        f: &|recurse, handles, acc| {
             for handle in handles {
                 let children = handle.children(ctx);
 
                 if !handle.path.is_empty() {
-                    let (annotation, method, display_handle) = {
-                        let mut ann = " ";
-                        let mut m = "---".dimmed();
-                        let mut h = handle.handle().normal();
-
-                        if current == handle.dir(ctx) {
-                            ann = "*";
-                            h = h.green();
-                        }
-
-                        if let Some(endpoint) = handle.endpoint(ctx) {
-                            m = endpoint.colored_method().bold();
-                        }
-
-                        (ann, m, h)
+                    let method = if let Some(endpoint) = handle.endpoint(ctx) {
+                        endpoint.colored_method().bold()
+                    } else {
+                        "---".dimmed()
                     };
 
-                    print!("{} {:<7} {}", annotation, method, display_handle);
+                    acc.push((method, handle.handle()));
                 }
 
                 if !children.is_empty() {
@@ -56,7 +47,7 @@ pub fn cmd(ctx: &Ctx, args: Args) {
                             println!();
                         }
 
-                        (recurse.f)(recurse, children);
+                        (recurse.f)(recurse, children, acc);
                     } else {
                         println!("{}", " +".dimmed());
                     }
@@ -67,5 +58,24 @@ pub fn cmd(ctx: &Ctx, args: Args) {
         },
     };
 
-    (traverse_handles.f)(&traverse_handles, vec![EndpointHandle::QUARTZ]);
+    // Fills up list
+    (traverse_handles.f)(&traverse_handles, vec![EndpointHandle::QUARTZ], &mut list);
+
+    let padding = list.iter().fold(0, |l, (m, _)| l.max(m.len()));
+
+    for (method, handle) in list {
+        let (annotation, handle) = if active_handle == handle {
+            ("*", handle.green())
+        } else {
+            (" ", handle.normal())
+        };
+
+        println!(
+            "{} {:<padding$} {}",
+            annotation,
+            method,
+            handle,
+            padding = padding
+        );
+    }
 }
