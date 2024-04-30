@@ -46,7 +46,7 @@ pub fn cmd(ctx: &Ctx, args: Args) {
                         (ann, m, h)
                     };
 
-                    print!("{}  {: >5} {}", annotation, method, display_handle);
+                    print!("{} {:<7} {}", annotation, method, display_handle);
                 }
 
                 if !children.is_empty() {
