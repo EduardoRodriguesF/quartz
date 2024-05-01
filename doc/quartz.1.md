@@ -78,6 +78,16 @@ Interpret the request body as JSON and set the appropriate content-type header. 
 ## **\-d**, **\-\-data** <*DATA*>
 Patch request body.
 
+# URL INHERITANCE
+
+When a handle is created as a child of another, it can inherit the parent's URL by using the "**" notation at the start of its URL field.
+
+    $ quartz create local --url 'http://localhost:8080/'
+
+    $ quartz create local/users --url '**/users'
+
+The endpoint *local/users* will use *http://localhost:8080/users* when sending a request or using **\-\-apply-environment** with certain commands.
+
 # COMMANDS
 
 ## init [*PATH*]
@@ -182,43 +192,43 @@ The options are as follows:
 Manage endpoint's headers.
 
 ## header get <*KEY*>
-: Display a header value.
+Display a header value.
 
 ## header set <*HEADER*>...
-: Add or patch a header. It expects one or more header entry in "key: value" format.
+Add or patch a header. It expects one or more header entry in "key: value" format.
 
 ## header rm <*KEY*>...
-: Remove headers.
+Remove headers.
 
 ## header ls
-: List all headers.
+List all headers.
 
 # QUERY COMMAND
 Manage endpoint's query params.
 
 ## query get <*KEY*>
-: Display a query value.
+Display a query value.
 
 ## query set <*PARAM*>...
-: Add or patch a header. It expects one or more header entry in "key=value" format.
+Add or patch a header. It expects one or more header entry in "key=value" format.
 
 ## query rm <*KEY*>...
-: Remove query parameters.
+Remove query parameters.
 
 ## query ls
-: List all query parameters.
+List all query parameters.
 
 ## BODY COMMAND
 Manage endpoint's request body.
 
 ## body show
-: Print request body.
+Print request body.
 
 ## body stdin
-: Expect a new request body via standard input.
+Expect a new request body via standard input.
 
 ## body edit
-: Open an editor to modify the endpoint's request body.
+Open an editor to modify the endpoint's request body.
 
 # SHOW COMMAND
 
@@ -311,19 +321,19 @@ Delete an environment.
 Manage current environment's variables.
 
 ## var get <*KEY*>
-: Display a variable value.
+Display a variable value.
 
 ## var set <*KEY=VALUE*>...
-: Add or patch a variable.
+Add or patch a variable.
 
 ## var rm <*KEY*>...
-: Remove variables.
+Remove variables.
 
 ## var ls
-: List all variables.
+List all variables.
 
 ## var edit
-: Open an editor to modify the environment variables file.
+Open an editor to modify the environment variables file.
 
 # CONFIG COMMAND
 **quartz** default configuration file is *~/.quartz.toml*.
