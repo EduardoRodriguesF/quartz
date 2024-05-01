@@ -186,7 +186,7 @@ The endpoint *local/users* will use *http://localhost:8080/users* when sending a
     **\-n**, **\-\-max-count** *N*
     : Maximum number of requests to be listed.
 
-# HEADER COMMAND
+## HEADER
 Manage endpoint's headers.
 
 **header get** <*KEY*>
@@ -201,7 +201,7 @@ Manage endpoint's headers.
 **header ls**
 : List all headers.
 
-# QUERY COMMAND
+## QUERY
 Manage endpoint's query params.
 
 **query get** <*KEY*>
@@ -216,7 +216,7 @@ Manage endpoint's query params.
 **query ls**
 : List all query parameters.
 
-# BODY COMMAND
+## BODY
 Manage endpoint's request body.
 
 **body show**
@@ -228,7 +228,7 @@ Manage endpoint's request body.
 **body edit**
 : Open an editor to modify the endpoint's request body.
 
-# SHOW COMMAND
+## SHOW
 
 **show url**
 : Display endpoint's request URL.
@@ -275,7 +275,7 @@ Manage endpoint's request body.
     **http**
     : Generate HTTP message.
 
-# LAST COMMAND
+## LAST
 Print informations about the last sent request or its response.
 
 **last handle**
@@ -293,7 +293,7 @@ Print informations about the last sent request or its response.
 **last res body**
 : Print most recent response body.
 
-# ENVIRONMENT COMMAND
+## ENV
 **quartz** uses environment to manage variables that can be used in endpoints.
 
 By default, the **default** environment is used.
@@ -315,7 +315,7 @@ To manage environment variables, see *variable* command.
 **env rm** <*ENV*>
 : Delete an environment.
 
-# VAR COMMAND
+## VAR
 Manage current environment's variables.
 
 **var get** <*KEY*>
