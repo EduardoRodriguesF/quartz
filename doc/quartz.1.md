@@ -359,6 +359,10 @@ Available configuration keys are:
 *~/.quartz.toml*
 : Default **quartz** configuration file.
 
+# BUGS
+
+See GitHub Issues: https://github.com/eduardorodriguesf/quartz/issues
+
 # EXAMPLES
 
 To create a new **quartz** project in the current directory:
