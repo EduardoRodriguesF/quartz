@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Trailing slash in handle name would cause infinite recursion.
+- Missing ending newline in `curl` snippet when request has no body.
 
 ## [1.1.0] - 2024-04-27
 

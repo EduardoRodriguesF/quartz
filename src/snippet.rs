@@ -56,6 +56,8 @@ impl Curl {
 
             print!("{body}");
             println!("'");
+        } else {
+            println!();
         }
 
         Ok(())
