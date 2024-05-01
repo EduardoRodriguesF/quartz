@@ -235,14 +235,12 @@ impl Ctx {
 
         std::fs::copy(path, &temp_path)?;
 
-        let _ = std::process::Command::new(&self.config.preferences.editor)
+        let editor = self.config.preferences.editor();
+        let _ = std::process::Command::new(&editor)
             .arg(&temp_path)
             .status()
             .unwrap_or_else(|err| {
-                panic!(
-                    "failed to open editor: {}\n\n{}",
-                    &self.config.preferences.editor, err
-                );
+                panic!("failed to open editor: {}\n\n{}", editor, err);
             });
 
         let content = std::fs::read_to_string(&temp_path)?;
@@ -258,14 +256,13 @@ impl Ctx {
 
     /// Open user's preferred pager with content.
     pub fn paginate(&self, input: &[u8]) -> QuartzResult {
-        let mut child = std::process::Command::new(&self.config.preferences.pager)
+        let pager = self.config.preferences.pager();
+
+        let mut child = std::process::Command::new(&pager)
             .stdin(Stdio::piped())
             .spawn()
             .unwrap_or_else(|err| {
-                panic!(
-                    "failed to open pager: {}\n\n{}",
-                    &self.config.preferences.pager, err
-                );
+                panic!("failed to open pager: {}\n\n{}", pager, err);
             });
 
         child.stdin.as_mut().unwrap().write_all(input)?;

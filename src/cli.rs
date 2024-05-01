@@ -53,7 +53,7 @@ pub enum Cmd {
     },
 
     /// Open an editor to modify endpoint in use
-    Edit(action::handle::EditArgs),
+    Edit,
 
     /// Manage current endpoint's query params
     Query {

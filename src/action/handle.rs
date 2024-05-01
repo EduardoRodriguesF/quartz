@@ -57,13 +57,6 @@ pub struct RmArgs {
     handles: Vec<String>,
 }
 
-#[derive(clap::Args, Debug)]
-pub struct EditArgs {
-    /// Defines the editor to be used for that run, overriding the quartz settings.
-    #[arg(long)]
-    editor: Option<String>,
-}
-
 pub fn create(ctx: &Ctx, mut args: CreateArgs) {
     if args.handle.is_empty() {
         panic!("missing endpoint handle");
@@ -255,12 +248,8 @@ pub fn mv(ctx: &mut Ctx, mut args: MvArgs) -> QuartzResult {
     Ok(())
 }
 
-pub fn edit(ctx: &mut Ctx, args: EditArgs) -> QuartzResult {
+pub fn edit(ctx: &mut Ctx) -> QuartzResult {
     let handle = ctx.require_handle();
-
-    if let Some(editor) = args.editor {
-        ctx.config.preferences.editor = editor;
-    }
 
     ctx.edit(
         &handle.dir(ctx).join("endpoint.toml"),

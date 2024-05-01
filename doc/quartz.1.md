@@ -169,12 +169,7 @@ The endpoint *local/users* will use *http://localhost:8080/users* when sending a
 **edit**
 : Open an editor to modify endpoint in use. 
 
-    The editor it uses is configured through *config* command, which is **vim(1)** by default.
-
-    The options are as follows:
-
-    **\--editor** *EDITOR*
-    : Defines the editor to be used for that run, overriding the **quartz** settings.
+    The editor is chosen through the criteria described in **CONFIGURATION** and **ENVIRONMENT** sections.
 
 **history**
 : Display request and response history. It uses informations about past requests saved in *.quartz/user/history/*.
@@ -334,7 +329,7 @@ Manage current environment's variables.
 : Open an editor to modify the environment variables file.
 
 # CONFIGURATION
-**quartz** default configuration file is *~/.quartz.toml*.
+**quartz** default configuration file is *~/.quartz.toml*. Unset options might fallback to environment variables described in the **ENVIRONMENT** section.
 
 Available configuration keys are:
 
@@ -365,6 +360,14 @@ Commands are as follows:
 
 *~/.quartz.toml*
 : Default **quartz** configuration file.
+
+# ENVIRONMENT
+
+**EDITOR**
+: Editor to be used when editing files. If not set, **vim(1)**.
+
+**PAGER**
+: Pager to be used when needed. If not set, it fallsback to **less(1)**.
 
 # BUGS
 

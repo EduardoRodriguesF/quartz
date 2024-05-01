@@ -37,7 +37,7 @@ async fn main() -> QuartzResult<ExitCode> {
     })?;
 
     // When true, ensures pagers and/or grep keeps the output colored
-    colored::control::set_override(ctx.config.ui.colors);
+    colored::control::set_override(ctx.config.ui.colors());
 
     action::cmd(&mut ctx, args.command).await?;
 

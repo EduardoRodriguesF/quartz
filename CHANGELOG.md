@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - URLs that start with "**" will inherit the beginning from their parent handle (#21)
+- **EDITOR** and **PAGER** environment variables are now used when no configuration is set for quartz preferences.
 
 ### Changed
 
@@ -20,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Trailing slash in handle name would cause infinite recursion.
 - Missing ending newline in `curl` snippet when request has no body.
+
+### Removed
+
+- `--editor` option from `edit` command. Use environment variables instead.
 
 ## [1.1.0] - 2024-04-27
 

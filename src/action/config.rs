@@ -1,4 +1,4 @@
-use crate::{cli::ConfigCmd as Cmd, config::ConfigBuilder, validator, Config, Ctx, QuartzResult};
+use crate::{cli::ConfigCmd as Cmd, validator, Config, Ctx, QuartzResult};
 
 #[derive(clap::Args, Debug)]
 pub struct GetArgs {
@@ -23,10 +23,10 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
 }
 
 pub fn get(ctx: &Ctx, args: GetArgs) {
-    let value: String = match args.key.as_str() {
-        "preferences.editor" => ctx.config.preferences.editor.clone(),
-        "preferences.pager" => ctx.config.preferences.pager.clone(),
-        "ui.colors" => ctx.config.ui.colors.to_string(),
+    let value = match args.key.as_str() {
+        "preferences.editor" => ctx.config.preferences.editor(),
+        "preferences.pager" => ctx.config.preferences.pager(),
+        "ui.colors" => ctx.config.ui.colors().to_string(),
         _ => panic!("invalid key"),
     };
 
@@ -34,16 +34,19 @@ pub fn get(ctx: &Ctx, args: GetArgs) {
 }
 
 pub fn edit(ctx: &Ctx) -> QuartzResult {
-    ctx.edit(&Config::filepath(), validator::toml_as::<ConfigBuilder>)?;
+    ctx.edit(&Config::filepath(), validator::toml_as::<Config>)?;
 
     Ok(())
 }
 
 pub fn set(ctx: &mut Ctx, args: SetArgs) {
     match args.key.as_str() {
-        "preferences.editor" => ctx.config.preferences.editor = args.value,
-        "preferences.pager" => ctx.config.preferences.pager = args.value,
-        "ui.colors" => ctx.config.ui.colors = matches!(args.value.as_str(), "true"),
+        "preferences.editor" => ctx.config.preferences.set_editor(args.value),
+        "preferences.pager" => ctx.config.preferences.set_pager(args.value),
+        "ui.colors" => ctx
+            .config
+            .ui
+            .set_colors(matches!(args.value.as_str(), "true")),
         _ => panic!("invalid key"),
     };
 

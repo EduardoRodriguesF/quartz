@@ -1,30 +1,10 @@
 use serde::{Deserialize, Serialize};
 use std::{fs::OpenOptions, io::Write, path::PathBuf};
 
-#[derive(Default, Serialize)]
+#[derive(Default, Serialize, Deserialize)]
 pub struct Config {
     pub preferences: Preferences,
     pub ui: UiConfig,
-}
-
-#[derive(Default, Deserialize)]
-pub struct ConfigBuilder {
-    pub preferences: PreferencesBuilder,
-    pub ui: Option<UiConfig>,
-}
-
-impl ConfigBuilder {
-    pub fn build(self) -> Config {
-        let mut config = Config::default();
-
-        if let Some(ui) = self.ui {
-            config.ui = ui;
-        }
-
-        config.preferences = self.preferences.build();
-
-        config
-    }
 }
 
 impl Config {
@@ -46,9 +26,7 @@ impl Config {
         let filepath = Config::filepath();
 
         if let Ok(config_toml) = std::fs::read_to_string(filepath) {
-            let config: ConfigBuilder = toml::from_str(&config_toml).unwrap();
-
-            return config.build();
+            return toml::from_str::<Config>(&config_toml).unwrap_or_default();
         }
 
         Config::default()
@@ -69,62 +47,61 @@ impl Config {
     }
 }
 
-#[derive(Default, Debug, Deserialize)]
-pub struct PreferencesBuilder {
+#[derive(Serialize, Default, Deserialize)]
+pub struct Preferences {
     editor: Option<String>,
     pager: Option<String>,
 }
 
-impl PreferencesBuilder {
-    pub fn editor<T>(&mut self, value: T) -> &mut PreferencesBuilder
+impl Preferences {
+    pub fn editor(&self) -> String {
+        if let Some(editor) = &self.editor {
+            editor.to_owned()
+        } else if let Ok(editor) = std::env::var("EDITOR") {
+            editor
+        } else {
+            "vim".to_string()
+        }
+    }
+
+    pub fn set_editor<T>(&mut self, editor: T)
     where
         T: Into<String>,
     {
-        self.editor = Some(value.into());
-        self
+        self.editor = Some(editor.into());
     }
 
-    pub fn pager<T>(&mut self, value: T) -> &mut PreferencesBuilder
+    pub fn pager(&self) -> String {
+        if let Some(pager) = &self.pager {
+            pager.to_owned()
+        } else if let Ok(pager) = std::env::var("PAGER") {
+            pager.to_string()
+        } else {
+            "less".to_string()
+        }
+    }
+
+    pub fn set_pager<T>(&mut self, pager: T)
     where
         T: Into<String>,
     {
-        self.pager = Some(value.into());
-        self
-    }
-
-    pub fn build(self) -> Preferences {
-        let mut prefs = Preferences::default();
-
-        if let Some(editor) = self.editor {
-            prefs.editor = editor;
-        }
-
-        if let Some(pager) = self.pager {
-            prefs.pager = pager;
-        }
-
-        prefs
-    }
-}
-
-#[derive(Serialize)]
-pub struct Preferences {
-    pub editor: String,
-    pub pager: String,
-}
-
-impl Default for Preferences {
-    fn default() -> Self {
-        Self {
-            editor: "vim".to_string(),
-            pager: "less".to_string(),
-        }
+        self.pager = Some(pager.into());
     }
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct UiConfig {
-    pub colors: bool,
+    colors: bool,
+}
+
+impl UiConfig {
+    pub fn colors(&self) -> bool {
+        self.colors
+    }
+
+    pub fn set_colors(&mut self, colors: bool) {
+        self.colors = colors;
+    }
 }
 
 impl Default for UiConfig {

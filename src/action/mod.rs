@@ -27,7 +27,7 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Use(args) => action::handle::switch(ctx, args),
         Cmd::Ls(args) => action::ls::cmd(ctx, args),
         Cmd::Show { command } => action::show::cmd(ctx, command)?,
-        Cmd::Edit(args) => action::handle::edit(ctx, args)?,
+        Cmd::Edit => action::handle::edit(ctx)?,
         Cmd::Cp(args) => action::handle::cp(ctx, args)?,
         Cmd::Mv(args) => action::handle::mv(ctx, args)?,
         Cmd::Rm(args) => action::handle::rm(ctx, args)?,
