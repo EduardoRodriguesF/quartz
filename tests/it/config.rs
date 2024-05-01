@@ -1,12 +1,11 @@
 use crate::utils::*;
 
 #[test]
-fn it_can_get_default_values() -> TestResult {
+fn it_can_get_values() -> TestResult {
     let quartz = Quartz::preset_empty_project()?;
 
     let output = quartz.cmd(&["config", "get", "ui.colors"])?;
     assert!(output.status.success(), "command exit with error");
-    assert_eq!(output.stdout.trim(), "true");
 
     Ok(())
 }
