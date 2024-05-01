@@ -168,7 +168,12 @@ where
     T: AsRef<str>,
 {
     fn from(value: T) -> Self {
-        let path: Vec<String> = value.as_ref().split('/').map(|s| s.to_string()).collect();
+        let path: Vec<String> = value
+            .as_ref()
+            .trim_matches('/')
+            .split('/')
+            .map(|s| s.to_string())
+            .collect();
 
         Self::new(path)
     }

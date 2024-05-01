@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `ls` command method text alignment and dynamically pad it.
 
+### Fixed
+
+- Trailing slash in handle name would cause infinite recursion.
+
 ## [1.1.0] - 2024-04-27
 
 ### Added
