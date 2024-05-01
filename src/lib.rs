@@ -7,6 +7,7 @@ pub mod env;
 pub mod history;
 pub mod snippet;
 pub mod state;
+pub mod tree;
 pub mod validator;
 
 use std::error::Error;

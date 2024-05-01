@@ -10,6 +10,7 @@ use std::path::{Path, PathBuf};
 
 use crate::env::{Env, Variables};
 use crate::state::StateField;
+use crate::tree::Tree;
 use crate::{Ctx, PairMap};
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
@@ -89,7 +90,7 @@ impl PairMap<'_> for Headers {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct EndpointHandle {
     /// List of ordered parent names
     pub path: Vec<String>,
@@ -169,7 +170,7 @@ where
     fn from(value: T) -> Self {
         let path: Vec<String> = value.as_ref().split('/').map(|s| s.to_string()).collect();
 
-        Self { path }
+        Self::new(path)
     }
 }
 
@@ -179,6 +180,10 @@ impl EndpointHandle {
     /// This constant can be used to traverse through all handles starting
     /// from the top one.
     pub const QUARTZ: Self = Self { path: vec![] };
+
+    pub fn new(path: Vec<String>) -> Self {
+        Self { path }
+    }
 
     pub fn from_state(ctx: &Ctx) -> Option<Self> {
         if let Ok(handle) = ctx.state.get(ctx, StateField::Endpoint) {
@@ -246,6 +251,10 @@ impl EndpointHandle {
         }
     }
 
+    pub fn depth(&self) -> usize {
+        self.path.len()
+    }
+
     pub fn children(&self, ctx: &Ctx) -> Vec<EndpointHandle> {
         let mut list = Vec::<EndpointHandle>::new();
 
@@ -265,7 +274,7 @@ impl EndpointHandle {
                     let mut path = self.path.clone();
                     path.push(spec);
 
-                    list.push(EndpointHandle { path })
+                    list.push(EndpointHandle::new(path))
                 }
             }
         }
@@ -281,6 +290,17 @@ impl EndpointHandle {
     pub fn replace(&mut self, from: &str, to: &str) {
         let handle = self.handle().replace(from, to);
         self.path = EndpointHandle::from(handle).path;
+    }
+
+    pub fn tree(self, ctx: &Ctx) -> Tree<Self> {
+        let mut tree = Tree::new(self);
+
+        for child in tree.root.value.children(ctx) {
+            let child_tree = child.tree(ctx);
+            tree.root.children.push(child_tree.root);
+        }
+
+        tree
     }
 }
 
@@ -463,16 +483,7 @@ impl Endpoint {
     }
 
     pub fn colored_method(&self) -> colored::ColoredString {
-        match self.method.as_str() {
-            "GET" => self.method.blue(),
-            "POST" => self.method.green(),
-            "PUT" => self.method.yellow(),
-            "PATCH" => self.method.yellow(),
-            "DELETE" => self.method.red(),
-            "OPTIONS" => self.method.cyan(),
-            "HEAD" => self.method.cyan(),
-            _ => self.method.white(),
-        }
+        colored_method(&self.method)
     }
 
     /// Return a query string based off of defined queries.
@@ -527,5 +538,19 @@ impl Default for Endpoint {
             path: Default::default(),
             body: Default::default(),
         }
+    }
+}
+
+pub fn colored_method(value: &str) -> colored::ColoredString {
+    match value {
+        "GET" => value.blue(),
+        "POST" => value.green(),
+        "PUT" => value.yellow(),
+        "PATCH" => value.yellow(),
+        "DELETE" => value.red(),
+        "OPTIONS" => value.cyan(),
+        "HEAD" => value.cyan(),
+        "---" => value.dimmed(),
+        _ => value.white(),
     }
 }

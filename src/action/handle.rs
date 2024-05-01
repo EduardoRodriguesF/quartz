@@ -156,7 +156,7 @@ pub fn cp(ctx: &Ctx, args: CpArgs) -> QuartzResult {
 
         if args.recursive {
             for child in src.children(ctx) {
-                queue.push_back(child);
+                queue.push_back(child.clone());
             }
         }
 

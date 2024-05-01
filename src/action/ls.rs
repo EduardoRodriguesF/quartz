@@ -1,5 +1,109 @@
-use crate::{Ctx, EndpointHandle};
-use colored::{ColoredString, Colorize};
+use std::vec::Vec;
+
+use crate::{endpoint, Ctx, EndpointHandle};
+use colored::Colorize;
+
+#[derive(Default)]
+enum UsageState {
+    #[default]
+    NotUsing,
+    Using,
+    UsingHiddenChild,
+}
+
+struct Output {
+    method: Option<String>,
+    handle: String,
+    has_more: bool,
+    usage: UsageState,
+}
+
+impl Output {
+    fn builder() -> OutputBuilder {
+        OutputBuilder::default()
+    }
+}
+
+#[derive(Default)]
+struct OutputBuilder {
+    method: Option<String>,
+    handle: Option<String>,
+    has_more: bool,
+    usage: UsageState,
+}
+
+impl OutputBuilder {
+    fn method(&mut self, method: String) -> &mut Self {
+        self.method = Some(method);
+        self
+    }
+
+    fn handle(&mut self, handle: String) -> &mut Self {
+        self.handle = Some(handle);
+        self
+    }
+
+    fn has_more(&mut self, has_more: bool) -> &mut Self {
+        self.has_more = has_more;
+        self
+    }
+
+    fn usage(&mut self, usage: UsageState) -> &mut Self {
+        self.usage = usage;
+        self
+    }
+
+    fn build(self) -> Result<Output, ()> {
+        let handle = self.handle.ok_or(())?;
+
+        if handle.is_empty() {
+            return Err(());
+        }
+
+        Ok(Output {
+            method: self.method,
+            handle,
+            has_more: self.has_more,
+            usage: self.usage,
+        })
+    }
+}
+
+fn print_outputs(list: Vec<Output>) {
+    let padding = list
+        .iter()
+        .map(|e| e.method.as_ref().unwrap_or(&"---".to_string()).len())
+        .fold(0, |l, e| l.max(e));
+
+    for output in list {
+        let (usage_mark, name) = match output.usage {
+            UsageState::NotUsing => (" ", output.handle.normal()),
+            UsageState::Using => ("*", output.handle.green()),
+            UsageState::UsingHiddenChild => ("*", output.handle.normal()),
+        };
+
+        let more_info = if output.has_more {
+            " +".dimmed()
+        } else {
+            "".normal()
+        };
+
+        let method = if let Some(method) = output.method {
+            endpoint::colored_method(&method).bold()
+        } else {
+            "---".dimmed()
+        };
+
+        println!(
+            "{} {:<padding$} {}{}",
+            usage_mark,
+            method,
+            name,
+            more_info,
+            padding = padding
+        );
+    }
+}
 
 #[derive(clap::Args, Debug)]
 pub struct Args {
@@ -10,72 +114,51 @@ pub struct Args {
 
 pub fn cmd(ctx: &Ctx, args: Args) {
     let max_depth = args.depth.unwrap_or(usize::MAX).max(1);
+    let active_handle = EndpointHandle::from_state(ctx);
+    let mut output_list: Vec<Output> = vec![];
 
-    let active_handle = if let Some(handle) = EndpointHandle::from_state(ctx) {
-        handle.handle()
-    } else {
-        "".into()
-    };
+    let tree = EndpointHandle::QUARTZ.tree(ctx);
+    let mut queue = vec![&tree.root];
 
-    let mut list: Vec<(ColoredString, String)> = vec![];
+    while let Some(node) = queue.pop() {
+        let mut builder = Output::builder();
 
-    // This code is a mess.
-    // I'm sorry.
-    // It will be refactored sometime.
-    struct TraverseEndpoints<'s> {
-        f: &'s dyn Fn(&TraverseEndpoints, Vec<EndpointHandle>, &mut Vec<(ColoredString, String)>),
-    }
-    let traverse_handles = TraverseEndpoints {
-        f: &|recurse, handles, acc| {
-            for handle in handles {
-                let children = handle.children(ctx);
+        builder.handle(node.value.handle());
 
-                if !handle.path.is_empty() {
-                    let method = if let Some(endpoint) = handle.endpoint(ctx) {
-                        endpoint.colored_method().bold()
-                    } else {
-                        "---".dimmed()
-                    };
+        if let Some(endpoint) = node.value.endpoint(ctx) {
+            builder.method(endpoint.method);
+        } else {
+            builder.method("---".into());
+        }
 
-                    acc.push((method, handle.handle()));
-                }
+        if let Some(active_handle) = &active_handle {
+            if node.value.handle() == active_handle.handle() {
+                builder.usage(UsageState::Using);
+            }
+        }
 
-                if !children.is_empty() {
-                    if handle.path.len() < max_depth {
-                        // Avoid extra newline from Specification::QUARTZ usage
-                        if !handle.path.is_empty() {
-                            println!();
-                        }
+        if node.value.depth() > max_depth {
+            if node.children.is_empty() {
+                builder.has_more(true);
 
-                        (recurse.f)(recurse, children, acc);
-                    } else {
-                        println!("{}", " +".dimmed());
+                if let Some(active_handle) = &active_handle {
+                    if active_handle.handle().starts_with(&node.value.handle()) {
+                        builder.usage(UsageState::UsingHiddenChild);
                     }
-                } else {
-                    println!();
                 }
             }
-        },
-    };
 
-    // Fills up list
-    (traverse_handles.f)(&traverse_handles, vec![EndpointHandle::QUARTZ], &mut list);
+            continue;
+        }
 
-    let padding = list.iter().fold(0, |l, (m, _)| l.max(m.len()));
+        if let Ok(output) = builder.build() {
+            output_list.push(output);
+        }
 
-    for (method, handle) in list {
-        let (annotation, handle) = if active_handle == handle {
-            ("*", handle.green())
-        } else {
-            (" ", handle.normal())
-        };
-
-        println!(
-            "{} {:<padding$} {}",
-            annotation,
-            method,
-            handle,
-            padding = padding
-        );
+        for child in node.children.iter() {
+            queue.push(&child);
+        }
     }
+
+    print_outputs(output_list);
 }
