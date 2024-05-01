@@ -333,14 +333,21 @@ Manage current environment's variables.
 **var edit**
 : Open an editor to modify the environment variables file.
 
-# CONFIG COMMAND
+# CONFIGURATION
 **quartz** default configuration file is *~/.quartz.toml*.
 
 Available configuration keys are:
 
-* preferences.editor -- Command to be run when an editor is needed (default: **vim(1)**).
-* preferences.pager -- Command to be run when a pager is needed (default: **less(1)**)
-* ui.colors -- Whether outputs should be colored (default: true).
+**preferences.editor**
+: Command to be run when an editor is needed. If pager is not configured, it defaults to **EDITOR** environment variable.
+
+**preferences.pager**
+: Command to be run when a pager is needed. If pager is not configured, it defaults to **PAGER** environment variable.
+
+**ui.colors**
+: Whether outputs should be colored (default: true).
+
+Commands are as follows:
 
 **config get** <*KEY*>
 : Display a configuration value.
