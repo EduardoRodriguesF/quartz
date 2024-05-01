@@ -364,10 +364,10 @@ Commands are as follows:
 # ENVIRONMENT
 
 **EDITOR**
-: Editor to be used when editing files. If not set, **vim(1)**.
+: Which text-editor to be used when editing files. If not set, it fallbacks to **vim(1)**.
 
 **PAGER**
-: Pager to be used when needed. If not set, it fallsback to **less(1)**.
+: Which pager to be used when needed. If not set, it fallbacks to **less(1)**.
 
 # BUGS
 
