@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `ls` command method text alignment and dynamically pad it.
-- Man page identation and headings fixed to be more consistent with Unix conventions.
+- Man page identation and headings reworked to be more consistent with Unix conventions.
 
 ### Fixed
 
