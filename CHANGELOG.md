@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- URLs that start with "**" will inherit the beginning from their parent handle (#21)
+
 ### Changed
 
 - `ls` command method text alignment and dynamically pad it.
