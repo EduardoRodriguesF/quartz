@@ -17,20 +17,19 @@ The tool is organized across multiple configuration files to make it easy to int
 
 # OPTIONS
 
-## \-x <*HANDLE*>
+\-x <*HANDLE*>
+: Run quartz using a specific handle.
 
-Run quartz using a specific handle.
+\-c, \--apply-environment
 
-## \-c, \-\-apply-environment
+: Apply environment on endpoint as soon as possible.
 
-Apply environment on endpoint as soon as possible.
+    For instance, if the current endpoint's URL is "https://{{baseUrl}}/get" and the variable "baseUrl" is correctly set to "httpbin.org", the following command would print the URL with the variable replaced:
 
-For instance, if the current endpoint's URL is "https://{{baseUrl}}/get" and the variable "baseUrl" is correctly set to "httpbin.org", the following command would print the URL with the variable replaced:
+        $ quartz --apply-environment show url
+        https://httpbin.org/get
 
-    $ quartz --apply-environment show url
-    https://httpbin.org/get
-
-All commands allow for *\-\-apply-environment*, although some of then would already apply it anyways (e.g. *send*)
+    All commands allow for *\--apply-environment*, although some of then would already apply it anyways (e.g. *send*)
 
 # ENDPOINT HANDLE
 
@@ -56,27 +55,27 @@ The patched data is not saved to the endpoint file unless stated otherwise.
 
 All commands that allow for patching can be used with the following options:
 
-## **\-\-url** <*URL*>
-Patch request URL.
+**\--url** <*URL*>
+: Patch request URL.
 
-## **\-X**, **\-\-request** <*METHOD*>
-Patch HTTP request method.
+**\-X**, **\-\-request** <*METHOD*>
+: Patch HTTP request method.
 
-## **\-q**, **\-\-query** <*PARAM*>...
-Add or patch a parameter to the URL query. It expects one or more key=value pairs.
+**\-q**, **\-\-query** <*PARAM*>...
+: Add or patch a parameter to the URL query. It expects one or more key=value pairs.
 
-This argument can be passed multiple times.
+    This argument can be passed multiple times.
 
-## **\-H**, **\-\-header** <*HEADER*>...
-Add or patch a header. It expects one or more header entry in "key: value" format.
+**\-H**, **\-\-header** <*HEADER*>...
+: Add or patch a header. It expects one or more header entry in "key: value" format.
 
-This argument can be passed multiple times.
+    This argument can be passed multiple times.
 
-## **\-\-json** [<*DATA*>]
-Interpret the request body as JSON and set the appropriate content-type header. If data is passed, it overwrites the current request body.
+**\-\-json** [<*DATA*>]
+: Interpret the request body as JSON and set the appropriate content-type header. If data is passed, it overwrites the current request body.
 
-## **\-d**, **\-\-data** <*DATA*>
-Patch request body.
+**\-d**, **\-\-data** <*DATA*>
+: Patch request body.
 
 # URL INHERITANCE
 
@@ -86,214 +85,213 @@ When a handle is created as a child of another, it can inherit the parent's URL 
 
     $ quartz create local/users --url '**/users'
 
-The endpoint *local/users* will use *http://localhost:8080/users* when sending a request or using **\-\-apply-environment** with certain commands.
+The endpoint *local/users* will use *http://localhost:8080/users* when sending a request or using *\--apply-environment* with certain commands.
 
 # COMMANDS
 
-## init [*PATH*]
-Initialize **quartz**. It creates a *.quartz* directory to keep track of endpoints, environments, history and other required data.
+**init** [*PATH*]
+: Initialize **quartz**. It creates a *.quartz* directory to keep track of endpoints, environments, history and other required data.
 
-If no path is given, **quartz** initializes in the current directory.
+    If no path is given, **quartz** initializes in the current directory.
 
-Trying to initialize quartz in a directory that already has a *.quartz* directory will result in an error.
+    Trying to initialize quartz in a directory that already has a *.quartz* directory will result in an error.
 
-If the target path contains a *.git* directory, **quartz** will add some private .quartz files to the .gitignore file. If no .gitignore is available, it
-creates one.
+    If the target path contains a *.git* directory, **quartz** will add some private .quartz files to the .gitignore file. If no .gitignore is available, it creates one.
 
-## create <*HANDLE*>
-Create a new handle.
+**create** <*HANDLE*>
+: Create a new handle.
 
-The options are as follows:
+    The options are as follows:
 
-**\-\-use**
-: Immediately switches to this handle after creating it.
+    **\-\-use**
+    : Immediately switches to this handle after creating it.
 
-## ls, list
-List all available handles.
+**ls**, **list**
+: List all available handles.
 
-The options are as follows:
+    The options are as follows:
 
-**\-\-depth** *N*
-: Set a limit for how deep the listing goes in sub-handles. For reference, a depth of 1 would show top-level handles.
+    **\-\-depth** *N*
+    : Set a limit for how deep the listing goes in sub-handles. For reference, a depth of 1 would show top-level handles.
 
-## use <*HANDLE*>
-Switch to a handle or edit its endpoint. Using a handle with endpoint allows for operations like *send*, *edit* and other endpoint commands.
+**use** <*HANDLE*>
+: Switch to a handle or edit its endpoint. Using a handle with endpoint allows for operations like *send*, *edit* and other endpoint commands.
 
-All **ENDPOINT PATCH** options are available and will be applied to the current handle permanently.
+    All **ENDPOINT PATCH** options are available and will be applied to the current handle permanently.
 
-Other options are as follows:
+    Other options are as follows:
 
-**\-\-empty**
-: Make handle empty. Using it with other editing options will write a new endpoint in place of the old one.
+    **\-\-empty**
+    : Make handle empty. Using it with other editing options will write a new endpoint in place of the old one.
 
-## send
-Send the request using the current handle's endpoint and outputs the response.
+**send**
+: Send the request using the current handle's endpoint and outputs the response.
 
-All **ENDPOINT PATCH** options are available.
+    All **ENDPOINT PATCH** options are available.
 
-Other options are as follows:
+    Other options are as follows:
 
-**\-v, \-\-var** <*KEY=VALUE*>
-: Add or patch environment variable.
+    **\-v, \-\-var** <*KEY=VALUE*>
+    : Add or patch environment variable.
 
-**\-\-no-follow**
-: Do not follow redirects.
+    **\--no-follow**
+    : Do not follow redirects.
 
-**\-b**, **\-\-cookie** <*DATA|FILENAME*>
-: Pass cookie data to request header. If a key=value pair is given, it is used as a cookie of the request URL domain. Otherwise, it is expected to be a file containing cookies.
+    **\-b**, **\--cookie** <*DATA|FILENAME*>
+    : Pass cookie data to request header. If a key=value pair is given, it is used as a cookie of the request URL domain. Otherwise, it is expected to be a file containing cookies.
 
-**\-c**, **\-\-cookie-jar** <*FILE*>
-: Which file to write all cookies after a completed request. Existing cookies are not overwritten.
+    **\-c**, **\--cookie-jar** <*FILE*>
+    : Which file to write all cookies after a completed request. Existing cookies are not overwritten.
 
-## cp <*SRC*> <*DEST*>
-Copy a source handle to a destination handle. If the destination handle already exists, it will be overwritten.
+**cp** <*SRC*> <*DEST*>
+: Copy a source handle to a destination handle. If the destination handle already exists, it will be overwritten.
 
-For consistency, *quartz cp* tries to behave as close as possible to the cp(1) command in Unix systems.
+    For consistency, *quartz cp* tries to behave as close as possible to the cp(1) command in Unix systems.
 
-The options are as follows:
+    The options are as follows:
 
-*\-r*, **\-\-recursive**
-: Copy child handles recursively.
+    *\-r*, **\-\-recursive**
+    : Copy child handles recursively.
 
-## mv <*SRC*> <*DEST*>
-Move a source handle to a destination handle. If the destination handle already exists, it will be overwritten.
+**mv** <*SRC*> <*DEST*>
+: Move a source handle to a destination handle. If the destination handle already exists, it will be overwritten.
 
-For consistency, *quartz mv* tries to behave as close as possible to the mv(1) command in Unix systems.
+    For consistency, *quartz mv* tries to behave as close as possible to the mv(1) command in Unix systems.
 
-## rm <*HANDLE*>...
-Delete handles. If `--recursive` is missing and a handle has child handles, it will not be deleted.
+**rm** <*HANDLE*>...
+: Delete handles. If `--recursive` is missing and a handle has child handles, it will not be deleted.
 
-The options are as follows:
+    The options are as follows:
 
-**\-r**, **\-\-recursive**
-: Delete child handles recursively.
+    **\-r**, **\-\-recursive**
+    : Delete child handles recursively.
 
-## edit
-Open an editor to modify endpoint in use. 
+**edit**
+: Open an editor to modify endpoint in use. 
 
-The editor it uses is configured through *config* command, which is **vim(1)** by default.
+    The editor it uses is configured through *config* command, which is **vim(1)** by default.
 
-The options are as follows:
+    The options are as follows:
 
-**\-\-editor** *EDITOR*
-: Defines the editor to be used for that run, overriding the **quartz** settings.
+    **\--editor** *EDITOR*
+    : Defines the editor to be used for that run, overriding the **quartz** settings.
 
-## history
-Display request and response history. It uses informations about past requests saved in *.quartz/user/history/*.
+**history**
+: Display request and response history. It uses informations about past requests saved in *.quartz/user/history/*.
 
-Each request is displayed as HTTP messages exchanges, indicated by lines starting with ">" for request and "<" for response data.
+    Each request is displayed as HTTP messages exchanges, indicated by lines starting with ">" for request and "<" for response data.
 
-The options are as follows:
+    The options are as follows:
 
-**\-n**, **\-\-max-count** *N*
-: Maximum number of requests to be listed.
+    **\-n**, **\-\-max-count** *N*
+    : Maximum number of requests to be listed.
 
 # HEADER COMMAND
 Manage endpoint's headers.
 
-## header get <*KEY*>
-Display a header value.
+**header get** <*KEY*>
+: Display a header value.
 
-## header set <*HEADER*>...
-Add or patch a header. It expects one or more header entry in "key: value" format.
+**header set** <*HEADER*>...
+: Add or patch a header. It expects one or more header entry in "key: value" format.
 
-## header rm <*KEY*>...
-Remove headers.
+**header rm** <*KEY*>...
+: Remove headers.
 
-## header ls
-List all headers.
+**header ls**
+: List all headers.
 
 # QUERY COMMAND
 Manage endpoint's query params.
 
-## query get <*KEY*>
-Display a query value.
+**query get** <*KEY*>
+: Display a query value.
 
-## query set <*PARAM*>...
-Add or patch a header. It expects one or more header entry in "key=value" format.
+**query set** <*PARAM*>...
+: Add or patch a header. It expects one or more header entry in "key=value" format.
 
-## query rm <*KEY*>...
-Remove query parameters.
+**query rm** <*KEY*>...
+: Remove query parameters.
 
-## query ls
-List all query parameters.
+**query ls**
+: List all query parameters.
 
-## BODY COMMAND
+# BODY COMMAND
 Manage endpoint's request body.
 
-## body show
-Print request body.
+**body show**
+: Print request body.
 
-## body stdin
-Expect a new request body via standard input.
+**body stdin**
+: Expect a new request body via standard input.
 
-## body edit
-Open an editor to modify the endpoint's request body.
+**body edit**
+: Open an editor to modify the endpoint's request body.
 
 # SHOW COMMAND
 
-## show url
-Display endpoint's request URL.
+**show url**
+: Display endpoint's request URL.
 
-## show method
-Display endpoint's request method.
+**show method**
+: Display endpoint's request method.
 
-## show headers [*KEY*]
-Display endpoint's headers.
+**show headers** [*KEY*]
+: Display endpoint's headers.
 
-## show query [*KEY*]
-Display endpoint's query params.
+**show query** [*KEY*]
+: Display endpoint's query params.
 
-## show body
-Display endpoint's request body.
+**show body**
+: Display endpoint's request body.
 
-## show handle
-Display current handle.
+**show handle**
+: Display current handle.
 
-## show env
-Display current environment.
+**show env**
+: Display current environment.
 
-## show cookies
-Display environment cookies.
+**show cookie**
+: Display environment cookies.
 
-## show endpoint
-Display endpoint file.
+**show endpoint**
+: Display endpoint file.
 
-## show snippet [*OPTIONS*] <*COMMAND*>
-Generate code snippet for endpoint.
+**show snippet** [*OPTIONS*] <*COMMAND*>
+: Generate code snippet for endpoint.
 
-All **ENDPOINT PATCH** options are available.
+    All **ENDPOINT PATCH** options are available.
 
-Other options are as follows:
+    Other options are as follows:
 
-**\-v, \-\-var** <*KEY=VALUE*>
-: Add or patch environment variable.
+    **\-v, \-\-var** <*KEY=VALUE*>
+    : Add or patch environment variable.
 
-Code snippet commands are as follows:
+    Code snippet commands are as follows:
 
-**curl**
-: Generate a curl command. Use **\-\-help** for more options.
+    **curl**
+    : Generate a curl command. Use **\-\-help** for more options.
 
-**http**
-: Generate HTTP message.
+    **http**
+    : Generate HTTP message.
 
 # LAST COMMAND
 Print informations about the last sent request or its response.
 
-## last handle
-Print most recent used handle.
+**last handle**
+: Print most recent used handle.
 
-## last req[uest]
-Print most recent request information.
+**last req[uest]**
+: Print most recent request information.
 
-## last res[ponse]
-Print most recent response information.
+**last res[ponse]**
+: Print most recent response information.
 
-## last res head
-Print most recent response headers.
+**last res head**
+: Print most recent response headers.
 
-## last res body
-Print most recent response body.
+**last res body**
+: Print most recent response body.
 
 # ENVIRONMENT COMMAND
 **quartz** uses environment to manage variables that can be used in endpoints.
@@ -302,38 +300,38 @@ By default, the **default** environment is used.
 
 To manage environment variables, see *variable* command.
 
-## env create <*NAME*>
-Create a new environment.
+**env create** <*NAME*>
+: Create a new environment.
 
-## env use <*ENV*>
-Switch to another environment.
+**env use** <*ENV*>
+: Switch to another environment.
 
-## env ls
-Display all available environments.
+**env ls**
+: Display all available environments.
 
-## env cp <*SRC*> <*DEST*> 
-Copy variables from source environment to a new or existing destination environment.
+**env cp** <*SRC*> <*DEST*> 
+: Copy variables from source environment to a new or existing destination environment.
 
-## env rm <*ENV*>
-Delete an environment.
+**env rm** <*ENV*>
+: Delete an environment.
 
 # VAR COMMAND
 Manage current environment's variables.
 
-## var get <*KEY*>
-Display a variable value.
+**var get** <*KEY*>
+: Display a variable value.
 
-## var set <*KEY=VALUE*>...
-Add or patch a variable.
+**var set** <*KEY=VALUE*>...
+: Add or patch a variable.
 
-## var rm <*KEY*>...
-Remove variables.
+**var rm** <*KEY*>...
+: Remove variables.
 
-## var ls
-List all variables.
+**var ls**
+: List all variables.
 
-## var edit
-Open an editor to modify the environment variables file.
+**var edit**
+: Open an editor to modify the environment variables file.
 
 # CONFIG COMMAND
 **quartz** default configuration file is *~/.quartz.toml*.
@@ -344,18 +342,17 @@ Available configuration keys are:
 * preferences.pager -- Command to be run when a pager is needed (default: less(1))
 * ui.colors -- Whether outputs should be colored (default: true).
 
+**config get** <*KEY*>
+: Display a configuration value.
 
-## config get <*KEY*>
-Display a configuration value.
+**config set** <*KEY*> <*VALUE*>
+: Set a configuration.
 
-## config set <*KEY*> <*VALUE*>
-Set a configuration.
+**config ls**
+: Print *~/.quartz.toml* contents.
 
-## config ls
-Print *~/.quartz.toml* contents.
-
-## config edit
-Open an editor to modify the configuration file.
+**config edit**
+: Open an editor to modify the configuration file.
 
 # FILES
 
