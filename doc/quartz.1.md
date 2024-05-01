@@ -146,7 +146,7 @@ The endpoint *local/users* will use *http://localhost:8080/users* when sending a
 **cp** <*SRC*> <*DEST*>
 : Copy a source handle to a destination handle. If the destination handle already exists, it will be overwritten.
 
-    For consistency, *quartz cp* tries to behave as close as possible to the cp(1) command in Unix systems.
+    For consistency, *quartz cp* tries to behave as close as possible to the **cp(1)** command in Unix systems.
 
     The options are as follows:
 
@@ -156,7 +156,7 @@ The endpoint *local/users* will use *http://localhost:8080/users* when sending a
 **mv** <*SRC*> <*DEST*>
 : Move a source handle to a destination handle. If the destination handle already exists, it will be overwritten.
 
-    For consistency, *quartz mv* tries to behave as close as possible to the mv(1) command in Unix systems.
+    For consistency, *quartz mv* tries to behave as close as possible to the **mv(1)** command in Unix systems.
 
 **rm** <*HANDLE*>...
 : Delete handles. If `--recursive` is missing and a handle has child handles, it will not be deleted.
@@ -338,8 +338,8 @@ Manage current environment's variables.
 
 Available configuration keys are:
 
-* preferences.editor -- Command to be run when an editor is needed (default: vim(1)).
-* preferences.pager -- Command to be run when a pager is needed (default: less(1))
+* preferences.editor -- Command to be run when an editor is needed (default: **vim(1)**).
+* preferences.pager -- Command to be run when a pager is needed (default: **less(1)**)
 * ui.colors -- Whether outputs should be colored (default: true).
 
 **config get** <*KEY*>
@@ -356,7 +356,8 @@ Available configuration keys are:
 
 # FILES
 
-*~/.quartz.toml* -- Default **quartz** configuration file.
+*~/.quartz.toml*
+: Default **quartz** configuration file.
 
 # EXAMPLES
 
@@ -405,3 +406,6 @@ Or print the most recent request data:
 # AUTHORS
 
 Eduardo Rodrigues <contato@edurodrigues.dev>
+
+# SEE ALSO
+**cp(1)**, **mv(1)**, **vim(1)**, **less(1)**
