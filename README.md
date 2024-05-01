@@ -86,8 +86,14 @@ This outputs the response body, but we can also see more details with the `last`
 for us to fetch the data locally.
 
 ```sh
-# Output the response head.
 $ quartz last res head
+```
+
+You can even output a cURL command to replicate the request:
+
+```sh
+$ quartz show snippet --var id=123 curl
+curl -L 'https://api.example.com/users/123' -X GET
 ```
 
 Now that you know the basics of quartz, you can start creating more requests and organizing them in your project. For more information and advanced usage
