@@ -412,7 +412,40 @@ impl Endpoint {
         self.path = handle.dir(ctx).to_path_buf();
     }
 
+    pub fn parent(&self) -> Option<Self> {
+        let mut path = self.path.clone();
+
+        if path.pop() {
+            Self::from_dir(&path).ok()
+        } else {
+            None
+        }
+    }
+
+    /// Inherits parent URL when it starts with "**".
+    pub fn resolve_url(&mut self) {
+        if !self.url.starts_with("**") {
+            return;
+        }
+
+        if let Some(mut parent) = self.parent() {
+            parent.resolve_url();
+            if parent.url.ends_with('/') {
+                // Prevents "//" in the URL after merging
+                parent.url.pop();
+            }
+
+            if self.url.is_empty() {
+                self.url = parent.url;
+            } else {
+                self.url = self.url.replacen("**", &parent.url, 1);
+            }
+        }
+    }
+
     pub fn apply_env(&mut self, env: &Env) {
+        self.resolve_url();
+
         for (key, value) in env.variables.iter() {
             let key_match = format!("{{{{{}}}}}", key); // {{key}}
 
