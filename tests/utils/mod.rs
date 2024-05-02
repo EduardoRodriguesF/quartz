@@ -138,6 +138,7 @@ impl Quartz {
         let output = Command::new(self.bin.as_path())
             .current_dir(self.tmpdir.as_path())
             .args(args)
+            .env("NO_COLOR", "1")
             .output()?;
 
         Ok(QuartzOutput {
