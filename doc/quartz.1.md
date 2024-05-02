@@ -369,6 +369,9 @@ Commands are as follows:
 **PAGER**
 : Which pager to be used when needed. If not set, it fallbacks to **less(1)**.
 
+**NO_COLOR**
+: When set, don't output ANSI color escape codes. This variable overrides quartz's **ui.colors** configuration.
+
 # BUGS
 
 See GitHub Issues: https://github.com/eduardorodriguesf/quartz/issues

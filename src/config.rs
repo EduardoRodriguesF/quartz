@@ -89,23 +89,23 @@ impl Preferences {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct UiConfig {
-    colors: bool,
+    colors: Option<bool>,
 }
 
 impl UiConfig {
     pub fn colors(&self) -> bool {
-        self.colors
+        if std::env::var("NO_COLOR").is_ok() {
+            false
+        } else if let Some(colors) = self.colors {
+            colors
+        } else {
+            true
+        }
     }
 
     pub fn set_colors(&mut self, colors: bool) {
-        self.colors = colors;
-    }
-}
-
-impl Default for UiConfig {
-    fn default() -> Self {
-        Self { colors: true }
+        self.colors = Some(colors);
     }
 }

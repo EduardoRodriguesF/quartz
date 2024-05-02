@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - URLs that start with "**" will inherit the beginning from their parent handle (#21)
 - **EDITOR** and **PAGER** environment variables are now used when no configuration is set for quartz preferences.
+- **NO_COLOR** environment variable overrides quartz UI settings.
 
 ### Changed
 
