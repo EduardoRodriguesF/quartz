@@ -372,6 +372,12 @@ Commands are as follows:
 **NO_COLOR**
 : When set, don't output ANSI color escape codes. This variable overrides quartz's **ui.colors** configuration.
 
+**CLICOLOR_FORCE**
+: If **NO_COLOR** is unset, this variable overrides quartz's **ui.colors** configuration.
+
+**CLICOLOR**
+: If **NO_COLOR** and **CLICOLOR_FORCE** are unset, this variable overrides quartz's **ui.colors** configuration.
+
 # BUGS
 
 See GitHub Issues: https://github.com/eduardorodriguesf/quartz/issues

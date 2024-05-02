@@ -98,6 +98,10 @@ impl UiConfig {
     pub fn colors(&self) -> bool {
         if std::env::var("NO_COLOR").is_ok() {
             false
+        } else if let Ok(clicolor) = std::env::var("CLICOLOR_FORCE") {
+            clicolor == "0"
+        } else if let Ok(clicolor) = std::env::var("CLICOLOR") {
+            clicolor == "0"
         } else if let Some(colors) = self.colors {
             colors
         } else {
