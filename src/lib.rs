@@ -90,6 +90,7 @@ impl Ctx {
         let config = Config::parse();
         let state = State {
             handle: args.from_handle.clone(),
+            previous_handle: None,
         };
 
         let mut path = std::env::current_dir()?;
