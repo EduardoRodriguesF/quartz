@@ -84,7 +84,13 @@ pub fn create(ctx: &Ctx, mut args: CreateArgs) {
 }
 
 pub fn switch(ctx: &mut Ctx, mut args: SwitchArgs) {
-    let handle = if let Some(handle) = args.handle {
+    let handle = if let Some(mut handle) = args.handle {
+        if handle == "-" {
+            if let Ok(previous_handle) = StateField::PreviousEndpoint.get(ctx) {
+                handle = previous_handle;
+            }
+        }
+
         let handle = EndpointHandle::from(handle);
 
         if !handle.exists(ctx) {
@@ -105,10 +111,13 @@ pub fn switch(ctx: &mut Ctx, mut args: SwitchArgs) {
             }
         }
 
+        let previous = std::mem::take(&mut StateField::Endpoint.get(ctx).unwrap());
         if StateField::Endpoint
             .set(ctx, &handle.path.join("/"))
             .is_ok()
         {
+            let _ = StateField::PreviousEndpoint.set(ctx, &previous);
+
             println!("Switched to {} endpoint", handle.handle().green());
         } else {
             panic!("failed to switch to {} endpoint", handle.handle().red());

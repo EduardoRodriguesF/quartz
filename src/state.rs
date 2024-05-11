@@ -3,11 +3,13 @@ use std::{io::Write, path::PathBuf};
 
 pub enum StateField {
     Endpoint,
+    PreviousEndpoint,
     Env,
 }
 
 pub struct State {
     pub handle: Option<String>,
+    pub previous_handle: Option<String>,
 }
 
 impl StateField {
@@ -17,6 +19,7 @@ impl StateField {
         ctx.path().join(Self::STATE_DIR).join(match self {
             Self::Endpoint => "endpoint",
             Self::Env => "env",
+            Self::PreviousEndpoint => "previous-endpoint",
         })
     }
 
