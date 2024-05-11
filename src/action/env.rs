@@ -83,8 +83,6 @@ pub fn switch(ctx: &mut Ctx, args: SwitchArgs) -> QuartzResult {
             ctx.code(ExitCode::FAILURE);
             return Ok(());
         }
-
-        return Ok(());
     }
 
     if let Ok(()) = StateField::Env.set(ctx, &env.name) {
