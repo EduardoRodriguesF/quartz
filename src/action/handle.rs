@@ -111,12 +111,14 @@ pub fn switch(ctx: &mut Ctx, mut args: SwitchArgs) {
             }
         }
 
-        let previous = std::mem::take(&mut StateField::Endpoint.get(ctx).unwrap());
+        let previous = StateField::Endpoint.get(ctx);
         if StateField::Endpoint
             .set(ctx, &handle.path.join("/"))
             .is_ok()
         {
-            let _ = StateField::PreviousEndpoint.set(ctx, &previous);
+            if let Ok(prev) = previous {
+                let _ = StateField::PreviousEndpoint.set(ctx, &prev);
+            }
 
             println!("Switched to {} endpoint", handle.handle().green());
         } else {
