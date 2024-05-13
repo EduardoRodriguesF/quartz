@@ -300,3 +300,25 @@ fn url_inheritance_multilevel() -> TestResult {
 
     Ok(())
 }
+#[test]
+fn use_previous_handle() -> TestResult {
+    let quartz = Quartz::preset_empty_project()?;
+    quartz.cmd(&["create", "endpoint1", "--url", "https://httpbin.org"])?;
+    quartz.cmd(&["create", "endpoint2", "--url", "https://httpbin.org/get"])?;
+    quartz.cmd(&["use", "endpoint1"])?;
+    let output = quartz.cmd(&["show", "handle"])?.stdout;
+    assert_eq!(output.trim(), "endpoint1");
+
+    quartz.cmd(&["use", "endpoint2"])?;
+    let output = quartz.cmd(&["show", "handle"])?.stdout;
+    assert_eq!(output.trim(), "endpoint2");
+
+    quartz.cmd(&["use", "-"])?;
+    let output = quartz.cmd(&["show", "handle"])?.stdout;
+    assert_eq!(output.trim(), "endpoint1");
+
+    quartz.cmd(&["use", "-"])?;
+    let output = quartz.cmd(&["show", "handle"])?.stdout;
+    assert_eq!(output.trim(), "endpoint2");
+    Ok(())
+}
