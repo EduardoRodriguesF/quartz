@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `quartz use -` to switch to the last used handle. (#45)
+- `quartz use -` to switch to the last used handle. (#45 by @GabrielBrandao1619)
 - Content-type hints `body edit` into correct extension. (#46)
 
 ### Fixed
