@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `quartz use -` to switch to the last used handle. (#45 by @GabrielBrandao1619)
-- Content-type hints `body edit` into correct extension. (#46)
+- `quartz use -` to switch to the last used handle. ([#45](https://github.com/EduardoRodriguesF/quartz/issues/45) by [@GabrielBrandao1619](https://github.com/GabrielBrandao1619))
+- Content-type hints `body edit` into correct extension. ([#46](https://github.com/EduardoRodriguesF/quartz/issues/46))
 
 ### Fixed
 
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- URLs that start with "**" will inherit the beginning from their parent handle (#21)
+- URLs that start with "**" will inherit the beginning from their parent handle ([#21](https://github.com/EduardoRodriguesF/quartz/issues/21))
 - **EDITOR** and **PAGER** environment variables are now used when no configuration is set for quartz preferences.
 - **NO_COLOR**, **CLICOLOR**, and **CLICOLOR_FORCE** environment variables overrides quartz UI settings.
 
@@ -71,8 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `context` were renamed to `env`
 - `header`, `query`, `config` and `variable` commands now follow the same new pattern to promote consistency.
 - `create` options were revisited for better semantics with **curl** and other `send` and `use` options.
-- Variables are now edited in a plain-text file instead of TOML. (#41)
-- `rm` requires `-r` option to remove handles recursively. (#38)
+- Variables are now edited in a plain-text file instead of TOML. ([#41](https://github.com/EduardoRodriguesF/quartz/issues/41))
+- `rm` requires `-r` option to remove handles recursively. ([#38)](https://github.com/EduardoRodriguesF/quartz/issues/38))
 - History simplified. HTTP messages are displayed instead.
 
 ### Fixed
