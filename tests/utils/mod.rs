@@ -1,3 +1,5 @@
+use cuid::cuid2;
+
 use std::default::Default;
 use std::ffi::OsStr;
 use std::io::Write;
@@ -28,7 +30,8 @@ impl Default for Quartz {
 
         let tmpdir = std::env::temp_dir()
             .join("quartz_cli_tests")
-            .join(now.as_millis().to_string());
+            .join(now.as_millis().to_string())
+            .join(cuid2());
         let bin = Path::new(env!("CARGO_BIN_EXE_quartz")).to_path_buf();
 
         std::fs::create_dir_all(&tmpdir).unwrap();
