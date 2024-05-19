@@ -1,3 +1,4 @@
+use core::panic;
 use std::process::ExitCode;
 
 use crate::{
@@ -32,6 +33,11 @@ pub struct HeaderRmArgs {
     key: String,
 }
 
+#[derive(clap::Args, Debug)]
+pub struct HeaderGetArgs {
+    key: String,
+}
+
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Create(args) => create(ctx, args),
@@ -43,6 +49,7 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
             HeaderEnvCmd::Set { headers } => header_set(ctx, headers)?,
             HeaderEnvCmd::Ls => header_ls(ctx)?,
             HeaderEnvCmd::Rm(args) => header_rm(ctx, args)?,
+            HeaderEnvCmd::Get(args) => header_get(ctx, args)?,
         },
     };
 
@@ -166,5 +173,15 @@ pub fn header_rm(ctx: &Ctx, args: HeaderRmArgs) -> QuartzResult {
     let mut env = ctx.require_env();
     env.headers.remove(&args.key);
     env.update(ctx)?;
+    Ok(())
+}
+pub fn header_get(ctx: &Ctx, args: HeaderGetArgs) -> QuartzResult {
+    let env = ctx.require_env();
+    let name = args.key;
+    let value = env
+        .headers
+        .get(&name)
+        .unwrap_or_else(|| panic!("no header named {name} found"));
+    println!("{value}");
     Ok(())
 }
