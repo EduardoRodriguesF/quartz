@@ -100,8 +100,10 @@ pub async fn cmd(ctx: &Ctx, mut args: Args) -> QuartzResult {
             .into_request()
             .unwrap_or_else(|_| panic!("malformed request"));
         for (key, val) in env.headers.iter() {
-            req.headers_mut()
-                .insert(HeaderName::from_str(key)?, HeaderValue::from_str(val)?);
+            if !endpoint.headers.contains_key(key) {
+                req.headers_mut()
+                    .insert(HeaderName::from_str(key)?, HeaderValue::from_str(val)?);
+            }
         }
 
         entry.message(&req);
