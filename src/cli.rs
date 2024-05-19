@@ -239,7 +239,7 @@ pub enum EnvCmd {
 
 #[derive(Debug, Subcommand)]
 pub enum HeaderEnvCmd {
-    Set(action::env::HeaderSetArgs),
+    Set { headers: Vec<String> },
     Ls,
 }
 

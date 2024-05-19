@@ -1,6 +1,6 @@
 use std::process::ExitCode;
 
-use crate::{cli::EnvCmd as Cmd, Ctx, Env, QuartzResult, StateField};
+use crate::{cli::EnvCmd as Cmd, Ctx, Env, PairMap, QuartzResult, StateField};
 use colored::Colorize;
 
 #[derive(clap::Args, Debug)]
@@ -38,7 +38,7 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Ls => ls(ctx),
         Cmd::Rm(args) => rm(ctx, args),
         Cmd::Header { command } => match command {
-            crate::cli::HeaderEnvCmd::Set(args) => header_set(ctx, args)?,
+            crate::cli::HeaderEnvCmd::Set { headers } => header_set(ctx, headers)?,
             crate::cli::HeaderEnvCmd::Ls => header_ls(ctx)?,
         },
     };
@@ -146,9 +146,11 @@ pub fn print(ctx: &Ctx) {
             .unwrap_or("default".into())
     );
 }
-pub fn header_set(ctx: &Ctx, args: HeaderSetArgs) -> QuartzResult {
+pub fn header_set(ctx: &Ctx, args: Vec<String>) -> QuartzResult {
     let mut env = ctx.require_env();
-    env.headers.insert(args.key, args.value);
+    for header in args {
+        env.headers.set(&header);
+    }
     env.update(ctx)?;
     Ok(())
 }
