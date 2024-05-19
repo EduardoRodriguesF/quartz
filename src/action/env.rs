@@ -30,9 +30,6 @@ pub struct HeaderSetArgs {
     value: String,
 }
 
-#[derive(clap::Args, Debug)]
-pub struct HeaderLsArgs {}
-
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Create(args) => create(ctx, args),
@@ -42,7 +39,7 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Rm(args) => rm(ctx, args),
         Cmd::Header { command } => match command {
             crate::cli::HeaderEnvCmd::Set(args) => header_set(ctx, args)?,
-            crate::cli::HeaderEnvCmd::Ls(args) => header_ls(ctx, args)?,
+            crate::cli::HeaderEnvCmd::Ls => header_ls(ctx)?,
         },
     };
 
@@ -155,7 +152,7 @@ pub fn header_set(ctx: &Ctx, args: HeaderSetArgs) -> QuartzResult {
     env.update(ctx)?;
     Ok(())
 }
-pub fn header_ls(ctx: &Ctx, args: HeaderLsArgs) -> QuartzResult {
+pub fn header_ls(ctx: &Ctx) -> QuartzResult {
     let env = ctx.require_env();
     println!("{}", env.headers);
     Ok(())

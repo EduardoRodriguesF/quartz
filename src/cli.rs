@@ -240,7 +240,7 @@ pub enum EnvCmd {
 #[derive(Debug, Subcommand)]
 pub enum HeaderEnvCmd {
     Set(action::env::HeaderSetArgs),
-    Ls(action::env::HeaderLsArgs),
+    Ls,
 }
 
 #[derive(Debug, Subcommand)]
