@@ -231,6 +231,16 @@ pub enum EnvCmd {
     /// Delete a environment
     #[command(name = "rm", alias = "remove")]
     Rm(action::env::RmArgs),
+    Header {
+        #[command(subcommand)]
+        command: HeaderEnvCmd,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum HeaderEnvCmd {
+    Set(action::env::HeaderSetArgs),
+    Ls(action::env::HeaderLsArgs),
 }
 
 #[derive(Debug, Subcommand)]

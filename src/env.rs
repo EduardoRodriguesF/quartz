@@ -57,10 +57,55 @@ impl Variables {
     }
 }
 
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+pub struct Headers(pub HashMap<String, String>);
+impl Deref for Headers {
+    type Target = HashMap<String, String>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Headers {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl Display for Headers {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for (key, value) in self.iter() {
+            writeln!(f, "{key}={value}")?;
+        }
+
+        Ok(())
+    }
+}
+impl PairMap<'_> for Headers {
+    const NAME: &'static str = "variable";
+
+    fn map(&mut self) -> &mut HashMap<String, String> {
+        &mut self.0
+    }
+}
+impl Headers {
+    pub fn parse(file_content: &str) -> Self {
+        let mut headers = Headers::default();
+
+        for var in file_content.split('\n').filter(|line| !line.is_empty()) {
+            headers.set(var);
+        }
+
+        headers
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Env {
     pub name: String,
     pub variables: Variables,
+    pub headers: Headers,
 }
 
 impl Default for Env {
@@ -68,6 +113,7 @@ impl Default for Env {
         Self {
             name: String::from("default"),
             variables: Variables::default(),
+            headers: Headers::default(),
         }
     }
 }
@@ -100,9 +146,17 @@ impl Env {
             .write(true)
             .truncate(true)
             .open(self.dir(ctx).join("variables"))?;
+        let mut headers_file = std::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(true)
+            .open(self.dir(ctx).join("headers"))?;
 
         if !self.variables.is_empty() {
             var_file.write_all(format!("{}", self.variables).as_bytes())?;
+        }
+        if !self.headers.0.is_empty() {
+            headers_file.write_all(format!("{}", self.headers).as_bytes())?;
         }
 
         Ok(())
@@ -118,6 +172,9 @@ impl Env {
 
         if let Ok(var_contents) = std::fs::read_to_string(env.dir(ctx).join("variables")) {
             env.variables = Variables::parse(&var_contents);
+        }
+        if let Ok(header_contents) = std::fs::read_to_string(env.dir(ctx).join("headers")) {
+            env.headers = Headers::parse(&header_contents);
         }
 
         Ok(env)

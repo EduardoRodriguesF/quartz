@@ -24,6 +24,15 @@ pub struct RmArgs {
     env: String,
 }
 
+#[derive(clap::Args, Debug)]
+pub struct HeaderSetArgs {
+    key: String,
+    value: String,
+}
+
+#[derive(clap::Args, Debug)]
+pub struct HeaderLsArgs {}
+
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Create(args) => create(ctx, args),
@@ -31,6 +40,10 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Use(args) => switch(ctx, args)?,
         Cmd::Ls => ls(ctx),
         Cmd::Rm(args) => rm(ctx, args),
+        Cmd::Header { command } => match command {
+            crate::cli::HeaderEnvCmd::Set(args) => header_set(ctx, args),
+            crate::cli::HeaderEnvCmd::Ls(args) => header_ls(ctx, args),
+        },
     };
 
     Ok(())
@@ -136,3 +149,9 @@ pub fn print(ctx: &Ctx) {
             .unwrap_or("default".into())
     );
 }
+pub fn header_set(ctx: &Ctx, args: HeaderSetArgs) {
+    let mut env = ctx.require_env();
+    env.headers.insert(args.key, args.value);
+    env.update(ctx);
+}
+pub fn header_ls(ctx: &Ctx, args: HeaderLsArgs) {}
