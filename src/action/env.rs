@@ -1,6 +1,9 @@
 use std::process::ExitCode;
 
-use crate::{cli::EnvCmd as Cmd, Ctx, Env, PairMap, QuartzResult, StateField};
+use crate::{
+    cli::{EnvCmd as Cmd, HeaderEnvCmd},
+    Ctx, Env, PairMap, QuartzResult, StateField,
+};
 use colored::Colorize;
 
 #[derive(clap::Args, Debug)]
@@ -24,6 +27,11 @@ pub struct RmArgs {
     env: String,
 }
 
+#[derive(clap::Args, Debug)]
+pub struct HeaderRmArgs {
+    key: String,
+}
+
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Create(args) => create(ctx, args),
@@ -32,8 +40,9 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Ls => ls(ctx),
         Cmd::Rm(args) => rm(ctx, args),
         Cmd::Header { command } => match command {
-            crate::cli::HeaderEnvCmd::Set { headers } => header_set(ctx, headers)?,
-            crate::cli::HeaderEnvCmd::Ls => header_ls(ctx)?,
+            HeaderEnvCmd::Set { headers } => header_set(ctx, headers)?,
+            HeaderEnvCmd::Ls => header_ls(ctx)?,
+            HeaderEnvCmd::Rm(args) => header_rm(ctx, args)?,
         },
     };
 
@@ -151,5 +160,11 @@ pub fn header_set(ctx: &Ctx, args: Vec<String>) -> QuartzResult {
 pub fn header_ls(ctx: &Ctx) -> QuartzResult {
     let env = ctx.require_env();
     println!("{}", env.headers);
+    Ok(())
+}
+pub fn header_rm(ctx: &Ctx, args: HeaderRmArgs) -> QuartzResult {
+    let mut env = ctx.require_env();
+    env.headers.remove(&args.key);
+    env.update(ctx)?;
     Ok(())
 }
