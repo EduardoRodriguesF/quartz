@@ -41,8 +41,8 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Ls => ls(ctx),
         Cmd::Rm(args) => rm(ctx, args),
         Cmd::Header { command } => match command {
-            crate::cli::HeaderEnvCmd::Set(args) => header_set(ctx, args),
-            crate::cli::HeaderEnvCmd::Ls(args) => header_ls(ctx, args),
+            crate::cli::HeaderEnvCmd::Set(args) => header_set(ctx, args)?,
+            crate::cli::HeaderEnvCmd::Ls(args) => header_ls(ctx, args)?,
         },
     };
 
@@ -149,9 +149,12 @@ pub fn print(ctx: &Ctx) {
             .unwrap_or("default".into())
     );
 }
-pub fn header_set(ctx: &Ctx, args: HeaderSetArgs) {
+pub fn header_set(ctx: &Ctx, args: HeaderSetArgs) -> QuartzResult {
     let mut env = ctx.require_env();
     env.headers.insert(args.key, args.value);
-    env.update(ctx);
+    env.update(ctx)?;
+    Ok(())
 }
-pub fn header_ls(ctx: &Ctx, args: HeaderLsArgs) {}
+pub fn header_ls(ctx: &Ctx, args: HeaderLsArgs) -> QuartzResult {
+    Ok(())
+}
