@@ -156,5 +156,7 @@ pub fn header_set(ctx: &Ctx, args: HeaderSetArgs) -> QuartzResult {
     Ok(())
 }
 pub fn header_ls(ctx: &Ctx, args: HeaderLsArgs) -> QuartzResult {
+    let env = ctx.require_env();
+    println!("{}", env.headers);
     Ok(())
 }

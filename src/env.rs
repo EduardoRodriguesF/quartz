@@ -76,7 +76,7 @@ impl DerefMut for Headers {
 impl Display for Headers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (key, value) in self.iter() {
-            writeln!(f, "{key}={value}")?;
+            writeln!(f, "{key}: {value}")?;
         }
 
         Ok(())
@@ -87,6 +87,10 @@ impl PairMap<'_> for Headers {
 
     fn map(&mut self) -> &mut HashMap<String, String> {
         &mut self.0
+    }
+    fn pair(input: &'_ str) -> Option<(String, String)> {
+        let (key, val) = input.split_once(": ")?;
+        Some((key.to_owned(), val.to_owned()))
     }
 }
 impl Headers {
