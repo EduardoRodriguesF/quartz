@@ -7,6 +7,7 @@ use crate::{
 use chrono::Utc;
 use hyper::{
     body::{Bytes, HttpBody},
+    header::{HeaderName, HeaderValue},
     Body, Client, Uri,
 };
 use std::path::{Path, PathBuf};
@@ -93,11 +94,15 @@ pub async fn cmd(ctx: &Ctx, mut args: Args) -> QuartzResult {
     let mut res: hyper::Response<Body>;
 
     loop {
-        let req = endpoint
+        let mut req = endpoint
             // TODO: Find a way around this clone
             .clone()
             .into_request()
             .unwrap_or_else(|_| panic!("malformed request"));
+        for (key, val) in env.headers.iter() {
+            req.headers_mut()
+                .insert(HeaderName::from_str(key)?, HeaderValue::from_str(val)?);
+        }
 
         entry.message(&req);
         if let Some(ref body) = body {
