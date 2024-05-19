@@ -24,12 +24,6 @@ pub struct RmArgs {
     env: String,
 }
 
-#[derive(clap::Args, Debug)]
-pub struct HeaderSetArgs {
-    key: String,
-    value: String,
-}
-
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Create(args) => create(ctx, args),
