@@ -106,8 +106,8 @@ The endpoint *local/users* will use *http://localhost:8080/users* when sending a
     **\-\-use**
     : Immediately switches to this handle after creating it.
 
-**ls**, **list**
-: List all available handles.
+**ls**, **list** [*HANDLE*]
+: List handles.
 
     The options are as follows:
 

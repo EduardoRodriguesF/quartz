@@ -107,6 +107,9 @@ fn print_outputs(list: Vec<Output>) {
 
 #[derive(clap::Args, Debug)]
 pub struct Args {
+    /// See the children of a specific handle
+    handle: Option<String>,
+
     /// Set a limit for how deep the listing goes in sub-handles
     #[arg(long, value_name = "N")]
     depth: Option<usize>,
@@ -117,7 +120,12 @@ pub fn cmd(ctx: &Ctx, args: Args) {
     let active_handle = EndpointHandle::from_state(ctx);
     let mut output_list: Vec<Output> = vec![];
 
-    let tree = EndpointHandle::QUARTZ.tree(ctx);
+    let tree = if let Some(handle) = args.handle {
+        EndpointHandle::from(handle).tree(ctx)
+    } else {
+        EndpointHandle::QUARTZ.tree(ctx)
+    };
+
     let mut queue = vec![&tree.root];
 
     while let Some(node) = queue.pop() {
