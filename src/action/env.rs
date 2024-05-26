@@ -2,7 +2,7 @@ use core::panic;
 use std::process::ExitCode;
 
 use crate::{
-    cli::{EnvCmd as Cmd, HeaderEnvCmd},
+    cli::{EnvCmd as Cmd, HeaderCmd},
     Ctx, Env, PairMap, QuartzResult, StateField,
 };
 use colored::Colorize;
@@ -28,16 +28,6 @@ pub struct RmArgs {
     env: String,
 }
 
-#[derive(clap::Args, Debug)]
-pub struct HeaderRmArgs {
-    key: String,
-}
-
-#[derive(clap::Args, Debug)]
-pub struct HeaderGetArgs {
-    key: String,
-}
-
 pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
     match command {
         Cmd::Create(args) => create(ctx, args),
@@ -46,10 +36,10 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Ls => ls(ctx),
         Cmd::Rm(args) => rm(ctx, args),
         Cmd::Header { command } => match command {
-            HeaderEnvCmd::Set { headers } => header_set(ctx, headers)?,
-            HeaderEnvCmd::Ls => header_ls(ctx)?,
-            HeaderEnvCmd::Rm(args) => header_rm(ctx, args)?,
-            HeaderEnvCmd::Get(args) => header_get(ctx, args)?,
+            HeaderCmd::Set { header } => header_set(ctx, header)?,
+            HeaderCmd::Ls => header_ls(ctx)?,
+            HeaderCmd::Rm { key } => header_rm(ctx, key)?,
+            HeaderCmd::Get { key } => header_get(ctx, key)?,
         },
     };
 
@@ -169,19 +159,20 @@ pub fn header_ls(ctx: &Ctx) -> QuartzResult {
     println!("{}", env.headers);
     Ok(())
 }
-pub fn header_rm(ctx: &Ctx, args: HeaderRmArgs) -> QuartzResult {
-    let mut env = ctx.require_env();
-    env.headers.remove(&args.key);
-    env.update(ctx)?;
+pub fn header_rm(ctx: &Ctx, keys: Vec<String>) -> QuartzResult {
+    for key in keys {
+        let mut env = ctx.require_env();
+        env.headers.remove(&key);
+        env.update(ctx)?;
+    }
     Ok(())
 }
-pub fn header_get(ctx: &Ctx, args: HeaderGetArgs) -> QuartzResult {
+pub fn header_get(ctx: &Ctx, key: String) -> QuartzResult {
     let env = ctx.require_env();
-    let name = args.key;
     let value = env
         .headers
-        .get(&name)
-        .unwrap_or_else(|| panic!("no header named {name} found"));
+        .get(&key)
+        .unwrap_or_else(|| panic!("no header named {key} found"));
     println!("{value}");
     Ok(())
 }
