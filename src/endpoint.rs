@@ -51,6 +51,16 @@ impl PairMap<'_> for Query {
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct Headers(pub HashMap<String, String>);
 
+impl Headers {
+    pub fn parse(file_content: &str) -> Self {
+        let mut headers = Headers::default();
+        for header in file_content.lines().filter(|line| !line.is_empty()) {
+            headers.set(header);
+        }
+        headers
+    }
+}
+
 impl Deref for Headers {
     type Target = HashMap<String, String>;
 

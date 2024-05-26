@@ -8,7 +8,7 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-use crate::{cookie::CookieJar, Ctx, PairMap};
+use crate::{cookie::CookieJar, endpoint::Headers, Ctx, PairMap};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Variables(pub HashMap<String, String>);
@@ -54,54 +54,6 @@ impl Variables {
         }
 
         variables
-    }
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-pub struct Headers(pub HashMap<String, String>);
-impl Deref for Headers {
-    type Target = HashMap<String, String>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for Headers {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-impl Display for Headers {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for (key, value) in self.iter() {
-            writeln!(f, "{key}: {value}")?;
-        }
-
-        Ok(())
-    }
-}
-impl PairMap<'_> for Headers {
-    const NAME: &'static str = "variable";
-
-    fn map(&mut self) -> &mut HashMap<String, String> {
-        &mut self.0
-    }
-    fn pair(input: &'_ str) -> Option<(String, String)> {
-        let (key, val) = input.split_once(": ")?;
-        Some((key.to_owned(), val.to_owned()))
-    }
-}
-impl Headers {
-    pub fn parse(file_content: &str) -> Self {
-        let mut headers = Headers::default();
-
-        for var in file_content.split('\n').filter(|line| !line.is_empty()) {
-            headers.set(var);
-        }
-
-        headers
     }
 }
 
