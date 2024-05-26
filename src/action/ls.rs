@@ -156,7 +156,6 @@ pub fn cmd(ctx: &Ctx, args: Args) {
         }
 
         for child in node.children.iter() {
-            println!("This is a child: {}", child.value.handle());
             queue.push(&child);
         }
     }
