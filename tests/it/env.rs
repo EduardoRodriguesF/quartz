@@ -116,3 +116,31 @@ fn it_cannot_create_duplicate() -> TestResult {
 
     Ok(())
 }
+
+#[test]
+fn it_create_headers() -> TestResult {
+    let quartz = Quartz::preset_empty_project()?;
+    quartz.cmd(&["env", "header", "set", "Header1: Value1"])?;
+    quartz.cmd(&["env", "header", "set", "Header2: Value2"])?;
+
+    let output = quartz.cmd(&["env", "header", "get", "Header1"])?;
+    assert_eq!(output.stdout.trim(), "Value1");
+
+    let output = quartz.cmd(&["env", "header", "get", "Header2"])?;
+    assert_eq!(output.stdout.trim(), "Value2");
+    Ok(())
+}
+#[test]
+fn it_delete_header() -> TestResult {
+    let quartz = Quartz::preset_empty_project()?;
+    quartz.cmd(&["env", "header", "set", "Header1: Value1"])?;
+
+    let output = quartz.cmd(&["env", "header", "get", "Header1"])?;
+    assert_eq!(output.stdout.trim(), "Value1");
+
+    quartz.cmd(&["env", "header", "rm", "Header1"])?;
+    let output = quartz.cmd(&["env", "header", "get", "Header1"])?;
+    assert!(!output.status.success());
+
+    Ok(())
+}

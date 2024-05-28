@@ -1,6 +1,10 @@
+use core::panic;
 use std::process::ExitCode;
 
-use crate::{cli::EnvCmd as Cmd, Ctx, Env, QuartzResult, StateField};
+use crate::{
+    cli::{EnvCmd as Cmd, HeaderCmd},
+    Ctx, Env, PairMap, QuartzResult, StateField,
+};
 use colored::Colorize;
 
 #[derive(clap::Args, Debug)]
@@ -31,6 +35,12 @@ pub fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Use(args) => switch(ctx, args)?,
         Cmd::Ls => ls(ctx),
         Cmd::Rm(args) => rm(ctx, args),
+        Cmd::Header { command } => match command {
+            HeaderCmd::Set { header } => header_set(ctx, header)?,
+            HeaderCmd::Ls => header_ls(ctx)?,
+            HeaderCmd::Rm { key } => header_rm(ctx, key)?,
+            HeaderCmd::Get { key } => header_get(ctx, key)?,
+        },
     };
 
     Ok(())
@@ -135,4 +145,34 @@ pub fn print(ctx: &Ctx) {
             .get(ctx, StateField::Env)
             .unwrap_or("default".into())
     );
+}
+pub fn header_set(ctx: &Ctx, args: Vec<String>) -> QuartzResult {
+    let mut env = ctx.require_env();
+    for header in args {
+        env.headers.set(&header);
+    }
+    env.update(ctx)?;
+    Ok(())
+}
+pub fn header_ls(ctx: &Ctx) -> QuartzResult {
+    let env = ctx.require_env();
+    print!("{}", env.headers);
+    Ok(())
+}
+pub fn header_rm(ctx: &Ctx, keys: Vec<String>) -> QuartzResult {
+    for key in keys {
+        let mut env = ctx.require_env();
+        env.headers.remove(&key);
+        env.update(ctx)?;
+    }
+    Ok(())
+}
+pub fn header_get(ctx: &Ctx, key: String) -> QuartzResult {
+    let env = ctx.require_env();
+    let value = env
+        .headers
+        .get(&key)
+        .unwrap_or_else(|| panic!("no header named {key} found"));
+    println!("{value}");
+    Ok(())
 }
