@@ -156,7 +156,7 @@ pub fn header_set(ctx: &Ctx, args: Vec<String>) -> QuartzResult {
 }
 pub fn header_ls(ctx: &Ctx) -> QuartzResult {
     let env = ctx.require_env();
-    println!("{}", env.headers);
+    print!("{}", env.headers);
     Ok(())
 }
 pub fn header_rm(ctx: &Ctx, keys: Vec<String>) -> QuartzResult {
