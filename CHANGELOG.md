@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2024-05-29
+
 ### Added
 
 - Added handle argument for `ls` to allow listing a specific handle tree. ([#44](https://github.com/EduardoRodriguesF/quartz/issues/44))
