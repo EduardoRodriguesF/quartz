@@ -310,6 +310,13 @@ To manage environment variables, see *variable* command.
 **env rm** <*ENV*>
 : Delete an environment.
 
+**env header** <*COMMAND*>
+: Environment default header.
+
+    Default headers will be used for every request, unless they are overwritten by endpoint headers.
+
+    Commands are the same as **header** command. See **HEADER** section for more information.
+
 ## VAR
 Manage current environment's variables.
 
