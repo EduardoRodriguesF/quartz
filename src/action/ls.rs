@@ -120,8 +120,14 @@ pub fn cmd(ctx: &Ctx, args: Args) {
     let active_handle = EndpointHandle::from_state(ctx);
     let mut output_list: Vec<Output> = vec![];
 
-    let tree = if let Some(handle) = args.handle {
-        EndpointHandle::from(handle).tree(ctx)
+    let tree = if let Some(name) = args.handle {
+        let handle = EndpointHandle::from(&name);
+
+        if !handle.exists(ctx) {
+            panic!("no such handle: {name}");
+        }
+
+        handle.tree(ctx)
     } else {
         EndpointHandle::QUARTZ.tree(ctx)
     };
