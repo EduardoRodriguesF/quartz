@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2024-06-01
+
 ### Fixed
 
 - Using list command with unexistent handle argument would output a fake handle.
