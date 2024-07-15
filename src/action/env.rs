@@ -81,7 +81,7 @@ pub fn switch(ctx: &mut Ctx, args: SwitchArgs) -> QuartzResult {
     let env = Env::new(&args.env);
 
     if !env.exists(ctx) {
-        println!("Environment {} doesn't exit", env.name.red());
+        println!("Environment {} doesn't exist", env.name.red());
         if ctx.confirm("Do you wish to create it?") {
             create(
                 ctx,
