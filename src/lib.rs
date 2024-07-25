@@ -288,12 +288,15 @@ impl Ctx {
     }
 
     pub fn confirm(&self, message: &str) -> bool {
-        println!("{} {}", message, "(y/n)".dimmed());
+        println!("{} {}", message, "(Y/n)".dimmed());
 
         std::io::stdout().flush().unwrap();
 
         let term = console::Term::stdout();
         let ch = term.read_char().unwrap_or('n').to_ascii_lowercase();
+        if ch == '\n' {
+            return true;
+        }
 
         ch == 'y'
     }
