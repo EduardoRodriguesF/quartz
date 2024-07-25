@@ -89,8 +89,7 @@ pub fn switch(ctx: &mut Ctx, mut args: SwitchArgs) {
             if let Ok(previous_handle) = StateField::PreviousEndpoint.get(ctx) {
                 handle = previous_handle;
             } else {
-                eprintln!("No previous handle was found");
-                return;
+                panic!("no previous handle");
             }
         }
 
