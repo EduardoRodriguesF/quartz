@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Handle creation prompt on `use` command now defaults to **yes**. ([#51](https://github.com/EduardoRodriguesF/quartz/issues/51) by [@GabrielBrandao1618](https://github.com/GabrielBrandao1618))
+
+### Fixed
+
+- No error message when trying to access previous handle when none is exists. ([#53](https://github.com/EduardoRodriguesF/quartz/pull/53) by [@GabrielBrandao1618](https://github.com/GabrielBrandao1618))
+
 ## [1.3.1] - 2024-06-01
 
 ### Fixed
