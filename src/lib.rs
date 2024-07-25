@@ -1,5 +1,6 @@
 pub mod action;
 pub mod cli;
+pub mod completion;
 pub mod config;
 pub mod cookie;
 pub mod endpoint;
