@@ -26,7 +26,7 @@ fn get_shell_by_name(shell_name: &str) -> Option<Shell> {
     }
 }
 
-pub fn completion(args: CompletionArgs) {
+pub fn cmd(args: CompletionArgs) {
     if let Some(shell) = get_shell_by_name(&args.shell) {
         let mut cmd = get_command();
         print_completions(shell, &mut cmd);

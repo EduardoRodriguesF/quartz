@@ -40,7 +40,7 @@ pub async fn cmd(ctx: &mut Ctx, command: Cmd) -> QuartzResult {
         Cmd::Var { command } => action::var::cmd(ctx, command)?,
         Cmd::Env { command } => action::env::cmd(ctx, command)?,
         Cmd::Config { command } => action::config::cmd(ctx, command)?,
-        Cmd::Completion(args) => action::completion::completion(args),
+        Cmd::Completion(args) => action::completion::cmd(args),
     };
 
     Ok(())
