@@ -31,6 +31,6 @@ pub fn completion(args: CompletionArgs) {
         let mut cmd = get_command();
         print_completions(shell, &mut cmd);
     } else {
-        eprintln!("No such shell was found: {}", &args.shell);
+        eprintln!("no such shell: {}", &args.shell);
     }
 }
