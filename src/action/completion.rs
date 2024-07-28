@@ -23,7 +23,12 @@ impl Into<Shell> for AvailableCompletionShell {
 
 #[derive(Debug, clap::Args)]
 pub struct CompletionArgs {
-    #[arg(name = "shell", long = "shell", short)]
+    #[arg(
+        name = "shell",
+        long = "shell",
+        short,
+        value_name = "{zsh|bash|fish|elvish}"
+    )]
     shell: AvailableCompletionShell,
 }
 
