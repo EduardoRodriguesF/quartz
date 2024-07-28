@@ -92,10 +92,8 @@ pub enum Cmd {
         #[command(subcommand)]
         command: ConfigCmd,
     },
-    #[command(
-        name = "completion",
-        about = "outputs a completion script for a given shell"
-    )]
+    // Print completion script for a given shell
+    #[command(name = "completion")]
     Completion(action::completion::CompletionArgs),
 }
 
