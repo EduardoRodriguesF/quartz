@@ -21,7 +21,6 @@ fn get_shell_by_name(shell_name: &str) -> Option<Shell> {
         "zsh" => Some(Shell::Zsh),
         "bash" => Some(Shell::Bash),
         "fish" => Some(Shell::Fish),
-        "powershell" => Some(Shell::PowerShell),
         "elvish" => Some(Shell::Elvish),
         _ => None,
     }
