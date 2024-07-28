@@ -27,16 +27,12 @@ pub struct CompletionArgs {
     shell: AvailableCompletionShell,
 }
 
-fn get_command() -> Command {
-    Cli::command()
-}
-
 fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
     generate(gen, cmd, cmd.get_name().to_string(), &mut std::io::stdout());
 }
 
 pub fn cmd(args: CompletionArgs) {
-    let mut cmd = get_command();
+    let mut cmd = Cli::command();
     let shell: Shell = args.shell.into();
     print_completions(shell, &mut cmd);
 }
