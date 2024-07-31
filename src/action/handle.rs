@@ -96,7 +96,7 @@ pub fn switch(ctx: &mut Ctx, mut args: SwitchArgs) {
         let handle = EndpointHandle::from(handle);
 
         if !handle.exists(ctx) {
-            eprint!("Handle {} doesn't exist", handle.handle().red(),);
+            eprintln!("Handle {} doesn't exist", handle.handle().red(),);
 
             if ctx.confirm("Do you wish to create it?") {
                 return create(
